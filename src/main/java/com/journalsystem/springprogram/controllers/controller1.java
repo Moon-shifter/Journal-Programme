@@ -39,7 +39,7 @@ public class controller1 {
     }
 
     @PostMapping("/stReg0")
-    //@ResponseBody// 仅该方法返回JSON
+    //@ResponseBody  仅该方法返回JSON
     String e(Student student) { // 需确保Student的属性与表单name一致
         System.out.println("提交的学生信息：" + student);
         stuService.insertStudent(student);
