@@ -555,9 +555,9 @@
                     fetch('LoginServlet', {
                         method: "POST",
                         headers: {
-                            "Content-Type": "application/x-www-form-urlencoded",
+                           "Content-Type": "application/json", 
                         },
-                        body: new URLSearchParams(this.loginForm)//发送vue中收集的登陆数据表单
+                        body: JSON.stringify(this.loginForm) //发送vue中收集的登陆数据表单
                     }).then(response => response.json())
                         .then(data => {
                             if (data.valid) {
@@ -597,9 +597,10 @@
                     }
 
                     //axios发送注册请求
-                    await axios.post('RegisterServlet', new URLSearchParams(this.registerForm), {
+                    await axios.post('RegisterServlet', this.registerForm, // axios自动将对象转为JSON字符串,
+                    {
                         headers: {
-                            "Content-Type": "application/x-www-form-urlencoded",
+                            "Content-Type": "application/json",
                         }
                     })
                         .then(response => {

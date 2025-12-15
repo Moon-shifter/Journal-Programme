@@ -54,14 +54,19 @@ document.getElementById("loginBtn").addEventListener("click", (e) => {
   formData.append("errorCount", errorCount.toString()); //添加错误计数器参数
   console.log(errorCount.toString());
 
+//将FormData转换为普通对象以便转换
+  const formDataObj = {};
+formData.forEach((value, key) => {
+  formDataObj[key] = value;
+});
   //发送ajax请求验证账号密码
   fetch("LoginServlet", {
     method: "POST",
     headers: {
-      contentType: "application/x-www-form-urlencoded",
+      contentType: "application/json",
       //不需要设置Content-Type，浏览器会自动设置为 multipart/form-data 并添加边界
     },
-    body: formData, //发送表单数据，不需要手动序列化
+    body: JSON.stringify(formDataObj), //将表单数据作为JSON字符串发送
   })
     .then((response) => response.json()) //期望服务器返回json格式数据，包含了http响应的所有元数据:状态码，头信息等
     .then((data) => {
@@ -69,7 +74,7 @@ document.getElementById("loginBtn").addEventListener("click", (e) => {
       if (data.valid) {
         //如果data的valid属性是true
         //验证成功，保存cookie并提交表单
-        setCookie("userName", formData.get("userName"), 1);
+        setCookie("userName", formDataObj.userName, 1);
         document.getElementById("userForm").submit();//提交表单
         alert("登录成功，正在跳转...");
         setTimeout(() => {
