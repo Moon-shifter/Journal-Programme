@@ -35,6 +35,8 @@ public class AdminServiceImpl implements AdminService {
             return false;
         }
         // JPA的save：新增/修改，返回保存后的实体（成功则返回true），这里仅作新增操作
+        // 密码加密后存储
+        adminInfo.setPassword(BCrypt.hashpw(adminInfo.getPassword(), BCrypt.gensalt()));
         adminRepository.save(adminInfo);
         return true;
     }
