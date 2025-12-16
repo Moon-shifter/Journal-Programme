@@ -5,6 +5,7 @@ import com.journalsystem.springprogram.repository.AdminRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.List;
 
@@ -22,8 +23,9 @@ public class AdminServiceImpl implements AdminService {
         if (adminInfo == null) {
             return false;
         }
-        // 注意：实际项目要加密密码，这里先简单比较
-        return adminInfo.getPassword().equals(password);
+
+        //取出数据库密码，解密后与输入密码比较
+        return BCrypt.checkpw(password, adminInfo.getPassword());
     }
 
     @Override
