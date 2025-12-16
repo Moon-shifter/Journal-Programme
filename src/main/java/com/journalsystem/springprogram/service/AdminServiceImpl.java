@@ -4,6 +4,7 @@ import com.journalsystem.springprogram.pojo.AdminInfo;
 import com.journalsystem.springprogram.repository.AdminRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class AdminServiceImpl implements AdminService {
         if (adminRepository.existsById(adminInfo.getId())) {
             return false;
         }
-        // JPA的save：新增/修改，返回保存后的实体（成功则返回true）
+        // JPA的save：新增/修改，返回保存后的实体（成功则返回true），这里仅作新增操作
         adminRepository.save(adminInfo);
         return true;
     }
@@ -59,6 +60,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    //@Transactional// 开启事务，确保数据库操作的一致性
     public AdminInfo getAdminByUsername(String username) {
         // 调用Repository中自定义的findByUsername
         return adminRepository.findByUsername(username);

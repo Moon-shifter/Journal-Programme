@@ -24,15 +24,15 @@ public class AdminInfo {
     @ColumnDefault("'normal'")
     @Lob
     @Column(name = "role")
-    private String role;
+    private String role;//super,normal.
 
     @Column(name = "last_login")
-    private Instant lastLogin;
+    private Instant lastLogin;//最后登录时间，默认值为null，Instant是Java 8新增的时间类，用于表示时间戳
 
     @ColumnDefault("'inactive'")
     @Lob
     @Column(name = "STATUS")
-    private String status;
+    private String status;//active,inactive.
 
     public Integer getId() {
         return id;
