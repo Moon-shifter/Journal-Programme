@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学院期刊管理系统 - 首页</title>
+  <!-- 引入Vue核心依赖 -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue-router@3.6.5/dist/vue-router.min.js"></script>
+  <!-- 引入Element UI样式和JS -->
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <style>
+    /* 全局样式重置 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: "Microsoft YaHei", sans-serif;
+    }
+    /* 首页容器样式 */
+    .home-container {
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #f5f7fa;
+    }
+    /* 系统logo样式 */
+    .logo h1 {
+      color: #2e3b4e;
+      margin-bottom: 50px;
+      font-size: 32px;
+      font-weight: 600;
+      letter-spacing: 2px;
+    }
+    /* 按钮组样式 */
+    .btn-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    /* 按钮 hover 效果增强 */
+    .el-button {
+      transition: all 0.3s ease;
+    }
+    /* 独立HTML页面容器（全屏） */
+    .html-page-container {
+      width: 100%;
+      height: 100vh;
+      border: none;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Vue挂载根节点 -->
+  <div id="app">
+    <router-view></router-view>
+  </div>
+
+  <!-- 首页模板 -->
+  <template id="home-page-tpl">
+    <div id="home-page" class="home-container">
+      <div class="logo">
+        <h1>学院期刊管理系统</h1>
+      </div>
+      <div class="btn-group">
+        <!-- 教师入口：跳转到路由 -->
+        <el-button type="primary" size="large" @click="$router.push('/teacher/login')">
+          教师登录
+        </el-button>
+        <!-- 管理员入口：跳转到路由 -->
+        <el-button type="warning" size="large" style="margin-left: 20px" @click="$router.push('/user/login')">
+          管理员登录
+        </el-button>
+      </div>
+    </div>
+  </template>
+
+  <!-- 教师登录页组件（核心：相对路径，index和登录页同目录） -->
+  <template id="teacher-login-tpl">
+    <!-- ./ 表示当前目录（pages），直接指向同目录的teacher_login_regist.html -->
+    <iframe src="./teacher_login_regist.html" class="html-page-container"></iframe>
+  </template>
+
+  <!-- 管理员登录页组件（同目录相对路径） -->
+  <template id="user-login-tpl">
+    <iframe src="./user_login.html" class="html-page-container"></iframe>
+  </template>
+
+  <script>
+    // 1. 定义组件
+    const HomePage = {
+      template: '#home-page-tpl'
+    };
+    const TeacherLogin = {
+      template: '#teacher-login-tpl'
+    };
+    const UserLogin = {
+      template: '#user-login-tpl'
+    };
+
+    // 2. 配置路由规则（hash模式，本地测试无服务器也能运行）
+    const router = new VueRouter({
+      mode: 'hash', // 本地必用hash模式，避免路径错误
+      routes: [
+        { path: '/', component: HomePage }, // 首页
+        { path: '/teacher/login', component: TeacherLogin }, // 教师登录路由
+        { path: '/user/login', component: UserLogin }, // 管理员登录路由
+        { path: '*', redirect: '/' } // 兜底路由
+      ]
+    });
+
+    // 3. 初始化Vue实例
+    new Vue({
+      el: '#app',
+      router
+    });
+  </script>
+</body>
+</html>
