@@ -1,14 +1,11 @@
 //页面加载时读取cookie值并显示在输入框中
 window.addEventListener("load", () => {
-  const savedUserName = getCookie("userName");
-  const savedPassWord = getCookie("passWord");
+  const savedUserName = getCookie("username");
   //不为null或者空才填充
   if (savedUserName) {
-    document.getElementById("userName").value = savedUserName;
+    document.getElementById("username").value = savedUserName;
   }
-  if (savedPassWord) {
-    document.getElementById("passWord").value = savedPassWord;
-  }
+
 });
 
 //返回Cookie
@@ -39,57 +36,43 @@ function setCookie(key, value, days = 7) {
 }
 
 //重置按钮逻辑
-document.getElementById("resetBtn").addEventListener("click", (e) => {
-  document.getElementById("passWord").value = "";
+document.getElementById("resetBtn").addEventListener("click", () => {
+  document.getElementById("password").value = "";
 });
 
-//错误计数器
-let errorCount = 0;
+
 //登录按钮逻辑
 document.getElementById("loginBtn").addEventListener("click", (e) => {
   e.preventDefault(); //阻止表单默认提交行为
   //获取表单数据
-  const formData = new FormData(document.getElementById("userForm"));
-  formData.append("source", "USER_LOGIN"); //添加额外参数，标识请求来源
-  formData.append("errorCount", errorCount.toString()); //添加错误计数器参数
-  console.log(errorCount.toString());
-
-//将FormData转换为普通对象以便转换
-  const formDataObj = {};
-formData.forEach((value, key) => {
-  formDataObj[key] = value;
-});
+  const loginData = {
+    username: document.getElementById("username").value, // 直接拿输入框的值
+    password: document.getElementById("password").value,//
+  };
   //发送ajax请求验证账号密码
-  fetch("LoginServlet", {
+  fetch("/admin/login", {
     method: "POST",
     headers: {
-      contentType: "application/json",
+      "Content-Type": "application/json", //指定请求体的内容类型为JSON字符串
       //不需要设置Content-Type，浏览器会自动设置为 multipart/form-data 并添加边界
     },
-    body: JSON.stringify(formDataObj), //将表单数据作为JSON字符串发送
+    body: JSON.stringify(loginData), //将表单数据作为JSON字符串发送
   })
     .then((response) => response.json()) //期望服务器返回json格式数据，包含了http响应的所有元数据:状态码，头信息等
     .then((data) => {
       //data是response.json()解析后的结果
       if (data.valid) {
         //如果data的valid属性是true
-        //验证成功，保存cookie并提交表单
-        setCookie("userName", formDataObj.userName, 1);
-        document.getElementById("userForm").submit();//提交表单
+        //验证成功，保存cookie
+        setCookie("username", loginData.username, 1);
         alert("登录成功，正在跳转...");
         setTimeout(() => {
           window.location.href = "#"; //跳转
         }, 3000); //3秒跳转
       } else {
-        //验证失败，增加错误计数器
-        errorCount++;
-        if (errorCount >= 3) {
-          alert("警告:密码连续3次错误,页面将关闭");
-          window.close(); //关闭当前页面
-          return;
-        }
         alert("用户名或密码错误，请重试！");
-        alert(`错误次数: ${errorCount} 次`);
+        alert(data.valid);
+
       }
     });
 });

@@ -23,6 +23,7 @@ public class AdminServiceImpl implements AdminService {
         if (adminInfo == null) {
             return false;
         }
+        System.out.println("找到用户");
 
         //取出数据库密码，解密后与输入密码比较
         return BCrypt.checkpw(password, adminInfo.getPassword());
@@ -30,9 +31,8 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public boolean addAdmin(AdminInfo adminInfo) {
-        // 判断ID是否已存在
-        if (adminRepository.existsById(adminInfo.getId())) {
-            return false;
+        if (adminRepository.existsByUsername(adminInfo.getUsername())) {
+            return false; // 用户名重复，添加失败
         }
         // JPA的save：新增/修改，返回保存后的实体（成功则返回true），这里仅作新增操作
         // 密码加密后存储

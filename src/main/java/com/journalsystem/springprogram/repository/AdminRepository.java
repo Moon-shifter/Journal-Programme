@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 public interface AdminRepository extends JpaRepository<AdminInfo, Integer> {
     // 按JPA方法命名规则，自动生成“根据username查询”的SQL(select * from admin_info where username = ?)
     AdminInfo findByUsername(String username);
+    boolean existsByUsername(String username);
 }

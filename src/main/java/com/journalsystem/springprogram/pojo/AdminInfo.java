@@ -10,6 +10,7 @@ import java.time.Instant;
 public class AdminInfo {
     @Id
     @Column(name = "admin_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)//自动生成主键，策略为数据库自动增长
     private Integer id;
 
     @Column(name = "username", nullable = false, length = 50)
@@ -23,15 +24,16 @@ public class AdminInfo {
 
     @ColumnDefault("'normal'")
     @Lob
-    @Column(name = "role")
+    @Column(name = "role",insertable = false)
     private String role;//super,normal.
 
-    @Column(name = "last_login")
-    private Instant lastLogin;//最后登录时间，默认值为null，Instant是Java 8新增的时间类，用于表示时间戳
+    @ColumnDefault("'1970-01-01T00:00:00Z'")
+    @Column(name = "last_login",insertable = false)
+    private Instant lastLogin;//最后登录时间
 
     @ColumnDefault("'inactive'")
     @Lob
-    @Column(name = "STATUS")
+    @Column(name = "STATUS",insertable = false)
     private String status;//active,inactive.
 
     public Integer getId() {
