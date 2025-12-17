@@ -395,19 +395,12 @@
                                     required>
                             </div>
                             <button type="submit" class="submit-btn">登录</button>
-                            <div class="attempts-info" v-if="errorCount > 0">
-                                您还有 {{ 3 - errorCount }} 次尝试机会
-                            </div>
+                           
                         </form>
 
                         <!-- 注册表单 -->
                         <form class="form" :class="{ active: activeForm === 'register' }" @submit.prevent="register">
                             <h2 class="form-title">教师用户注册</h2>
-                            <div class="form-group">
-                                <label for="register-id">教师ID</label>
-                                <input type="text" id="register-id" v-model="registerForm.id" placeholder="请输入教师ID"
-                                    required>
-                            </div>
                             <div class="form-group">
                                 <label for="register-name">姓名</label>
                                 <input type="text" id="register-name" v-model="registerForm.name" placeholder="请输入姓名"
@@ -495,7 +488,7 @@
                     email: '',
                     phone: '',
                 },
-                errorCount: 0,
+                
             },
             mounted() {
                 const teacherId = this.getCookie("teacher_id");
@@ -550,7 +543,7 @@
                     }
 
                     //ajax发送登录请求
-                    fetch('LoginServlet', {
+                    fetch('/teacher/login', {
                         method: "POST",
                         headers: {
                            "Content-Type": "application/json", 
@@ -560,7 +553,6 @@
                         .then(data => {
                             if (data.valid) {
                                 //验证成功，保存cookie,重置错误计数器，跳转页面
-                                this.errorCount = 0;
                                 this.setCookie("teacher_id", this.loginForm.id, 1);
                                 this.setCookie("NAME", this.loginForm.name, 1);
                                 this.setCookie("phone", this.loginForm.phone, 1);
@@ -570,12 +562,6 @@
                                     window.location.href = "pages/index.html";//跳转
                                 }, 3000)
                             } else {
-                                this.errorCount++;
-                                if (this.errorCount >= 3) {
-                                    alert("警告:连续3次错误,页面将关闭");
-                                    window.close(); //关闭当前页面
-                                    return;
-                                }
                                 alert("用户名或信息错误，请重试！");
                             }
                         }).catch(error => {
@@ -595,7 +581,7 @@
                     }
 
                     //axios发送注册请求
-                    await axios.post('RegisterServlet', this.registerForm, // axios自动将对象转为JSON字符串,
+                    await axios.post('/teacher/register', this.registerForm, // axios自动将对象转为JSON字符串,
                     {
                         headers: {
                             "Content-Type": "application/json",
