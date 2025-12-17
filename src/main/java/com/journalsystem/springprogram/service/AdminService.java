@@ -18,4 +18,9 @@ public interface AdminService {
     AdminInfo getAdminById(Integer adminId);
     //6.根据用户名查询管理员信息（用于登录验证）
     AdminInfo getAdminByUsername(String username);
+
+    //7.更新管理员信息,待实现
+    public default boolean updateAdmin(AdminInfo adminInfo) {
+        return false;
+    }
 }

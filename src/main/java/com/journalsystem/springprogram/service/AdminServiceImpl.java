@@ -23,7 +23,6 @@ public class AdminServiceImpl implements AdminService {
         if (adminInfo == null) {
             return false;
         }
-        System.out.println("找到用户");
 
         //取出数据库密码，解密后与输入密码比较
         return BCrypt.checkpw(password, adminInfo.getPassword());
