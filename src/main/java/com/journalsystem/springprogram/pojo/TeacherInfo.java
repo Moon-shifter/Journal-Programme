@@ -24,16 +24,16 @@ public class TeacherInfo {
     private String phone;
 
     @ColumnDefault("5")
-    @Column(name = "max_borrow")
+    @Column(name = "max_borrow",insertable = false)
     private Integer maxBorrow;
 
     @ColumnDefault("0")
-    @Column(name = "current_borrow")
+    @Column(name = "current_borrow",insertable = false)
     private Integer currentBorrow;
 
     @ColumnDefault("'inactive'")
     @Lob
-    @Column(name = "STATUS")
+    @Column(name = "STATUS" ,insertable = false)
     private String status;
 
     public Integer getId() {

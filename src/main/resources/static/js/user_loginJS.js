@@ -54,7 +54,6 @@ document.getElementById("loginBtn").addEventListener("click", (e) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json", //指定请求体的内容类型为JSON字符串
-      //不需要设置Content-Type，浏览器会自动设置为 multipart/form-data 并添加边界
     },
     body: JSON.stringify(loginData), //将表单数据作为JSON字符串发送
   })
