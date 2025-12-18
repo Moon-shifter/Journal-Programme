@@ -8,8 +8,7 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "journal_info")
 public class JournalInfo {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id//主键
     @Column(name = "id", nullable = false)
     private Integer id;
 
@@ -25,14 +24,15 @@ public class JournalInfo {
     @Column(name = "publisher", length = 100)
     private String publisher;
 
-    @Column(name = "publish_date")
+    @ColumnDefault("'1970-01-01'")//默认值为1970-01-01
+    @Column(name = "publish_date")//发布日期,格式yyyy-MM-dd
     private LocalDate publishDate;
 
-    @Column(name = "issue_number", length = 20)
+    @Column(name = "issue_number", length = 20)//期刊号
     private String issueNumber;
 
-    @Lob
-    @Column(name = "description")
+    @Lob//长文本
+    @Column(name = "description",insertable = false)//插入时先不写介绍，后续再更新
     private String description;
 
     @ColumnDefault("0")
@@ -45,7 +45,7 @@ public class JournalInfo {
 
     @ColumnDefault("'available'")
     @Lob
-    @Column(name = "STATUS")
+    @Column(name = "STATUS",insertable = false)//后续再更新状态
     private String status;
 
     public Integer getId() {

@@ -9,30 +9,32 @@ import java.time.LocalDate;
 @Table(name = "borrow_info")
 public class BorrowInfo {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "borrow_id", nullable = false)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)//多对一，级联操作，非空
     @JoinColumn(name = "journal_id", nullable = false)
     private JournalInfo journal;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)//多对一，级联操作，非空
     @JoinColumn(name = "borrower_id", nullable = false)
     private TeacherInfo borrower;
 
-    @Column(name = "start_date", nullable = false)
+    @ColumnDefault("'1970-01-01'")
+    @Column(name = "start_date", nullable = false,insertable = false)//后续再更新状态
     private LocalDate startDate;
 
-    @Column(name = "end_date", nullable = false)
+    @ColumnDefault("'1970-01-01'")
+    @Column(name = "end_date", nullable = false,insertable = false)//后续再更新状态
     private LocalDate endDate;
 
-    @Column(name = "return_date")
+    @ColumnDefault("'1970-01-01'")
+    @Column(name = "return_date",insertable = false)//后续再更新状态
     private LocalDate returnDate;
 
-    @ColumnDefault("'borrowed'")
+    @ColumnDefault("'returned'")
     @Lob
-    @Column(name = "STATUS")
+    @Column(name = "STATUS",insertable = false)//后续再更新状态
     private String status;
 
     public Integer getId() {
