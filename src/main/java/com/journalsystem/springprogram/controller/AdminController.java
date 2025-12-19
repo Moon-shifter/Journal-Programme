@@ -58,7 +58,7 @@ public class AdminController {
         // 用AdminInfo接收前端传递的用户名、密码、真实姓名
         AdminInfo adminInfo = new AdminInfo();
         adminInfo.setUsername(username);
-        adminInfo.setPassword(BCrypt.hashpw(password,BCrypt.gensalt()));
+        adminInfo.setPassword(BCrypt.hashpw(password,BCrypt.gensalt()));//密码加密存储
         adminInfo.setRealName(real_name);
         //如果添加成功，返回添加的管理员信息
        if(adminService.addAdmin(adminInfo)){
