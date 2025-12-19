@@ -1,0 +1,78 @@
+/* ================== 管理员登录页专属样式 ================== */
+/* 修复body居中逻辑，让登录容器垂直水平居中 */
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    background-color: #f5f7fa; /* 继承全局背景色，避免白屏 */
+}
+
+/* 登录容器样式：调整宽度、间距，优化居中 */
+.login-container {
+    width: 100%;
+    max-width: 420px; /* 适度加宽容器，提升视觉舒适度 */
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); /* 增强阴影，提升层次感 */
+    padding: 35px 40px; /* 增大内边距，避免内容拥挤 */
+    position: relative;
+    animation: fadeIn 0.3s ease-in-out; /* 增加淡入动画 */
+}
+
+/* 登录头部样式：调整间距 */
+.login-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.login-header h2 {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 1.8rem;
+    margin: 0;
+}
+
+/* 密码输入框样式：统一输入框高度 */
+input[type="text"],
+input[type="password"] {
+    padding: 14px 16px; /* 增大输入框内边距，提升点击区域 */
+    font-size: 16px;
+}
+
+/* 按钮组样式：调整间距 */
+.button-group {
+    display: flex;
+    gap: 12px;
+    margin-top: 25px;
+}
+
+.button-group button {
+    flex: 1;
+    padding: 14px; /* 增大按钮内边距，提升点击体验 */
+    font-size: 16px;
+}
+
+/* 管理员登录页响应式调整：适配小屏 */
+@media (max-width: 480px) {
+    .login-container {
+        padding: 25px 20px;
+        max-width: 100%;
+    }
+
+    .login-header h2 {
+        font-size: 1.5rem;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+        padding: 12px 14px;
+    }
+
+    .button-group button {
+        padding: 12px;
+    }
+}
