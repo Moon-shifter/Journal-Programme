@@ -8,7 +8,7 @@ import java.util.List;
 public interface AdminService {
     //1.管理员登录
     boolean login(String username, String password);
-    //2.新增管理员
+    //2.新增管理员(超级管理员权限)
     boolean addAdmin(AdminInfo adminInfo);
     //3.删除管理员
     boolean deleteAdmin(Integer adminId);
@@ -23,4 +23,7 @@ public interface AdminService {
     public default boolean updateAdmin(AdminInfo adminInfo) {
         return false;
     }
+
+    //8.通过用户名和密码查询管理员信息（用于登录验证）
+   AdminInfo getAdminByUsernameAndPwd(String username, String password);
 }

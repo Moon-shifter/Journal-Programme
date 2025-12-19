@@ -18,7 +18,7 @@ public class Result<T> {
         return result;
     }
 
-    // 失败响应（带状态码和提示信息）,采用<?>表示这是个泛型方法，返回值为Result<?>，可以适配不同类型的响应数据
+    // 失败响应（带状态码和提示信息）
     public static <T> Result<T> fail(Integer code, String message) {
         Result<T> result = new Result<>();
         result.setCode(code);

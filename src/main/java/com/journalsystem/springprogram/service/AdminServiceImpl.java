@@ -1,5 +1,6 @@
 package com.journalsystem.springprogram.service;
 
+import com.journalsystem.springprogram.exception.BusinessException;
 import com.journalsystem.springprogram.pojo.AdminInfo;
 import com.journalsystem.springprogram.repository.AdminRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,4 +69,19 @@ public class AdminServiceImpl implements AdminService {
         // 调用Repository中自定义的findByUsername
         return adminRepository.findByUsername(username);
     }
+
+    @Override
+    public AdminInfo getAdminByUsernameAndPwd(String username, String password) {
+        AdminInfo adminInfo = adminRepository.findByUsername(username);
+        if (adminInfo == null) {
+            throw new BusinessException(400, "账号不存在");//这个抛出异常会被全局异常处理器捕获
+        }
+        if (!BCrypt.checkpw(password, adminInfo.getPassword())) {
+            throw new BusinessException(400, "密码错误");
+        }
+        return adminInfo;
+    }
+
+
+
 }
