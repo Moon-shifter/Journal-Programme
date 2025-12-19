@@ -2,6 +2,7 @@ package com.journalsystem.springprogram.controller;
 
 import com.journalsystem.springprogram.common.Result;
 import com.journalsystem.springprogram.dto.TeacherRegDTO;
+import com.journalsystem.springprogram.exception.BusinessException;
 import com.journalsystem.springprogram.service.TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,7 +43,7 @@ public class TeacherController {
         }
 
         //如果登录失败，返回失败信息
-        return Result.fail(400,"登录失败");
+        throw new BusinessException(400, "登录信息不匹配");
 
     }
 
@@ -60,7 +61,7 @@ public class TeacherController {
             return Result.success(data, "注册成功");
         }
 
-        return Result.fail(400,"注册失败");
+        throw new BusinessException(400, "注册失败");
     }
 
 }
