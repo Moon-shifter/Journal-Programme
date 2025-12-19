@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/teacher")
+@RequestMapping("api/auth/teacher")
 public class TeacherController {
     private TeacherService teacherService;
     @Autowired
