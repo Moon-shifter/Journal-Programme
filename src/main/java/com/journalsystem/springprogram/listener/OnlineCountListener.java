@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
-@Component //自定义监听器，让spring管理
+
 public class OnlineCountListener implements HttpSessionListener {//实现了HttpSessionListener接口，用于监听Session的创建和销毁事件，会被添加到Spring容器中
 
     // 原子整数：统计在线人数（初始值0，多线程安全）
