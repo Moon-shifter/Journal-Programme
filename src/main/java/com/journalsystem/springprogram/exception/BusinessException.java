@@ -1,7 +1,9 @@
 package com.journalsystem.springprogram.exception;
 import lombok.Data;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 public class BusinessException extends RuntimeException {

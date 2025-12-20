@@ -16,6 +16,7 @@ public class GlobalExceptionHandler {
         return Result.fail(e.getCode(), e.getMessage());
     }
 
+    //处理其他异常,返回自定义的Result对象,状态码为500,提示信息为"系统繁忙,请稍后再试"
     @ExceptionHandler(Exception.class)
     public Result<?> handleException(Exception e) {
         // 打印异常栈（方便后端排查），但返回给前端通用提示
@@ -23,6 +24,7 @@ public class GlobalExceptionHandler {
         return Result.fail(500, "系统繁忙，请稍后再试");
     }
 
+    //处理参数绑定异常,返回自定义的Result对象,状态码为400,提示信息为"参数错误：" + 具体错误信息
     @ExceptionHandler(BindException.class)
     public Result<?> handleBindException(BindException e) {
         // 提取参数校验的错误提示（比如“出版日期格式错误”）
