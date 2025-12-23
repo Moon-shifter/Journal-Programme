@@ -2,6 +2,7 @@ package com.journalsystem.springprogram.dto;
 
 //用来接受封装教师登录数据的类
 public class TeacherRegDTO {
+    private Integer id;
     private String name;
     private String department;
     private String email;
@@ -11,11 +12,28 @@ public class TeacherRegDTO {
     public TeacherRegDTO() {
     }
 
-    public TeacherRegDTO(String name, String department, String email, String phone) {
+    public TeacherRegDTO(Integer id, String name, String department, String email, String phone) {
+        this.id = id;
         this.name = name;
         this.department = department;
         this.email = email;
         this.phone = phone;
+    }
+
+    /**
+     * 获取
+     * @return id
+     */
+    public Integer getId() {
+        return id;
+    }
+
+    /**
+     * 设置
+     * @param id
+     */
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     /**
@@ -28,7 +46,7 @@ public class TeacherRegDTO {
 
     /**
      * 设置
-     * @param name  //
+     * @param name
      */
     public void setName(String name) {
         this.name = name;
@@ -44,7 +62,7 @@ public class TeacherRegDTO {
 
     /**
      * 设置
-     * @param department //
+     * @param department
      */
     public void setDepartment(String department) {
         this.department = department;
@@ -60,7 +78,7 @@ public class TeacherRegDTO {
 
     /**
      * 设置
-     * @param email //
+     * @param email
      */
     public void setEmail(String email) {
         this.email = email;
@@ -76,13 +94,13 @@ public class TeacherRegDTO {
 
     /**
      * 设置
-     * @param phone //
+     * @param phone
      */
     public void setPhone(String phone) {
         this.phone = phone;
     }
 
     public String toString() {
-        return "TeacherRegDTO{name = " + name + ", department = " + department + ", email = " + email + ", phone = " + phone + "}";
+        return "TeacherRegDTO{id = " + id + ", name = " + name + ", department = " + department + ", email = " + email + ", phone = " + phone + "}";
     }
 }

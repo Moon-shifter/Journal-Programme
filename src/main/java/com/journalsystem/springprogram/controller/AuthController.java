@@ -4,6 +4,7 @@ import com.journalsystem.springprogram.common.Result;
 import com.journalsystem.springprogram.dto.TeacherRegDTO;
 import com.journalsystem.springprogram.exception.BusinessException;
 import com.journalsystem.springprogram.pojo.AdminInfo;
+import com.journalsystem.springprogram.pojo.TeacherInfo;
 import com.journalsystem.springprogram.service.AdminService;
 import com.journalsystem.springprogram.service.TeacherService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -63,7 +64,7 @@ public class AuthController {
         //根据登录结果返回不同的响应，用hasMap存储响应数据,用result包装响应
         if(loginSuccess){
             Map<String, Object> data = new HashMap<>();
-            data.put("id", id);
+            data.put("teacherId", id);
             data.put("name", name);
             data.put("phone", phone);
 
@@ -85,7 +86,8 @@ public class AuthController {
         boolean registerSuccess=teacherService.register(teacherRegDTO);
         //根据注册结果返回不同的响应，用hasMap存储响应数据
         if(registerSuccess){
-            Map<String, Object> data = new HashMap<>();
+            Map<String, Object> data = new HashMap<>();//用HashMap存储响应数据
+            data.put("teacherId", teacherRegDTO.getId());
             data.put("name", teacherRegDTO.getName());
             data.put("department", teacherRegDTO.getDepartment());
             data.put("email", teacherRegDTO.getEmail());
@@ -99,9 +101,9 @@ public class AuthController {
     // 退出登录（通用）
     @PostMapping("/logout")
     public Result<?> logout(HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
+        HttpSession session = request.getSession(false);//获取当前请求的session对象，false表示如果不存在session对象，不创建新的session对象
         if (session != null) {
-            session.invalidate();
+            session.invalidate();//使session对象无效，删除session中的所有属性
         }
         return Result.success(null, "退出成功");//返回一个空的Map对象，前端可以根据这个对象判断是否退出成功
     }

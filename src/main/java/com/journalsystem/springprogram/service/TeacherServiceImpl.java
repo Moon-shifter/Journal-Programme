@@ -37,18 +37,13 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public boolean register(TeacherRegDTO teacherRegDTO) {
-        //1.检查教师姓名是否已存在
-       List<TeacherInfo> teacherList=  teacherRepository.findByName(teacherRegDTO.getName());
-       for (TeacherInfo teacherInfo:teacherList){//遍历教师列表，检查姓名和手机号或邮箱是否已存在
-           if(teacherRegDTO.getName().equals(teacherInfo.getName())){//检查姓名是否匹配
-               //姓名匹配，检查手机号或邮箱是否相同
-               if(teacherRegDTO.getPhone().equals(teacherInfo.getPhone())||teacherRegDTO.getEmail().equals(teacherInfo.getEmail())){
-                   return false;
-               }
-           }
+        //1.检查教师ID是否已存在
+       if (teacherRepository.existsById(teacherRegDTO.getId())){
+           throw new BusinessException(400, "教师ID已存在");//抛出异常
        }
-       //2.教师姓名不存在(或者同名不同号不同邮箱)，注册教师
+       //2.教师姓名不存在(或者同名不同号不同邮箱)，注册教师.由于省略的几项有默认值，插入时会自动填充
        TeacherInfo teacherInfo1=new TeacherInfo();
+        teacherInfo1.setId(teacherRegDTO.getId());
        teacherInfo1.setName(teacherRegDTO.getName());
        teacherInfo1.setPhone(teacherRegDTO.getPhone());
        teacherInfo1.setEmail(teacherRegDTO.getEmail());
