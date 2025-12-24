@@ -35,6 +35,7 @@ public class JournalInfo {
     @Column(name = "issue_number", length = 20)//期刊号
     private String issueNumber;
 
+    @Lob//大文本字段
     @Column(name = "description")
     private String description;
 
