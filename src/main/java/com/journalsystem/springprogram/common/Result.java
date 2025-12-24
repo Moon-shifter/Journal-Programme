@@ -11,7 +11,7 @@ public class Result<T> {
 
     // 成功响应（带数据）,这里加上<T>表示这是个泛型方法，返回值为Result<T>
     public static <T> Result<T> success(T data, String message) {
-        Result<T> result = new Result<>();
+        Result<T> result = new Result<>();//这里的T表示泛型，根据调用时传入的类型自动确定
         result.setCode(200);
         result.setData(data);
         result.setMessage(message);

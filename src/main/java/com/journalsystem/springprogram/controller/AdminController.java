@@ -28,16 +28,14 @@ public class AdminController {
         // 用AdminInfo接收前端传递的用户名、密码、真实姓名
         AdminInfo adminInfo = new AdminInfo();
         adminInfo.setUsername(username);
-        adminInfo.setPassword(BCrypt.hashpw(password,BCrypt.gensalt()));//密码加密存储
+        adminInfo.setPassword(password);
         adminInfo.setRealName(real_name);
         //如果添加成功，返回添加的管理员信息
         if(adminService.addAdmin(adminInfo)){
             Map<String, Object> data = new HashMap<>();
             data.put("adminId", adminInfo.getId());
-            data.put("username", adminInfo.getUsername());
-            data.put("realName", adminInfo.getRealName());
-            data.put("role", adminInfo.getRole());
-            return Result.success(data,"添加成功");
+            data.put("addSuccess", true);
+            return Result.success(data,"管理员添加成功");
         }
         //如果添加失败，返回失败信息
         throw new BusinessException(400,"添加失败");

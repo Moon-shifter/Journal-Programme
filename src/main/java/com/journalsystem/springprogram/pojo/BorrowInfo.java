@@ -2,14 +2,18 @@ package com.journalsystem.springprogram.pojo;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDate;
 
 @Entity
+@DynamicInsert
+@DynamicUpdate
 @Table(name = "borrow_info")
 public class BorrowInfo {
     @Id
-    @Column(name = "borrow_id", nullable = false)
+    @Column(name = "borrow_id", nullable = false,unique = true)
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)//多对一，级联操作，非空
@@ -33,7 +37,6 @@ public class BorrowInfo {
     private LocalDate returnDate;
 
     @ColumnDefault("'returned'")
-    @Lob
     @Column(name = "STATUS",insertable = false)//后续再更新状态
     private String status;
 

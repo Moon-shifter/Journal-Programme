@@ -1,23 +1,29 @@
 package com.journalsystem.springprogram.dto;
 
 //用来接受封装教师登录数据的类
-public class TeacherRegDTO {
+public class TeacherDTO {
     private Integer id;
     private String name;
     private String department;
     private String email;
     private String phone;
+    private String maxBorrow;
+    private String currentBorrow;
+    private String status;
 
 
-    public TeacherRegDTO() {
+    public TeacherDTO() {
     }
 
-    public TeacherRegDTO(Integer id, String name, String department, String email, String phone) {
+    public TeacherDTO(Integer id, String name, String department, String email, String phone, String maxBorrow, String currentBorrow, String status) {
         this.id = id;
         this.name = name;
         this.department = department;
         this.email = email;
         this.phone = phone;
+        this.maxBorrow = maxBorrow;
+        this.currentBorrow = currentBorrow;
+        this.status = status;
     }
 
     /**
@@ -100,7 +106,55 @@ public class TeacherRegDTO {
         this.phone = phone;
     }
 
+    /**
+     * 获取
+     * @return maxBorrow
+     */
+    public String getMaxBorrow() {
+        return maxBorrow;
+    }
+
+    /**
+     * 设置
+     * @param maxBorrow
+     */
+    public void setMaxBorrow(String maxBorrow) {
+        this.maxBorrow = maxBorrow;
+    }
+
+    /**
+     * 获取
+     * @return currentBorrow
+     */
+    public String getCurrentBorrow() {
+        return currentBorrow;
+    }
+
+    /**
+     * 设置
+     * @param currentBorrow
+     */
+    public void setCurrentBorrow(String currentBorrow) {
+        this.currentBorrow = currentBorrow;
+    }
+
+    /**
+     * 获取
+     * @return status
+     */
+    public String getStatus() {
+        return status;
+    }
+
+    /**
+     * 设置
+     * @param status
+     */
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public String toString() {
-        return "TeacherRegDTO{id = " + id + ", name = " + name + ", department = " + department + ", email = " + email + ", phone = " + phone + "}";
+        return "TeacherRegDTO{id = " + id + ", name = " + name + ", department = " + department + ", email = " + email + ", phone = " + phone + ", maxBorrow = " + maxBorrow + ", currentBorrow = " + currentBorrow + ", status = " + status + "}";
     }
 }

@@ -2,12 +2,16 @@ package com.journalsystem.springprogram.pojo;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
+@DynamicUpdate//动态更新，只更新有变化的字段,默认值也会被排除
+@DynamicInsert//动态插入，只插入有值的字段，排除了null值，默认值也会被排除
 @Table(name = "teacher_info")
 public class TeacherInfo {
-    @Id
-    @Column(name = "teacher_id", nullable = false)
+    @Id//主键
+    @Column(name = "teacher_id", nullable = false, unique = true)//教师id，不可为空，唯一.
     private Integer id;
 
     @Column(name = "name", nullable = false, length = 50)
@@ -31,7 +35,6 @@ public class TeacherInfo {
     private Integer currentBorrow;
 
     @ColumnDefault("'inactive'")
-    @Lob
     @Column(name = "STATUS" ,insertable = false)
     private String status;
 
