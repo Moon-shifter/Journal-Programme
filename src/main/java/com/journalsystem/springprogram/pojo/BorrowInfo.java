@@ -25,19 +25,19 @@ public class BorrowInfo {
     private TeacherInfo borrower;
 
     @ColumnDefault("'1970-01-01'")
-    @Column(name = "start_date", nullable = false,insertable = false)//后续再更新状态
+    @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
     @ColumnDefault("'1970-01-01'")
-    @Column(name = "end_date", nullable = false,insertable = false)//后续再更新状态
+    @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
     @ColumnDefault("'1970-01-01'")
-    @Column(name = "return_date",insertable = false)//后续再更新状态
+    @Column(name = "return_date")
     private LocalDate returnDate;
 
     @ColumnDefault("'returned'")
-    @Column(name = "STATUS",insertable = false)//后续再更新状态
+    @Column(name = "STATUS")
     private String status;
 
     public Integer getId() {
