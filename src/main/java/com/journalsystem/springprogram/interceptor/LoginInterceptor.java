@@ -35,54 +35,46 @@ public class LoginInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        // 1. 统一设置响应格式
+        // 1. 统一设置响应格式（只配置ContentType，绝不提前获取Writer/OutputStream）
         response.setContentType("application/json;charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
-    
+
         // 2. 排除无需拦截的接口（登录/注册/登出）
         String requestURI = request.getRequestURI();
         if (requestURI.contains("/login") || requestURI.contains("/register") || requestURI.contains("/logout")) {
-            return true;
+            return true; // 放行，不处理
         }
-    
-        // 3. 拦截管理员接口
+
+        // 3. 拦截管理员接口：仅未登录时才写响应流
         if (requestURI.contains("/api/admin/")) {
             Object loginAdmin = request.getSession().getAttribute("loginAdmin");
             if (loginAdmin == null) {
-                // 返回未登录响应
-                return false;
-            }
-            return true;
-        }
-    
-        // 4. 拦截教师接口
-        if (requestURI.contains("/api/teacher/")) {
-            Object loginTeacher = request.getSession().getAttribute("loginTeacher");
-            if (loginTeacher == null) {
-                // 返回未登录响应
-                return false;
-            }
-            return true;
-        }
-        
-        // 5. 拦截期刊和借阅相关接口（管理员和教师均可访问）
-        if (requestURI.contains("/api/journal/") || requestURI.contains("/api/borrow/")) {
-            Object loginAdmin = request.getSession().getAttribute("loginAdmin");
-            Object loginTeacher = request.getSession().getAttribute("loginTeacher");
-            
-            // 管理员或教师登录均可访问
-            if (loginAdmin == null && loginTeacher == null) {
-                // 返回未登录响应
-                try (PrintWriter out = response.getWriter()) {
-                    Result<?> failResult = Result.fail(401, "未登录，请先登录");
+                // 仅拦截时才获取Writer，写完立即释放
+                try (PrintWriter out = response.getWriter()) { // 用try-with-resources自动关闭流
+                    Result<?> failResult = Result.fail(401, "管理员未登录，请先登录");
                     out.write(objectMapper.writeValueAsString(failResult));
                     out.flush();
                 }
-                return false;
+                return false; // 拦截请求
             }
-            return true;
+            return true; // 已登录，放行
         }
-    
+
+        // 4. 拦截教师接口：仅未登录时才写响应流
+        if (requestURI.contains("/api/teacher/")) {
+            Object loginTeacher = request.getSession().getAttribute("loginTeacher");
+            if (loginTeacher == null) {
+                // 仅拦截时才获取Writer，写完立即释放
+                try (PrintWriter out = response.getWriter()) { // 自动关闭流，避免内存泄漏
+                    Result<?> failResult = Result.fail(401, "教师未登录，请先登录");
+                    out.write(objectMapper.writeValueAsString(failResult));
+                    out.flush();
+                }
+                return false; // 拦截请求
+            }
+            return true; // 已登录，放行
+        }
+
         // 其他接口默认放行
         return true;
     }
