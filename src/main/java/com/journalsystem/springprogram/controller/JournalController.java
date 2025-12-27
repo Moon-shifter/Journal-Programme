@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+/**
+ * 期刊相关接口
+ * 提供管理员对期刊的操作，以及管理员和教师对期刊的不同查询
+ */
 
 @RestController
 @RequestMapping("/api/journal")
@@ -22,7 +26,15 @@ public class JournalController {
         this.journalService = journalService;
     }
 
-    //管理员或者教师根据id查询期刊
+     /**
+     * 根据期刊ID查询期刊信息
+     * @param id 期刊ID
+     * @return 统一响应结果：
+     *     成功：
+     *     {"code": 200,"msg": "期刊查询成功","data": {"journalInfo": {...}}}
+     *     失败：
+     *     {"code": 400,"msg": "查询失败","data": null}
+     */
     @GetMapping("/{id}")
     public Result<Map<String, Object>> getJournal(@PathVariable Integer id) {
         //根据id查询期刊
@@ -38,7 +50,15 @@ public class JournalController {
         throw new BusinessException(400,"查询失败");
     }
 
-    //修改期刊
+     /**
+     * 修改期刊信息
+     * @param updateDTO 包含期刊修改信息的DTO对象
+     * @return 统一响应结果：
+     *     成功：
+     *     {"code": 200,"msg": "期刊修改成功","data": {"journalInfo": {...}}}
+     *     失败：
+     *     {"code": 400,"msg": "修改失败","data": null}
+     */
     @PostMapping("/admin/update")
     public Result<Map<String, Object>> updateJournal(@RequestBody JournalDTO updateDTO) {
         //根据id修改期刊
@@ -54,7 +74,15 @@ public class JournalController {
 
     }
 
-    //删除期刊（管理员）
+     /**
+     * 删除期刊（管理员）
+     * @param id 期刊ID
+     * @return 统一响应结果：
+     *     成功：
+     *     {"code": 200,"msg": "期刊删除成功","data": {"journalId": 123}}
+     *     失败：
+     *     {"code": 400,"msg": "期刊ID不存在","data": null}
+     */
     @DeleteMapping("/admin/{id}")
     public Result<Map<String, Object>> deleteJournal(@PathVariable Integer id) {
 
@@ -68,7 +96,15 @@ public class JournalController {
     }
 
 
-    //新增期刊（管理员）
+     /**
+     * 新增期刊（管理员）
+     * @param addDTO 包含期刊新增信息的DTO对象
+     * @return 统一响应结果：
+     *     成功：
+     *     {"code": 200,"msg": "期刊添加成功","data": {"journalInfo": {...}}}
+     *     失败：
+     *     {"code": 400,"msg": "期刊ID/ISSN已存在","data": null}
+     */
     @PostMapping("/admin/add")
     public Result<Map<String, Object>> adminAddJournal(@RequestBody JournalDTO addDTO) {
 

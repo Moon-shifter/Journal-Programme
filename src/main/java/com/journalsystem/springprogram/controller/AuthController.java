@@ -13,6 +13,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+/**
+ * 通用登陆注册接口
+ * 包含管理员登录、教师登录、教师注册,退出接口
+ */
 
 @RestController
 @RequestMapping("/api/auth")
@@ -26,7 +30,17 @@ public class AuthController {
     }
 
 
-    //管理员登录接口
+
+    /**
+     * 管理员登录接口
+     * @param loginRequest 包含用户名和密码的JSON对象
+     * @param request HttpServletRequest对象，用于获取Session
+     * @return 统一响应结果：
+     *     成功：
+     *     {"code": 200,"msg": "登录成功","data": {"adminId": 123,"username": "admin","realName": "管理员","role": "normal"}}
+     *     失败：
+     *     {"code": 400,"msg": "登录信息不匹配","data": null}
+     */
     @PostMapping("/admin/login")
     public Result<Map<String, Object>> adminLogin(@RequestBody Map<String, String> loginRequest,HttpServletRequest request) {
         //1.提取账号密码
@@ -47,6 +61,17 @@ public class AuthController {
         data.put("role", adminInfo.getRole());
         return Result.success(data, "登录成功");//传到前端的是一个Map对象，包含管理员的id、用户名、真实姓名、角色
     }
+
+     /**
+     * 教师登录接口
+     * @param loginData 包含教师ID、姓名、手机号的JSON对象
+     * @param request HttpServletRequest对象，用于获取Session
+     * @return 统一响应结果：
+     *     成功：
+     *     {"code": 200,"msg": "登录成功","data": {"teacherId": 123,"name": "教师姓名","department": "教师部门","email": "教师邮箱","phone": "教师手机号"}}
+     *     失败：
+     *     {"code": 400,"msg": "登录信息不匹配","data": null}
+     */
 
     @PostMapping("/teacher/login")
     public Result<Map<String, Object>> teacherLogin(@RequestBody Map<String, String> loginData,HttpServletRequest request) {
@@ -73,6 +98,15 @@ public class AuthController {
 
     }
 
+     /**
+     * 教师注册接口
+     * @param regDTO 包含教师注册信息的DTO对象
+     * @return 统一响应结果：
+     *     成功：
+     *     {"code": 200,"msg": "注册成功","data": {"teacherId": 123,"name": "教师姓名","department": "教师部门","email": "教师邮箱","phone": "教师手机号"}}
+     *     失败：
+     *     {"code": 400,"msg": "教师ID已存在","data": null}
+     */
 
     @PostMapping("/teacher/register")
     public Result<Map<String, Object>> register(@RequestBody TeacherDTO regDTO) {
@@ -89,12 +123,15 @@ public class AuthController {
         data.put("phone", regDTO.getPhone());
 
         return Result.success(data, "注册成功");
-
-
-
     }
+     /**
+     * 退出登录（通用）
+     * @param request HttpServletRequest对象，用于获取Session
+     * @return 统一响应结果：
+     *     成功：
+     *     {"code": 200,"msg": "退出成功","data": null}
+     */
 
-    // 退出登录（通用）
     @PostMapping("/logout")
     public Result<?> logout(HttpServletRequest request) {
         HttpSession session = request.getSession(false);//获取当前请求的session对象，false表示如果不存在session对象，不创建新的session对象

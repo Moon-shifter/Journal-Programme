@@ -20,7 +20,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .excludePathPatterns( // 排除不需要拦截的接口
                         "/api/auth/**/login",    // 登录接口
                         "/api/auth/**/register", // 注册接口
-                        "/api/system/online/count" // 在线人数查询（公共接口）
+                        "/api/system/**" // 在线人数查询（公共接口）
                 );
     }
 }
