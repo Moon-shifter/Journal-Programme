@@ -7,15 +7,15 @@ public class TeacherDTO {
     private String department;
     private String email;
     private String phone;
-    private String maxBorrow;
-    private String currentBorrow;
+    private Integer maxBorrow;
+    private Integer currentBorrow;
     private String status;
 
 
     public TeacherDTO() {
     }
 
-    public TeacherDTO(Integer id, String name, String department, String email, String phone, String maxBorrow, String currentBorrow, String status) {
+    public TeacherDTO(Integer id, String name, String department, String email, String phone, Integer maxBorrow, Integer currentBorrow, String status) {
         this.id = id;
         this.name = name;
         this.department = department;
@@ -110,7 +110,7 @@ public class TeacherDTO {
      * 获取
      * @return maxBorrow
      */
-    public String getMaxBorrow() {
+    public Integer getMaxBorrow() {
         return maxBorrow;
     }
 
@@ -118,7 +118,7 @@ public class TeacherDTO {
      * 设置
      * @param maxBorrow
      */
-    public void setMaxBorrow(String maxBorrow) {
+    public void setMaxBorrow(Integer maxBorrow) {
         this.maxBorrow = maxBorrow;
     }
 
@@ -126,7 +126,7 @@ public class TeacherDTO {
      * 获取
      * @return currentBorrow
      */
-    public String getCurrentBorrow() {
+    public Integer getCurrentBorrow() {
         return currentBorrow;
     }
 
@@ -134,7 +134,7 @@ public class TeacherDTO {
      * 设置
      * @param currentBorrow
      */
-    public void setCurrentBorrow(String currentBorrow) {
+    public void setCurrentBorrow(Integer currentBorrow) {
         this.currentBorrow = currentBorrow;
     }
 
@@ -155,6 +155,6 @@ public class TeacherDTO {
     }
 
     public String toString() {
-        return "TeacherRegDTO{id = " + id + ", name = " + name + ", department = " + department + ", email = " + email + ", phone = " + phone + ", maxBorrow = " + maxBorrow + ", currentBorrow = " + currentBorrow + ", status = " + status + "}";
+        return "TeacherDTO{id = " + id + ", name = " + name + ", department = " + department + ", email = " + email + ", phone = " + phone + ", maxBorrow = " + maxBorrow + ", currentBorrow = " + currentBorrow + ", status = " + status + "}";
     }
 }

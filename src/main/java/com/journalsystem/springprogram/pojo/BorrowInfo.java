@@ -16,11 +16,11 @@ public class BorrowInfo {
     @Column(name = "borrow_id", nullable = false,unique = true)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)//多对一，级联操作，非空
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)//多对一，级联操作，非空，延迟加载
     @JoinColumn(name = "journal_id", nullable = false)
     private JournalInfo journal;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)//多对一，级联操作，非空
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)//多对一，级联操作，非空，延迟加载
     @JoinColumn(name = "borrower_id", nullable = false)
     private TeacherInfo borrower;
 

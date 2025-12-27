@@ -24,7 +24,7 @@ public class JournalDTO {
         this.issn = issn;
         this.category = category;
         this.publisher = publisher;
-        this.publishDate = publishDate;
+        this.publishDate = date;
         this.issueNumber = issueNumber;
         this.description = description;
         this.totalQuantity = totalQuantity;

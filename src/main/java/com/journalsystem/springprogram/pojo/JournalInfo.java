@@ -1,11 +1,14 @@
 package com.journalsystem.springprogram.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity //实体类，构造函数是无参构造函数
 @DynamicInsert
@@ -50,6 +53,14 @@ public class JournalInfo {
     @ColumnDefault("'available'")
     @Column(name = "STATUS")
     private String status;
+
+    /**
+     * 期刊借阅信息列表
+     * 一个期刊可以有多个借阅记录
+     */
+    @OneToMany(mappedBy = "journal", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore // 避免循环引用
+    private List<BorrowInfo> borrowInfos = new ArrayList<>();
 
     public Integer getId() {
         return id;
@@ -138,6 +149,14 @@ public class JournalInfo {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public List<BorrowInfo> getBorrowInfos() {
+        return borrowInfos;
+    }
+
+    public void setBorrowInfos(List<BorrowInfo> borrowInfos) {
+        this.borrowInfos = borrowInfos;
     }
 
 }

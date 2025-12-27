@@ -1,9 +1,13 @@
 package com.journalsystem.springprogram.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @DynamicUpdate//动态更新，只更新有变化的字段,默认值也会被排除
@@ -37,6 +41,14 @@ public class TeacherInfo {
     @ColumnDefault("'inactive'")
     @Column(name = "STATUS" ,insertable = false)
     private String status;
+
+    /**
+     * 教师借阅信息列表
+     * 一个教师可以有多个借阅记录
+     */
+    @OneToMany(mappedBy = "borrower", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore // 避免循环引用
+    private List<BorrowInfo> borrowInfos = new ArrayList<>();
 
     public Integer getId() {
         return id;
@@ -100,6 +112,14 @@ public class TeacherInfo {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public List<BorrowInfo> getBorrowInfos() {
+        return borrowInfos;
+    }
+
+    public void setBorrowInfos(List<BorrowInfo> borrowInfos) {
+        this.borrowInfos = borrowInfos;
     }
 
 }
