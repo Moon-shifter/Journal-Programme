@@ -27,53 +27,51 @@
         </button>
     </header>
     
-    <!-- 统计信息区域 -->
-    <section class="stats-section">
-        <h2 class="stats-title">系统概览</h2>
-        <div class="stats-grid">
-            <div class="stat-card stat-journal">
-                <div class="stat-icon">
-                    <i class="fas fa-book"></i>
-                </div>
-                <div class="stat-info">
-                    <h4>期刊总数</h4>
-                    <div class="stat-number">1,245</div>
-                </div>
+  <!-- 统计信息区域 -->
+<section class="stats-section">
+    <h2 class="stats-title">系统概览</h2>
+    <div class="stats-grid">
+        <div class="stat-card stat-journal">
+            <div class="stat-icon">
+                <i class="fas fa-book"></i>
             </div>
-            
-            <div class="stat-card stat-teacher">
-                <div class="stat-icon">
-                    <i class="fas fa-chalkboard-teacher"></i>
-                </div>
-                <div class="stat-info">
-                    <h4>教师总数</h4>
-                    <div class="stat-number">326</div>
-                </div>
-            </div>
-            
-            <div class="stat-card stat-borrow">
-                <div class="stat-icon">
-                    <i class="fas fa-handshake"></i>
-                </div>
-                <div class="stat-info">
-                    <h4>借阅中</h4>
-                    <div class="stat-number">89</div>
-                </div>
-            </div>
-            
-            <div class="stat-card stat-overdue">
-                <div class="stat-icon">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <div class="stat-info">
-                    <h4>超期资料</h4>
-                    <div class="stat-number">12</div>
-                </div>
+            <div class="stat-info">
+                <h4>期刊总数</h4>
+                <div class="stat-number" id="journalCount">加载中...</div>
             </div>
         </div>
-    </section>
-    
-
+        
+        <div class="stat-card stat-teacher">
+            <div class="stat-icon">
+                <i class="fas fa-chalkboard-teacher"></i>
+            </div>
+            <div class="stat-info">
+                <h4>教师总数</h4>
+                <div class="stat-number" id="teacherCount">加载中...</div>
+            </div>
+        </div>
+        
+        <div class="stat-card stat-borrow">
+            <div class="stat-icon">
+                <i class="fas fa-handshake"></i>
+            </div>
+            <div class="stat-info">
+                <h4>借阅中</h4>
+                <div class="stat-number" id="borrowCount">加载中...</div>
+            </div>
+        </div>
+        
+        <div class="stat-card stat-overdue">
+            <div class="stat-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="stat-info">
+                <h4>超期资料</h4>
+                <div class="stat-number" id="overdueCount">加载中...</div>
+            </div>
+        </div>
+    </div>
+</section>
 
 
     <!-- 功能卡片区域 -->
@@ -110,8 +108,8 @@
                     <button class="card-btn primary" onclick="openModal('teacherManage')">
                         <i class="fas fa-user-edit"></i> 管理教师
                     </button>
-                    <button class="card-btn secondary" onclick="openModal('deptManage')">
-                        <i class="fas fa-sitemap"></i> 系部管理
+                    <button class="card-btn secondary" onclick="openModal('teacherAdd')">
+                        <i class="fas fa-sitemap"></i> 添加教师
                     </button>
                 </div>
             </div>
@@ -209,7 +207,10 @@
                 <h3>期刊信息管理</h3>
                 <button class="close-modal" onclick="closeModal('journalManageModal')">&times;</button>
             </div>
-
+            <div class="form-group">
+                <label for="journalId">ID</label>
+                <input type="text" id="journalId" placeholder="请输入期刊id">
+            </div>
             <div class="form-group">
                 <label for="journalName">期刊名称</label>
                 <input type="text" id="journalName" placeholder="请输入期刊名称">
@@ -289,7 +290,7 @@
                 <input type="number" id="journalTotalQuantity" placeholder="请输入总数量">
             </div>
              <div class="form-group">
-                <label for="journalAvailableQuantity">总数量</label>
+                <label for="journalAvailableQuantity">可借数量</label>
                 <input type="number" id="journalAvailableQuantity" placeholder="请输入可借数量">
             </div>
             <div class="form-group">
@@ -304,7 +305,94 @@
             </div>
         </div>
     </div>
-
+  <!-- 模态框：教师信息管理 -->
+<div id="teacherManageModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>教师信息管理</h3>
+            <button class="close-modal" onclick="closeModal('teacherManageModal')">&times;</button>
+        </div>
+        <div class="form-group">
+            <label for="teacherId">教师ID</label>
+            <input type="text" id="teacherId" placeholder="请输入教师ID">
+        </div>
+        <div class="form-group">
+            <label for="teacherName">教师姓名</label>
+            <input type="text" id="teacherName" placeholder="请输入教师姓名">
+        </div>
+        <div class="form-group">
+            <label for="teacherDepartment">所属系部</label>
+            <input type="text" id="teacherDepartment" placeholder="请输入所属系部">
+        </div>
+        <div class="form-group">
+            <label for="teacherEmail">邮箱</label>
+            <input type="email" id="teacherEmail" placeholder="请输入教师邮箱">
+        </div>
+        <div class="form-group">
+            <label for="teacherPhone">联系电话</label>
+            <input type="tel" id="teacherPhone" placeholder="请输入联系电话">
+        </div>
+        <div class="form-group">
+            <label for="teacherMaxBorrow">最大可借阅数</label>
+            <input type="number" id="teacherMaxBorrow" placeholder="请输入最大可借阅数" value="5">
+        </div>
+        <div class="form-group">
+            <label for="teacherCurrentBorrow">当前借阅数</label>
+            <input type="number" id="teacherCurrentBorrow" placeholder="当前借阅数" value="0" readonly>
+        </div>
+        <div class="form-group">
+            <label for="teacherStatus">状态</label>
+            <select id="teacherStatus">
+                <option value="active">正常</option>
+                <option value="inactive">禁用</option>
+            </select>
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button class="btn-primary" style="flex:1;" onclick="saveTeacher()">保存更改</button>
+            <button class="btn-secondary" style="flex:1;" onclick="deleteTeacher()">删除</button>
+        </div>
+    </div>
+</div>
+<!-- 模态框：添加新教师 -->
+<div id="teacherAddModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>添加新教师</h3>
+            <button class="close-modal" onclick="closeModal('teacherAddModal')">&times;</button>
+        </div>
+        <div class="form-group">
+            <label for="addTeacherName">教师姓名 <span style="color: red;">*</span></label>
+            <input type="text" id="addTeacherName" placeholder="请输入教师姓名">
+        </div>
+        <div class="form-group">
+            <label for="addTeacherDepartment">所属系部 <span style="color: red;">*</span></label>
+            <input type="text" id="addTeacherDepartment" placeholder="请输入所属系部">
+        </div>
+        <div class="form-group">
+            <label for="addTeacherEmail">邮箱 <span style="color: red;">*</span></label>
+            <input type="email" id="addTeacherEmail" placeholder="请输入教师邮箱">
+        </div>
+        <div class="form-group">
+            <label for="addTeacherPhone">联系电话 <span style="color: red;">*</span></label>
+            <input type="tel" id="addTeacherPhone" placeholder="请输入联系电话">
+        </div>
+        <div class="form-group">
+            <label for="addTeacherMaxBorrow">最大可借阅数 <span style="color: red;">*</span></label>
+            <input type="number" id="addTeacherMaxBorrow" placeholder="默认5本" value="5" min="1" max="20">
+        </div>
+        <div class="form-group">
+            <label for="addTeacherStatus">状态 <span style="color: red;">*</span></label>
+            <select id="addTeacherStatus">
+                <option value="active" selected>正常</option>
+                <option value="inactive">禁用</option>
+            </select>
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button class="btn-primary" style="flex:1;" onclick="addNewTeacher()">确认添加</button>
+            <button class="btn-secondary" style="flex:1;" onclick="closeModal('teacherAddModal')">取消</button>
+        </div>
+    </div>
+</div>
 
     <!-- 模态框示例：快速查询 -->
     <div id="quickSearchModal" class="modal">
