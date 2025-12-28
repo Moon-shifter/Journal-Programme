@@ -15,7 +15,7 @@ import java.util.List;
 @Table(name = "teacher_info")
 public class TeacherInfo {
     @Id//主键
-    @Column(name = "teacher_id", nullable = false, unique = true)//教师id，不可为空，唯一.
+    @Column(name = "teacher_id", nullable = false)//教师id，不可为空
     private Integer id;
 
     @Column(name = "name", nullable = false, length = 50)
@@ -31,15 +31,15 @@ public class TeacherInfo {
     private String phone;
 
     @ColumnDefault("5")
-    @Column(name = "max_borrow",insertable = false)
+    @Column(name = "max_borrow")
     private Integer maxBorrow;
 
     @ColumnDefault("0")
-    @Column(name = "current_borrow",insertable = false)
+    @Column(name = "current_borrow")
     private Integer currentBorrow;
 
     @ColumnDefault("'inactive'")
-    @Column(name = "STATUS" ,insertable = false)
+    @Column(name = "STATUS")
     private String status;
 
     /**

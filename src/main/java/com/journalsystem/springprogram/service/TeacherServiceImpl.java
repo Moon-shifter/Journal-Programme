@@ -46,7 +46,7 @@ public class TeacherServiceImpl implements TeacherService {
            throw new BusinessException(400, "教师ID已存在");//抛出异常
        }
 
-       //2.教师id不存在，注册教师.由于省略的几项有默认值，插入时会忽略默认值
+       //2.教师id不存在，注册教师.null值会设置为默认值，见TeacherInfo类的默认值注解
        TeacherInfo teacherInfo1=new TeacherInfo();
 
        //3.将DTO中非空字段复制到实体中
@@ -62,7 +62,7 @@ public class TeacherServiceImpl implements TeacherService {
         //1.根据ID查询教师信息
         TeacherInfo teacherInfo1=teacherRepository.findById(id).orElse(null);
         if (teacherInfo1==null){
-            return false;
+           throw new BusinessException(404, "教师ID不存在,删除失败");//抛出异常
         }
         //2.删除教师信息
         teacherRepository.delete(teacherInfo1);
@@ -73,7 +73,7 @@ public class TeacherServiceImpl implements TeacherService {
     public boolean update(Integer id, TeacherDTO updateDTO) {
         // 1. 查询数据库中当前实体（托管状态）
         TeacherInfo target = teacherRepository.findById(id)
-                .orElseThrow(() -> new BusinessException(404, "教师不存在"));
+                .orElseThrow(() -> new BusinessException(404, "教师ID不存在,修改失败"));
 
         //2.如果教师存在，调用DtoUtil的copyNonNullFields方法更新非空字段（id,姓名、手机号、邮箱、部门、当前借阅数量、最大借阅数量、状态）
         DtoUtil.copyNonNullFields(updateDTO, target);

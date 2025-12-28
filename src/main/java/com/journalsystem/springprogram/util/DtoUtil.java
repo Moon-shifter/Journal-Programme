@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -229,5 +230,22 @@ public class DtoUtil {
         }
 
         throw new BusinessException(500, "不支持的类型转换：" + value.getClass().getName() + " -> " + targetType.getName());
+    }
+
+
+    /**
+     * 将源对象的所有字段复制到目标对象
+     * @param source 源对象
+     * @param target 目标对象
+     */
+    public static void mapPutAllFields(Object source, Map<String, Object> target) {
+        try {
+            for (Field field : source.getClass().getDeclaredFields()) {
+                field.setAccessible(true);
+                target.put(field.getName(), field.get(source));
+            }
+        } catch (IllegalAccessException e) {
+            throw new BusinessException(500, "复制字段失败：" + e.getMessage());
+        }
     }
 }
