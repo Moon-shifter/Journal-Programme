@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教师注册 - 教育管理系统</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../css/common.css">
+    <link rel="stylesheet" href="../../css/teacher-regist.css">
+</head>
+<body>
+    <div class="register-wrapper">
+        <!-- 顶部标题栏 -->
+        <div class="register-header">
+            <h1>教师用户注册</h1>
+            <p>填写核心信息，快速完成注册</p>
+        </div>
+
+        <!-- 表单主体 -->
+        <div class="register-body">
+            <form id="teacherRegisterForm">
+                <!-- 姓名 + 教师ID -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label-icon">
+                            <i class="fas fa-user"></i> 姓名 <span class="required">*</span>
+                        </label>
+                        <input type="text" name="name" placeholder="请输入真实姓名" required>
+                        <div class="form-hint">请与身份证件姓名保持一致</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label-icon">
+                            <i class="fas fa-id-card"></i> 教师ID <span class="required">*</span>
+                        </label>
+                        <input type="text" name="teacherId" placeholder="请输入学校分配的教师ID" required>
+                        <div class="form-hint">6-12位数字/字母组合</div>
+                    </div>
+                </div>
+
+                <!-- 邮箱 + 手机号 -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label-icon">
+                            <i class="fas fa-envelope"></i> 电子邮箱 <span class="required">*</span>
+                        </label>
+                        <input type="email" name="email" placeholder="请输入常用邮箱" required>
+                        <div class="form-hint">用于登录和密码找回</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label-icon">
+                            <i class="fas fa-phone"></i> 手机号码 <span class="required">*</span>
+                        </label>
+                        <input type="tel" name="phone" placeholder="请输入手机号码" required>
+                        <div class="form-hint">用于接收重要通知</div>
+                    </div>
+                </div>
+
+                <!-- 所属部门 -->
+                <div class="form-group">
+                    <label class="form-label-icon">
+                        <i class="fas fa-building"></i> 所属部门 <span class="required">*</span>
+                    </label>
+                    <select name="department" required>
+                        <option value="">请选择所属部门</option>
+                        <option value="计算机学院">计算机学院</option>
+                        <option value="文学院">文学院</option>
+                        <option value="理学院">理学院</option>
+                        <option value="工学院">工学院</option>
+                        <option value="商学院">商学院</option>
+                        <option value="外国语学院">外国语学院</option>
+                        <option value="艺术学院">艺术学院</option>
+                        <option value="其他部门">其他部门</option>
+                    </select>
+                </div>
+
+                <!-- 按钮组 -->
+                <div class="btn-group">
+                    <button type="reset" class="btn-secondary">重置</button>
+                    <button type="submit" class="btn-primary">提交注册</button>
+                </div>
+
+                <!-- 已有账号提示 -->
+                <div class="login-link">
+                    已有账号？<a href="teacher-login.html">立即登录</a>
+                </div>
+
+                <!-- 注册结果提示 -->
+                <div id="registerMessage" class="message"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <div class="footer">
+        <div class="footer-center">
+            <p>© 2025 <span class="team-name">教育管理系统开发团队</span> 版权所有</p>
+        </div>
+    </div>
+<script src="../../js/common-cookie.js"></script>
+<script src="../../js/common-api.js"></script>
+<script src="../../js/teacher-regist.js"></script>
+</body>
+</html>

@@ -1,116 +1,101 @@
-// ================== 教师登录页专属Vue逻辑 ==================
-new Vue({
-    el: "#app",
-    data: {
-        activeForm: 'login',
-        currentYear: new Date().getFullYear(),
-        departmentList: [
-            '教务处/教学办',
-            '学生工作办公室',
-            '团委',
-            '党委办公室',
-            '科研办',
-            '研究生办公室',
-            '院级学生会',
-            '其他部门'
-        ],
-        loginForm: {
-            id: '',
-            name: '',
-            phone: '',
-            source: 'TEACHER_LOGIN',
-        },
-        registerForm: {
-           
-            name: '',
-            department: '',
-            email: '',
-            phone: '',
-            source: 'TEACHER_REGISTER',
-        },
-    },
-    mounted() {
-        // 复用全局公共JS的getCookie函数
-        const teacherId = getCookie("teacher_id");
-        const name = getCookie("NAME");
-        if (teacherId) this.loginForm.id = teacherId;
-        if (name) this.loginForm.name = name;
-    },
-    methods: {
-        // 切换登录/注册表单
-        switchForm(form) {
-            this.activeForm = form;
-        },
+  // 登录表单处理
+    const loginForm = document.getElementById('loginForm');
+    const message = document.getElementById('message');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const loading = submitBtn.querySelector('.loading');
+    const forgotIdLink = document.getElementById('forgotId');
 
-        // 登录逻辑
-       async login() {
-            // 验证表单完整性
-            for (let key in this.loginForm) {
-                if (this.loginForm[key] === '') {
-                    alert("请完整填写登录信息");
-                    return;
-                }
+    loginForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // 显示加载状态
+        btnText.textContent = '登录中';
+        loading.style.display = 'inline-block';
+        submitBtn.disabled = true;
+        
+        try {
+            // 获取表单数据
+            const teacherId = document.getElementById('teacherId').value;
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            
+            // 前端基础验证
+            if (!teacherId || !name || !email) {
+                showMessage('请填写完整信息', 'error');
+                resetButton();
+                return;
+            }
+            
+            // 邮箱格式验证
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showMessage('请输入有效的邮箱地址', 'error');
+                resetButton();
+                return;
             }
 
-            try {
-                // 使用axios发送JSON格式请求
-                const response = await axios.post(
-                    '/auth/teacher/login', // 后端接口
-                    this.loginForm // 直接传对象，axios会自动序列化为JSON（依赖common.js的拦截器）
-                );
-                const data = response.data;
-                if (response.code==200) {
-                    // 保存Cookie
-                    setCookie("teacher_id", this.loginForm.id, 1);
-                    setCookie("NAME", this.loginForm.name, 1);
-                    setCookie("phone", this.loginForm.phone, 1);
+            // 调用真实登录API（使用common-api.js提供的api方法）
+            const response = await api.post(
+                '/auth/teacher/login',  // 登录接口路径，会与baseURL拼接
+                { teacherId, name, email },  // 请求参数
+                {},  // 自定义请求头（可选）
+                false,  // 不使用FormData格式
+                false   // 不使用x-www-form-urlencoded格式
+            );
 
-                    alert("登录成功!正在跳转...");
-                    setTimeout(() => {
-                        jumpTo("../teacher/index.html"); // 跳转教师首页
-                    }, 1500);
-                } else {
-                    alert("用户名或信息错误，请重试！");
+            if (response.success) {
+                // 登录成功处理
+                showMessage(`登录成功，欢迎您，${name}老师！`, 'success');
+                
+                // 存储后端返回的Token（如果有）
+                if (response.data.token) {
+                    setCookie(API_CONFIG.tokenKey, response.data.token, 7);
                 }
-            } catch (error) {
-                console.error("登录请求出错：", error);
-                alert("登录请求出错，请稍后重试。");
+                
+                // 跳转到系统主页
+                setTimeout(() => {
+                    window.location.href = 'teacher-index.html';
+                }, 2000);
+            } else {
+                // 登录失败显示错误信息
+                showMessage(response.message || '登录失败，请检查信息后重试', 'error');
+                resetButton();
             }
-        },
+        } catch (error) {
+            // 捕获异常
+            showMessage('网络异常，请稍后重试', 'error');
+            console.error('登录请求异常:', error);
+            resetButton();
+        }
+    });
 
+    // 链接点击事件
+    forgotIdLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        showMessage('请联系管理员查询您的教师ID', 'warning');
+    });
 
-        // 注册逻辑
-        async register() {
-            // 验证表单完整性
-            for (let key in this.registerForm) {
-                if (this.registerForm[key] === '') {
-                    alert("请完整填写注册信息");
-                    return;
-                }
-            }
-
-            await axios.post('/auth/teacher/register', new URLSearchParams(this.registerForm))//改
-                .then(response => {
-                    const data = response.data;
-                    if (data.success) {
-                        alert("注册成功！请返回登录页面进行登录。");
-                        this.registerForm = {
-                            id: '',
-                            name: '',
-                            department: '',
-                            email: '',
-                            phone: '',
-                            source: 'TEACHER_REGISTER',
-                        };
-                        this.switchForm('login');
-                    } else {
-                        alert("注册失败：" + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error("注册请求出错：", error);
-                    alert("注册请求出错，请稍后重试。");
-                });
-        },
+    // 显示消息提示
+    function showMessage(text, type) {
+        message.textContent = text;
+        message.className = 'message ' + type;
+        message.style.display = 'block';
+        
+        // 添加显示动画
+        message.style.animation = 'fadeIn 0.3s ease';
+        
+        // 3秒后自动隐藏非成功消息
+        if (type !== 'success') {
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 3000);
+        }
     }
-});
+
+    // 重置按钮状态
+    function resetButton() {
+        btnText.textContent = '登录系统';
+        loading.style.display = 'none';
+        submitBtn.disabled = false;
+    }

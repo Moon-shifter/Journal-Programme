@@ -56,3 +56,4 @@ src/main/java/com/journalsystem/springprogram/config/ExcelConfig.java
 *.java
 *.java
 src/main/java/com/journalsystem/springprogram/controller/SystemController.java
+src/main/resources/static/pages/teacher/teacher-login-regist.html
