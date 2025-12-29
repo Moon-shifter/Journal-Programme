@@ -1,14 +1,21 @@
 package com.journalsystem.springprogram.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
+@DynamicUpdate//动态更新，只更新有变化的字段,默认值也会被排除
+@DynamicInsert//动态插入，只插入有值的字段，排除了null值，默认值也会被排除
 @Table(name = "teacher_info")
 public class TeacherInfo {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "teacher_id", nullable = false)
+    @Id//主键
+    @Column(name = "teacher_id", nullable = false)//教师id，不可为空
     private Integer id;
 
     @Column(name = "name", nullable = false, length = 50)
@@ -24,17 +31,24 @@ public class TeacherInfo {
     private String phone;
 
     @ColumnDefault("5")
-    @Column(name = "max_borrow",insertable = false)
+    @Column(name = "max_borrow")
     private Integer maxBorrow;
 
     @ColumnDefault("0")
-    @Column(name = "current_borrow",insertable = false)
+    @Column(name = "current_borrow")
     private Integer currentBorrow;
 
     @ColumnDefault("'inactive'")
-    @Lob
-    @Column(name = "STATUS" ,insertable = false)
+    @Column(name = "STATUS")
     private String status;
+
+    /**
+     * 教师借阅信息列表
+     * 一个教师可以有多个借阅记录
+     */
+    @OneToMany(mappedBy = "borrower", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore // 避免循环引用
+    private List<BorrowInfo> borrowInfos = new ArrayList<>();
 
     public Integer getId() {
         return id;
@@ -98,6 +112,14 @@ public class TeacherInfo {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public List<BorrowInfo> getBorrowInfos() {
+        return borrowInfos;
+    }
+
+    public void setBorrowInfos(List<BorrowInfo> borrowInfos) {
+        this.borrowInfos = borrowInfos;
     }
 
 }

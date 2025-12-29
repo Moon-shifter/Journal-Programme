@@ -2,14 +2,18 @@ package com.journalsystem.springprogram.pojo;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.Instant;
 
 @Entity
+@DynamicInsert
+@DynamicUpdate
 @Table(name = "admin_info")
 public class AdminInfo {
     @Id
-    @Column(name = "admin_id", nullable = false)
+    @Column(name = "admin_id", nullable = false,unique = true, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)//自动生成主键，策略为数据库自动增长
     private Integer id;
 
@@ -23,7 +27,6 @@ public class AdminInfo {
     private String realName;
 
     @ColumnDefault("'normal'")
-    @Lob
     @Column(name = "role",insertable = false)
     private String role;//super,normal.
 
@@ -32,7 +35,6 @@ public class AdminInfo {
     private Instant lastLogin;//最后登录时间
 
     @ColumnDefault("'inactive'")
-    @Lob
     @Column(name = "STATUS",insertable = false)
     private String status;//active,inactive.
 

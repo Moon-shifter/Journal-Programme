@@ -29,12 +29,3 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
-.vscode/
-src/main/resources/static/pages/teacher_login&regis.html
-src/main/resources/static/pages/index.html
-src/main/resources/static/js/user_loginJS.js
-src/main/resources/static/pages/index.html
-src/main/resources/static/js/user_loginJS.js
-src/main/resources/static/pages/teacher_login_regist.html
-src/main/resources/static/pages/user_login.html

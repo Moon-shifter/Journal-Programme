@@ -13,10 +13,11 @@ import org.springframework.context.annotation.Configuration;
 
 //里面的方法会在应用启动时被调用，将OnlineCountListener注册到Servlet容器
 public class ListenerConfig {
-    /**
-     * 注册在线人数统计监听器
-     */
-    @Bean //方法返回值为ServletListenerRegistrationBean<OnlineCountListener>，spring会自动将其注册到Servlet容器，并由其进行管理
+   /**
+    * 注册在线人数统计监听器
+    * @return ServletListenerRegistrationBean<OnlineCountListener>，spring会自动将其注册到Servlet容器，并由其进行管理
+    */
+    @Bean //将方法返回值注册为spring bean，spring会自动将其注册到servlet容器中
     public ServletListenerRegistrationBean<OnlineCountListener> onlineCountListener() {
         // 创建Servlet监听器注册Bean
         ServletListenerRegistrationBean<OnlineCountListener> bean = new ServletListenerRegistrationBean<>();

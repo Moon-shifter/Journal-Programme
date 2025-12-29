@@ -2,39 +2,42 @@ package com.journalsystem.springprogram.pojo;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDate;
 
 @Entity
+@DynamicInsert
+@DynamicUpdate
 @Table(name = "borrow_info")
 public class BorrowInfo {
     @Id
-    @Column(name = "borrow_id", nullable = false)
+    @Column(name = "borrow_id", nullable = false,unique = true)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)//多对一，级联操作，非空
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)//多对一，级联操作，非空，延迟加载
     @JoinColumn(name = "journal_id", nullable = false)
     private JournalInfo journal;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)//多对一，级联操作，非空
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)//多对一，级联操作，非空，延迟加载
     @JoinColumn(name = "borrower_id", nullable = false)
     private TeacherInfo borrower;
 
     @ColumnDefault("'1970-01-01'")
-    @Column(name = "start_date", nullable = false,insertable = false)//后续再更新状态
+    @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
     @ColumnDefault("'1970-01-01'")
-    @Column(name = "end_date", nullable = false,insertable = false)//后续再更新状态
+    @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
     @ColumnDefault("'1970-01-01'")
-    @Column(name = "return_date",insertable = false)//后续再更新状态
+    @Column(name = "return_date")
     private LocalDate returnDate;
 
     @ColumnDefault("'returned'")
-    @Lob
-    @Column(name = "STATUS",insertable = false)//后续再更新状态
+    @Column(name = "STATUS")
     private String status;
 
     public Integer getId() {

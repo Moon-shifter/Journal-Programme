@@ -2,8 +2,6 @@ package com.journalsystem.springprogram.listener;
 
 import jakarta.servlet.http.HttpSessionEvent;
 import jakarta.servlet.http.HttpSessionListener;
-import org.springframework.stereotype.Component;
-
 import java.util.concurrent.atomic.AtomicInteger;
 
 

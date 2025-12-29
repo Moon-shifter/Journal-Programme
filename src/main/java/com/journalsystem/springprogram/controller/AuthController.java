@@ -1,19 +1,22 @@
 package com.journalsystem.springprogram.controller;
 
 import com.journalsystem.springprogram.common.Result;
-import com.journalsystem.springprogram.dto.TeacherRegDTO;
+import com.journalsystem.springprogram.dto.TeacherDTO;
 import com.journalsystem.springprogram.exception.BusinessException;
 import com.journalsystem.springprogram.pojo.AdminInfo;
 import com.journalsystem.springprogram.service.AdminService;
 import com.journalsystem.springprogram.service.TeacherService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+/**
+ * 通用登陆注册接口
+ * 包含管理员登录、教师登录、教师注册,退出接口
+ */
 
 @RestController
 @RequestMapping("/api/auth")
@@ -27,7 +30,17 @@ public class AuthController {
     }
 
 
-    //管理员登录接口
+
+    /**
+     * 管理员登录接口
+     * @param loginRequest 包含用户名和密码的JSON对象
+     * @param request HttpServletRequest对象，用于获取Session
+     * @return 统一响应结果：
+     *     成功：
+     *     {"code": 200,"msg": "登录成功","data": {"adminId": 123,"username": "admin","realName": "管理员","role": "normal"}}
+     *     失败：
+     *     {"code": 400,"msg": "登录信息不匹配","data": null}
+     */
     @PostMapping("/admin/login")
     public Result<Map<String, Object>> adminLogin(@RequestBody Map<String, String> loginRequest,HttpServletRequest request) {
         //1.提取账号密码
@@ -49,6 +62,17 @@ public class AuthController {
         return Result.success(data, "登录成功");//传到前端的是一个Map对象，包含管理员的id、用户名、真实姓名、角色
     }
 
+     /**
+     * 教师登录接口
+     * @param loginData 包含教师ID、姓名、手机号的JSON对象
+     * @param request HttpServletRequest对象，用于获取Session
+     * @return 统一响应结果：
+     *     成功：
+     *     {"code": 200,"msg": "登录成功","data": {"teacherId": 123,"name": "教师姓名","department": "教师部门","email": "教师邮箱","phone": "教师手机号"}}
+     *     失败：
+     *     {"code": 400,"msg": "登录信息不匹配","data": null}
+     */
+
     @PostMapping("/teacher/login")
     public Result<Map<String, Object>> teacherLogin(@RequestBody Map<String, String> loginData,HttpServletRequest request) {
 
@@ -58,50 +82,61 @@ public class AuthController {
         String phone=loginData.get("phone");
 
         //调用教师服务层的登录方法
-        boolean loginSuccess=teacherService.login(Integer.valueOf(id),name,phone);
+        teacherService.login(Integer.valueOf(id),name,phone);
 
-        //根据登录结果返回不同的响应，用hasMap存储响应数据,用result包装响应
-        if(loginSuccess){
-            Map<String, Object> data = new HashMap<>();
-            data.put("id", id);
-            data.put("name", name);
-            data.put("phone", phone);
+        //返回响应，用hasMap存储响应数据,用result包装响应
+        Map<String, Object> data = new HashMap<>();
+        data.put("teacherId", id);
+        data.put("name", name);
+        data.put("phone", phone);
 
-            //存储session
-            request.getSession().setAttribute("loginTeacher", data);
+        //存储session
+        request.getSession().setAttribute("loginTeacher", data);
 
-            return Result.success(data, "登录成功");
-        }
+        return Result.success(data, "登录成功");
 
-        //如果登录失败，返回失败信息
-        throw new BusinessException(400, "登录信息不匹配");
 
     }
 
+     /**
+     * 教师注册接口
+     * @param regDTO 包含教师注册信息的DTO对象
+     * @return 统一响应结果：
+     *     成功：
+     *     {"code": 200,"msg": "注册成功","data": {"teacherId": 123,"name": "教师姓名","department": "教师部门","email": "教师邮箱","phone": "教师手机号"}}
+     *     失败：
+     *     {"code": 400,"msg": "教师ID已存在","data": null}
+     */
 
     @PostMapping("/teacher/register")
-    public Result<Map<String, Object>> register(@RequestBody TeacherRegDTO teacherRegDTO) {
+    public Result<Map<String, Object>> register(@RequestBody TeacherDTO regDTO) {
+
         //调用教师服务层的注册方法
-        boolean registerSuccess=teacherService.register(teacherRegDTO);
-        //根据注册结果返回不同的响应，用hasMap存储响应数据
-        if(registerSuccess){
-            Map<String, Object> data = new HashMap<>();
-            data.put("name", teacherRegDTO.getName());
-            data.put("department", teacherRegDTO.getDepartment());
-            data.put("email", teacherRegDTO.getEmail());
-            data.put("phone", teacherRegDTO.getPhone());
-            return Result.success(data, "注册成功");
-        }
+        teacherService.register(regDTO);
 
-        throw new BusinessException(400, "注册失败");
+        //返回响应，上方方法自带抛出异常
+        Map<String, Object> data = new HashMap<>();//用HashMap存储响应数据
+        data.put("teacherId", regDTO.getId());
+        data.put("name", regDTO.getName());
+        data.put("department", regDTO.getDepartment());
+        data.put("email", regDTO.getEmail());
+        data.put("phone", regDTO.getPhone());
+
+        return Result.success(data, "注册成功");
     }
+     /**
+     * 退出登录（通用）
+     * @param request HttpServletRequest对象，用于获取Session
+     * @return 统一响应结果：
+     *     成功：
+     *     {"code": 200,"msg": "退出成功","data": null}
+     */
 
-    // 退出登录（通用）
     @PostMapping("/logout")
     public Result<?> logout(HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
+        HttpSession session = request.getSession(false);//获取当前请求的session对象，false表示如果不存在session对象，不创建新的session对象
         if (session != null) {
-            session.invalidate();
+            session.invalidate();//使session对象无效，删除session中的所有属性
         }
         return Result.success(null, "退出成功");//返回一个空的Map对象，前端可以根据这个对象判断是否退出成功
     }

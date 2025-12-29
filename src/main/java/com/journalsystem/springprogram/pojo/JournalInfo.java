@@ -1,22 +1,29 @@
 package com.journalsystem.springprogram.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
-@Entity
+@Entity //实体类，构造函数是无参构造函数
+@DynamicInsert
+@DynamicUpdate
 @Table(name = "journal_info")
 public class JournalInfo {
     @Id//主键
-    @Column(name = "id", nullable = false)
+    @Column(name = "id", nullable = false,unique = true)
     private Integer id;
 
     @Column(name = "NAME", nullable = false, length = 100)
     private String name;
 
-    @Column(name = "ISBN", length = 20)
-    private String isbn;
+    @Column(name = "ISSN", length = 20)
+    private String issn;
 
     @Column(name = "category", length = 50)
     private String category;
@@ -31,8 +38,8 @@ public class JournalInfo {
     @Column(name = "issue_number", length = 20)//期刊号
     private String issueNumber;
 
-    @Lob//长文本
-    @Column(name = "description",insertable = false)//插入时先不写介绍，后续再更新
+    @Lob//大文本字段
+    @Column(name = "description")
     private String description;
 
     @ColumnDefault("0")
@@ -44,9 +51,16 @@ public class JournalInfo {
     private Integer availableQuantity;
 
     @ColumnDefault("'available'")
-    @Lob
-    @Column(name = "STATUS",insertable = false)//后续再更新状态
+    @Column(name = "STATUS")
     private String status;
+
+    /**
+     * 期刊借阅信息列表
+     * 一个期刊可以有多个借阅记录
+     */
+    @OneToMany(mappedBy = "journal", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore // 避免循环引用
+    private List<BorrowInfo> borrowInfos = new ArrayList<>();
 
     public Integer getId() {
         return id;
@@ -60,16 +74,17 @@ public class JournalInfo {
         return name;
     }
 
+
     public void setName(String name) {
         this.name = name;
     }
 
-    public String getIsbn() {
-        return isbn;
+    public String getIssn() {
+        return issn;
     }
 
-    public void setIsbn(String isbn) {
-        this.isbn = isbn;
+    public void setIssn(String issn) {
+        this.issn = issn;
     }
 
     public String getCategory() {
@@ -134,6 +149,14 @@ public class JournalInfo {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public List<BorrowInfo> getBorrowInfos() {
+        return borrowInfos;
+    }
+
+    public void setBorrowInfos(List<BorrowInfo> borrowInfos) {
+        this.borrowInfos = borrowInfos;
     }
 
 }
