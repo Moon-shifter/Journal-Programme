@@ -41,14 +41,13 @@ function bindRoleCardEvents() {
  * 跳转到管理员登录页
  */
 function jumpToAdminLogin() {
-    // 复用全局公共JS的jumpTo函数
-    jumpTo("admin/admin-login.html");
+   window.location.href = "admin/admin-login.html";
 }
 
 /**
  * 跳转到教师登录/注册页
  */
 function jumpToTeacherLogin() {
-    // 复用全局公共JS的jumpTo函数
-   jumpTo("teacher/teacher-login-regist.html");
+     window.location.href = "teacher/teacher-login.html";
+   
 }
