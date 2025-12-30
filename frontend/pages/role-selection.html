@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>期刊借阅管理系统 - 角色选择</title>
+    <!-- 引入外部CDN（字体图标） -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- 引入全局通用样式 -->
+    <link rel="stylesheet" href="../css/common.css">
+    <!-- 引入角色选择页专属样式 -->
+    <link rel="stylesheet" href="../css/role-select.css">
+</head>
+<body>
+    <div id="role-select-container">
+        <!-- 系统标题区 -->
+        <div class="system-header">
+            <div class="logo">
+                <i class="fas fa-book-reader"></i>
+                <h1>学院期刊借阅管理系统</h1>
+            </div>
+            <p class="system-desc">请选择您的登录角色，进入对应功能模块</p>
+        </div>
+
+        <!-- 角色选择区 -->
+        <div class="role-card-wrapper">
+            <!-- 管理员角色卡片 -->
+            <div class="role-card" id="admin-role">
+                <div class="role-icon">
+                    <i class="fas fa-shield-halved"></i>
+                </div>
+                <h2 class="role-title">系统管理员</h2>
+                <div class="role-btn">
+                    <button class="btn-primary">进入管理员登录</button>
+                </div>
+            </div>
+
+            <!-- 教师角色卡片 -->
+            <div class="role-card" id="teacher-role">
+                <div class="role-icon">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <h2 class="role-title">教师用户</h2>
+                <div class="role-btn">
+                    <button class="btn-primary">进入教师登录/注册</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部信息区 -->
+        <div class="footer">
+            <div class="footer-center">
+                <div class="footer-item">
+                    <i class="far fa-copyright"></i>
+                    <span>2025 学院期刊管理系统 版权所有</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/common.js"></script>
+    <script src="../js/role-select.js"></script>
+</body>
+</html>

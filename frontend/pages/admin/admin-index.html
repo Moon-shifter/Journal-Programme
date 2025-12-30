@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>期刊管理系统 - 管理员首页</title>
+     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../static/css/admin-index.css">
+</head>
+<body>
+    <!-- 页面头部 -->
+    <header class="admin-header">
+        <div class="admin-info">
+            <div class="admin-avatar">
+                <i class="fas fa-user-cog"></i>
+            </div>
+            <div class="admin-details">
+                <h1>期刊管理系统 - 管理员控制台</h1>
+                <p>欢迎回来，系统管理员 </p>
+            </div>
+        </div>
+        <button class="logout-btn" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> 退出登录
+        </button>
+    </header>
+    
+  <!-- 统计信息区域 -->
+<section class="stats-section">
+    <h2 class="stats-title">系统概览</h2>
+    <div class="stats-grid">
+        <div class="stat-card stat-journal">
+            <div class="stat-icon">
+                <i class="fas fa-book"></i>
+            </div>
+            <div class="stat-info">
+                <h4>期刊总数</h4>
+                <div class="stat-number" id="journalCount">加载中...</div>
+            </div>
+        </div>
+        
+        <div class="stat-card stat-teacher">
+            <div class="stat-icon">
+                <i class="fas fa-chalkboard-teacher"></i>
+            </div>
+            <div class="stat-info">
+                <h4>教师总数</h4>
+                <div class="stat-number" id="teacherCount">加载中...</div>
+            </div>
+        </div>
+        
+        <div class="stat-card stat-borrow">
+            <div class="stat-icon">
+                <i class="fas fa-handshake"></i>
+            </div>
+            <div class="stat-info">
+                <h4>借阅中</h4>
+                <div class="stat-number" id="borrowCount">加载中...</div>
+            </div>
+        </div>
+        
+        <div class="stat-card stat-overdue">
+            <div class="stat-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="stat-info">
+                <h4>超期资料</h4>
+                <div class="stat-number" id="overdueCount">加载中...</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+    <!-- 功能卡片区域 -->
+    <main class="dashboard">
+        <!-- 期刊信息管理 -->
+        <div class="function-card card-journal">
+            <div class="card-icon">
+                <i class="fas fa-newspaper"></i>
+            </div>
+            <div class="card-content">
+                <h3>期刊信息管理</h3>
+                <p>管理图书馆期刊信息，包括添加新期刊、编辑现有期刊信息、删除过期期刊等操作。可查看期刊名称、类别、出版社、出版日期和状态。</p>
+                <div class="card-actions">
+                    <button class="card-btn primary" onclick="openModal('journalManage')">
+                        <i class="fas fa-cog"></i> 管理期刊
+                    </button>
+                    <button class="card-btn secondary" onclick="openModal('journalAdd')">
+                        <i class="fas fa-plus"></i> 添加期刊
+                    </button>
+                </div>
+            </div>
+        </div>
+    
+
+        <!-- 教师信息管理 -->
+        <div class="function-card card-teacher">
+            <div class="card-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="card-content">
+                <h3>教师信息管理</h3>
+                <p>按系部、办公室、实验室管理教师基本信息。可添加、修改、删除教师信息，分配借阅权限，查看教师借阅记录。</p>
+                <div class="card-actions">
+                    <button class="card-btn primary" onclick="openModal('teacherManage')">
+                        <i class="fas fa-user-edit"></i> 管理教师
+                    </button>
+                    <button class="card-btn secondary" onclick="openModal('teacherAdd')">
+                        <i class="fas fa-sitemap"></i> 添加教师
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 期刊查询功能 -->
+        <div class="function-card card-search">
+            <div class="card-icon">
+                <i class="fas fa-search"></i>
+            </div>
+            <div class="card-content">
+                <h3>期刊查询功能</h3>
+                <p>按不同查询条件和关键字搜索期刊信息，支持按名称、类别、出版社、日期等条件筛选。可浏览选定资料的详细信息。</p>
+                <div class="card-actions">
+                    <button class="card-btn primary" onclick="openModal('journalSearch')">
+                        <i class="fas fa-search"></i> 高级查询
+                    </button>
+                    <button class="card-btn secondary" onclick="openModal('quickSearch')">
+                        <i class="fas fa-bolt"></i> 快速查询
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 借阅手续办理 -->
+        <div class="function-card card-borrow">
+            <div class="card-icon">
+                <i class="fas fa-hand-holding"></i>
+            </div>
+            <div class="card-content">
+                <h3>借阅手续办理</h3>
+                <p>为学院教职员工办理图书资料的借阅手续，包括借阅登记、归还处理、续借操作等。支持批量处理和快速办理。</p>
+                <div class="card-actions">
+                    <button class="card-btn primary" onclick="openModal('borrowProcess')">
+                        <i class="fas fa-clipboard-check"></i> 办理借阅
+                    </button>
+                    <button class="card-btn secondary" onclick="openModal('returnProcess')">
+                        <i class="fas fa-undo"></i> 办理归还
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 超期资料管理 -->
+        <div class="function-card card-overdue">
+            <div class="card-icon">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <div class="card-content">
+                <h3>超期资料管理</h3>
+                <p>浏览超期资料信息，生成并打印催还单。支持导出Excel报表，自定义催还单格式，批量发送催还通知。</p>
+                <div class="card-actions">
+                    <button class="card-btn primary" onclick="openModal('overdueList')">
+                        <i class="fas fa-list"></i> 超期列表
+                    </button>
+                    <button class="card-btn secondary" onclick="exportExcel()">
+                        <i class="fas fa-file-excel"></i> 导出Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+    <br><br>
+
+
+
+    <!-- 全局页脚 -->
+    <footer class="footer">
+        <div class="footer-left">
+            <div class="footer-item">
+                <i class="fas fa-database"></i>
+                <span>系统版本：v2.5.1</span>
+            </div>
+        </div>
+        <div class="footer-center">
+            <div class="footer-item">
+                <i class="fas fa-copyright"></i>
+                <span>2023 版权所有 - <span class="team-name">图书馆管理系统团队</span></span>
+            </div>
+        </div>
+        <div class="footer-right">
+            <div class="footer-item">
+                <i class="fas fa-server"></i>
+                <span>服务器状态：<span style="color:#2e7d32;">正常</span></span>
+            </div>
+        </div>
+    </footer>
+    
+
+
+    <!-- 模态框：期刊管理 -->
+    <div id="journalManageModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>期刊信息管理</h3>
+                <button class="close-modal" onclick="closeModal('journalManageModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="journalId">ID</label>
+                <input type="text" id="journalId" placeholder="请输入期刊id">
+            </div>
+            <div class="form-group">
+                <label for="journalName">期刊名称</label>
+                <input type="text" id="journalName" placeholder="请输入期刊名称">
+            </div>
+            <div class="form-group">
+                <label for="journalCategory">期刊类别</label>
+                <select id="journalCategory">
+                    <option value="">请选择类别</option>
+                    <option value="academic">学术期刊</option>
+                    <option value="professional">专业期刊</option>
+                    <option value="popular">大众期刊</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="journalPublisher">出版社</label>
+                <input type="text" id="journalPublisher" placeholder="请输入出版社">
+            </div>
+            <div class="form-group">
+                <label for="publishDate">出版日期</label>
+                <input type="date" id="publishDate">
+            </div>
+            <div class="form-group">
+                <label for="journalStatus">状态</label>
+                <select id="journalStatus">
+                    <option value="available">可借阅</option>
+                    <option value="unavailable">已借出</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn-primary" style="flex:1;" onclick="saveJournal()">保存更改</button>
+                <button class="btn-secondary" style="flex:1;" onclick="deleteJournal()">删除</button>
+            </div>
+        </div>
+    </div>
+        <!-- 模态框：期刊添加 -->
+ <div id="journalAddModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>添加期刊</h3>
+                <button class="close-modal" onclick="closeModal('journalAddModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="journalName">期刊名称</label>
+                <input type="text" id="journalName" placeholder="请输入期刊名称">
+            </div>
+              <div class="form-group">
+                <label for="journalISBN">ISBN</label>
+                <input type="text" id="journalISBN" placeholder="请输入ISBN">
+            </div>
+            <div class="form-group">
+                <label for="journalCategory">期刊类别</label>
+                <select id="journalCategory">
+                    <option value="">请选择类别</option>
+                    <option value="academic">学术期刊</option>
+                    <option value="professional">专业期刊</option>
+                    <option value="popular">大众期刊</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="journalPublisher">出版社</label>
+                <input type="text" id="journalPublisher" placeholder="请输入出版社">
+            </div>
+            <div class="form-group">
+                <label for="journalIssueNumber">期号</label>
+                <input type="text" id="journalIssueNumber" placeholder="请输入期号">
+            </div>
+            <div class="form-group">
+                <label for="publishDate">出版日期</label>
+                <input type="date" id="publishDate">
+            </div>
+               <div class="form-group">
+                <label for="journalDescription">简介</label>
+                <input type="text" id="journalDescription" placeholder="请输入简介">
+            </div>
+            <div class="form-group">
+                <label for="journalTotalQuantity">总数量</label>
+                <input type="number" id="journalTotalQuantity" placeholder="请输入总数量">
+            </div>
+             <div class="form-group">
+                <label for="journalAvailableQuantity">可借数量</label>
+                <input type="number" id="journalAvailableQuantity" placeholder="请输入可借数量">
+            </div>
+            <div class="form-group">
+                <label for="journalStatus">状态</label>
+                <select id="journalStatus">
+                    <option value="available">可借阅</option>
+                    <option value="unavailable">已借出</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn-primary" style="flex:1;" onclick="addJournal()">添加</button>
+            </div>
+        </div>
+    </div>
+  <!-- 模态框：教师信息管理 -->
+<div id="teacherManageModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>教师信息管理</h3>
+            <button class="close-modal" onclick="closeModal('teacherManageModal')">&times;</button>
+        </div>
+        <div class="form-group">
+            <label for="teacherId">教师ID</label>
+            <input type="text" id="teacherId" placeholder="请输入教师ID">
+        </div>
+        <div class="form-group">
+            <label for="teacherName">教师姓名</label>
+            <input type="text" id="teacherName" placeholder="请输入教师姓名">
+        </div>
+        <div class="form-group">
+            <label for="teacherDepartment">所属系部</label>
+            <input type="text" id="teacherDepartment" placeholder="请输入所属系部">
+        </div>
+        <div class="form-group">
+            <label for="teacherEmail">邮箱</label>
+            <input type="email" id="teacherEmail" placeholder="请输入教师邮箱">
+        </div>
+        <div class="form-group">
+            <label for="teacherPhone">联系电话</label>
+            <input type="tel" id="teacherPhone" placeholder="请输入联系电话">
+        </div>
+        <div class="form-group">
+            <label for="teacherMaxBorrow">最大可借阅数</label>
+            <input type="number" id="teacherMaxBorrow" placeholder="请输入最大可借阅数" value="5">
+        </div>
+        <div class="form-group">
+            <label for="teacherCurrentBorrow">当前借阅数</label>
+            <input type="number" id="teacherCurrentBorrow" placeholder="当前借阅数" value="0" readonly>
+        </div>
+        <div class="form-group">
+            <label for="teacherStatus">状态</label>
+            <select id="teacherStatus">
+                <option value="active">正常</option>
+                <option value="inactive">禁用</option>
+            </select>
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button class="btn-primary" style="flex:1;" onclick="saveTeacher()">保存更改</button>
+            <button class="btn-secondary" style="flex:1;" onclick="deleteTeacher()">删除</button>
+        </div>
+    </div>
+</div>
+<!-- 模态框：添加新教师 -->
+<div id="teacherAddModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>添加新教师</h3>
+            <button class="close-modal" onclick="closeModal('teacherAddModal')">&times;</button>
+        </div>
+        <div class="form-group">
+            <label for="addTeacherName">教师姓名 <span style="color: red;">*</span></label>
+            <input type="text" id="addTeacherName" placeholder="请输入教师姓名">
+        </div>
+        <div class="form-group">
+            <label for="addTeacherDepartment">所属系部 <span style="color: red;">*</span></label>
+            <input type="text" id="addTeacherDepartment" placeholder="请输入所属系部">
+        </div>
+        <div class="form-group">
+            <label for="addTeacherEmail">邮箱 <span style="color: red;">*</span></label>
+            <input type="email" id="addTeacherEmail" placeholder="请输入教师邮箱">
+        </div>
+        <div class="form-group">
+            <label for="addTeacherPhone">联系电话 <span style="color: red;">*</span></label>
+            <input type="tel" id="addTeacherPhone" placeholder="请输入联系电话">
+        </div>
+        <div class="form-group">
+            <label for="addTeacherMaxBorrow">最大可借阅数 <span style="color: red;">*</span></label>
+            <input type="number" id="addTeacherMaxBorrow" placeholder="默认5本" value="5" min="1" max="20">
+        </div>
+        <div class="form-group">
+            <label for="addTeacherStatus">状态 <span style="color: red;">*</span></label>
+            <select id="addTeacherStatus">
+                <option value="active" selected>正常</option>
+                <option value="inactive">禁用</option>
+            </select>
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button class="btn-primary" style="flex:1;" onclick="addNewTeacher()">确认添加</button>
+            <button class="btn-secondary" style="flex:1;" onclick="closeModal('teacherAddModal')">取消</button>
+        </div>
+    </div>
+</div>
+
+    <!-- 模态框示例：快速查询 -->
+    <div id="quickSearchModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>快速查询期刊</h3>
+                <button class="close-modal" onclick="closeModal('quickSearchModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="searchKeyword">关键词</label>
+                <input type="text" id="searchKeyword" placeholder="请输入期刊名称、作者或关键词">
+            </div>
+            <div class="form-group">
+                <label for="searchCategory">查询类别</label>
+                <select id="searchCategory">
+                    <option value="all">全部</option>
+                    <option value="name">期刊名称</option>
+                    <option value="author">作者</option>
+                    <option value="publisher">出版社</option>
+                    <option value="category">期刊类别</option>
+                </select>
+            </div>
+            <div class="message success" id="searchResultMessage" style="display:none;">
+                找到15条相关记录
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn-primary" style="flex:1;" onclick="performSearch()">开始查询</button>
+                <button class="btn-secondary" style="flex:1;" onclick="closeModal('quickSearchModal')">取消</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 成功提示 -->
+    <div id="successMessage" class="message success" style="display:none; position:fixed; top:20px; right:20px; max-width:300px; z-index:1001;">
+        操作成功完成！
+    </div>
+    
+    <script src="../../js/admin-index.js"></script>
+</body>
+</html>

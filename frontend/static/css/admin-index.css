@@ -1,0 +1,355 @@
+    .admin-header {
+            background: linear-gradient(135deg, #4a6fa5, #3a5a80);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(74, 111, 165, 0.15);
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .admin-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .admin-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 24px;
+        }
+        
+        .admin-details h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .admin-details p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .logout-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        /* 功能卡片区域 */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .function-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            border-top: 4px solid #4a6fa5;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .function-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            background-color: #eef5ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #4a6fa5;
+        }
+        
+        .card-content h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .card-content p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .card-btn {
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            flex: 1;
+            min-width: 100px;
+        }
+        
+        .card-btn.primary {
+            background-color: #4a6fa5;
+            color: white;
+        }
+        
+        .card-btn.secondary {
+            background-color: #f0f4f8;
+            color: #555;
+            border: 1px solid #ddd;
+        }
+        
+        .card-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        /* 统计信息区域 */
+        .stats-section {
+            margin-bottom: 40px;
+        }
+        
+        .stats-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #333;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .stat-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 20px;
+        }
+        
+        .stat-info h4 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .admin-header {
+                flex-direction: column;
+                text-align: center;
+                padding: 20px;
+            }
+            
+            .admin-info {
+                flex-direction: column;
+                margin-bottom: 15px;
+            }
+            
+            .admin-avatar {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+            
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .card-actions {
+                flex-direction: column;
+            }
+            
+            .card-btn {
+                width: 100%;
+            }
+        }
+        
+        /* 卡片颜色变体 */
+        .card-journal {
+            border-top-color: #4a6fa5;
+        }
+        
+        .card-journal .card-icon {
+            background-color: #eef5ff;
+            color: #4a6fa5;
+        }
+        
+        .card-teacher {
+            border-top-color: #2e7d32;
+        }
+        
+        .card-teacher .card-icon {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .card-search {
+            border-top-color: #ef6c00;
+        }
+        
+        .card-search .card-icon {
+            background-color: #fff3e0;
+            color: #ef6c00;
+        }
+        
+        .card-borrow {
+            border-top-color: #c62828;
+        }
+        
+        .card-borrow .card-icon {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        
+        .card-overdue {
+            border-top-color: #6a1b9a;
+        }
+        
+        .card-overdue .card-icon {
+            background-color: #f3e5f5;
+            color: #6a1b9a;
+        }
+        
+        .card-system {
+            border-top-color: #0277bd;
+        }
+        
+        .card-system .card-icon {
+            background-color: #e1f5fe;
+            color: #0277bd;
+        }
+        
+        /* 统计卡片颜色 */
+        .stat-journal .stat-icon {
+            background-color: #eef5ff;
+            color: #4a6fa5;
+        }
+        
+        .stat-teacher .stat-icon {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .stat-borrow .stat-icon {
+            background-color: #fff3e0;
+            color: #ef6c00;
+        }
+        
+        .stat-overdue .stat-icon {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-header h3 {
+            font-size: 20px;
+            color: #333;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #777;
+        }
+        
+        /* 页面加载动画 */
+        .function-card:nth-child(1) { animation-delay: 0.1s; }
+        .function-card:nth-child(2) { animation-delay: 0.2s; }
+        .function-card:nth-child(3) { animation-delay: 0.3s; }
+        .function-card:nth-child(4) { animation-delay: 0.4s; }
+        .function-card:nth-child(5) { animation-delay: 0.5s; }
+        .function-card:nth-child(6) { animation-delay: 0.6s; }
+        
+        .stat-card:nth-child(1) { animation-delay: 0.7s; }
+        .stat-card:nth-child(2) { animation-delay: 0.8s; }
+        .stat-card:nth-child(3) { animation-delay: 0.9s; }
+        .stat-card:nth-child(4) { animation-delay: 1.0s; }
