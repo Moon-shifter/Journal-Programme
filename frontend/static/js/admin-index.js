@@ -1,14 +1,14 @@
 //数据展示获取
 document.addEventListener('DOMContentLoaded', function() {
     // 1. 替换为你的 Mock 接口地址
-    const ApiUrl = 'http://127.0.0.1:4523/m1/7615921-7363832-default/api/system/system-stats';
+    const ApiUrl = '/api/system/system-stats';
     
     // 发起接口请求
     fetch(ApiUrl)  
         .then(response => {
             // 检查请求是否成功
             if (!response.ok) {
-                throw new Error('Mock 接口请求失败: ' + response.status);
+                throw new Error('请求失败: ' + response.status);
             }
             // 解析JSON格式的响应数据
             return response.json();

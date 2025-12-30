@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>期刊管理系统 - 教师主页</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../../css/teacher-index.css">
+</head>
+<body>
+    <!-- 页面头部 -->
+    <header class="teacher-header">
+        <div class="teacher-info">
+            <div class="teacher-avatar">
+                <i class="fas fa-user-tie"></i>
+            </div>
+            <div class="teacher-details">
+                <h1>期刊管理系统 - 教师主页</h1>
+                <p id="teacherInfo"></p><!--教师信息通过loadTeacherInfo()函数动态加载-->
+            </div>
+        </div>
+        <button class="logout-btn" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> 退出登录
+        </button>
+    </header>
+
+    <!-- 超期警告（如果有超期记录才显示）
+    在loadBorrowData()函数中判断是否有超期期刊，如果有则显示
+    超期数量通过overdueCount元素动态更新 
+    -->
+    <div class="overdue-warning" id="overdueWarning" style="display: none;">
+        <i class="fas fa-exclamation-triangle"></i>
+        <div>
+            <strong>警告：</strong> 您有 <span id="overdueCount">0</span> 本期刊已超期未还，请及时归还！
+        </div>
+    </div>
+
+    <!-- 功能卡片区域（已删除我的借阅记录板块） -->
+    <main class="dashboard">
+        <!-- 期刊查询功能 -->
+        <div class="function-card">
+            <div class="card-icon">
+                <i class="fas fa-search"></i>
+            </div>
+            <div class="card-content">
+                <h3>期刊查询</h3>
+                <p>浏览和查询图书馆所有期刊信息，支持按名称、类别、出版社、出版日期等多种条件进行搜索和筛选。</p>
+                <div class="card-actions">
+                    <button class="card-btn primary" onclick="goToJournalSearch()">
+                        <i class="fas fa-search"></i> 开始查询
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 借阅统计 -->
+        <div class="function-card">
+            <div class="card-icon">
+                <i class="fas fa-chart-bar"></i>
+            </div>
+            <div class="card-content">
+                <h3>借阅统计</h3>
+                <p>查看您的借阅统计数据，包括借阅总量、当前在借数量、最大可借阅额度等信息，帮助您管理借阅计划。</p>
+                <div class="card-actions">
+                    <button class="card-btn primary" onclick="refreshStats()">
+                        <i class="fas fa-sync-alt"></i> 刷新统计
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 借阅信息区域 -->
+    <section class="borrow-section">
+        <h2 class="section-title">
+            <i class="fas fa-book-open"></i> 我的借阅信息
+        </h2>
+
+        <!-- 借阅统计 -->
+        <div class="borrow-stats">
+            <div class="stat-card">
+                <div class="stat-value total" id="totalBorrows">0</div>
+                <div class="stat-label">最大可借阅数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value current" id="currentBorrows">0</div>
+                <div class="stat-label">当前在借数量</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value history" id="historyBorrows">0</div>
+                <div class="stat-label">历史借阅总数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value overdue" id="overdueItems">0</div>
+                <div class="stat-label">超期数量</div>
+            </div>
+        </div>
+
+        <!-- 当前借阅列表 -->
+        <h3 class="section-title" style="font-size: 16px;">
+            <i class="fas fa-clock"></i> 当前在借期刊
+        </h3>
+
+        <div class="loading" id="loadingBorrows">
+            <i class="fas fa-spinner"></i>
+            <p>正在加载借阅数据...</p>
+        </div>
+
+        <div class="borrow-table-container" id="borrowTableContainer" style="display: none;">
+            <table class="borrow-table" id="borrowTable">
+                <thead>
+                    <tr>
+                        <th>期刊名称</th>
+                        <th>借阅日期</th>
+                        <th>应还日期</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="borrowTableBody">
+                    <!-- 数据将通过JS动态生成 -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="no-data" id="noBorrowData" style="display: none;">
+            <i class="fas fa-book" style="font-size: 48px; margin-bottom: 15px; opacity: 0.3;"></i>
+            <p>暂无借阅记录</p>
+        </div>
+    </section>
+
+    <!-- 全局页脚 -->
+    <footer class="footer">
+        <div class="footer-left">
+            <div class="footer-item">
+                <i class="fas fa-database"></i>
+                <span>教师系统版本：v2.5.1</span>
+            </div>
+        </div>
+        <div class="footer-center">
+            <div class="footer-item">
+                <i class="fas fa-copyright"></i>
+                <span>2023 版权所有 - <span class="team-name">图书馆管理系统团队</span></span>
+            </div>
+        </div>
+        <div class="footer-right">
+            <div class="footer-item">
+                <i class="fas fa-server"></i>
+                <span>服务器状态：<span style="color:#2e7d32;">正常</span></span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 模拟教师数据（根据teacher_info表结构）
+        const teacherData = {
+            teacher_id: 1001,
+            name: "张教授",
+            department: "计算机科学系",
+            email: "zhang@university.edu",
+            phone: "13800138000",
+            max_borrow: 5,
+            current_borrow: 2,
+            STATUS: "active"
+        };
+
+        // 模拟借阅数据（根据borrow_info表结构）
+        const borrowData = [
+            {
+                borrow_id: 1,
+                journal_id: 101,
+                journal_name: "计算机学报",
+                borrower_id: 1001,
+                start_date: "2023-10-15",
+                end_date: "2023-11-15",
+                return_date: null,
+                STATUS: "borrowed"
+            },
+            {
+                borrow_id: 2,
+                journal_id: 102,
+                journal_name: "软件学报",
+                borrower_id: 1001,
+                start_date: "2023-10-20",
+                end_date: "2023-11-20",
+                return_date: null,
+                STATUS: "borrowed"
+            },
+            {
+                borrow_id: 3,
+                journal_id: 103,
+                journal_name: "计算机研究与发展",
+                borrower_id: 1001,
+                start_date: "2023-09-01",
+                end_date: "2023-09-30",
+                return_date: "2023-09-28",
+                STATUS: "returned"
+            },
+            {
+                borrow_id: 4,
+                journal_id: 104,
+                journal_name: "人工智能学报",
+                borrower_id: 1001,
+                start_date: "2023-08-15",
+                end_date: "2023-09-15",
+                return_date: null,
+                STATUS: "overdue"
+            }
+        ];
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTeacherInfo();
+            loadBorrowData();
+        });
+
+        // 加载教师信息
+        function loadTeacherInfo() {
+            const teacherInfo = document.getElementById('teacherInfo');
+            teacherInfo.innerHTML = `
+                ${teacherData.name} | ${teacherData.department}<br>
+                邮箱：${teacherData.email} | 电话：${teacherData.phone}`;
+            // 更新统计信息
+            document.getElementById('totalBorrows').textContent = teacherData.max_borrow;
+            document.getElementById('currentBorrows').textContent = teacherData.current_borrow;
+            // 计算剩余可借阅数
+            const remaining = teacherData.max_borrow - teacherData.current_borrow;
+        }
+
+        // 加载借阅数据
+        function loadBorrowData() {
+            setTimeout(() => {
+                // 计算统计数据
+                const currentBorrows = borrowData.filter(item => item.STATUS === 'borrowed');
+                const overdueBorrows = borrowData.filter(item => item.STATUS === 'overdue');
+                const historyBorrows = borrowData.length;
+
+                // 更新统计
+                document.getElementById('historyBorrows').textContent = historyBorrows;
+                document.getElementById('overdueItems').textContent = overdueBorrows.length;
+
+                // 显示/隐藏超期警告
+                if (overdueBorrows.length > 0) {
+                    document.getElementById('overdueWarning').style.display = 'flex';
+                    document.getElementById('overdueCount').textContent = overdueBorrows.length;
+                }
+
+                // 渲染当前借阅列表（borrowed状态）
+                renderBorrowTable(currentBorrows);
+
+                // 显示表格
+                document.getElementById('loadingBorrows').style.display = 'none';
+                if (currentBorrows.length > 0) {
+                    document.getElementById('borrowTableContainer').style.display = 'block';
+                } else {
+                    document.getElementById('noBorrowData').style.display = 'block';
+                }
+            }, 1000);
+        }
+
+        // 渲染借阅表格
+        function renderBorrowTable(borrows) {
+            const tbody = document.getElementById('borrowTableBody');
+            tbody.innerHTML = '';
+
+            borrows.forEach(borrow => {
+                const row = document.createElement('tr');
+                
+                // 判断是否即将超期（7天内到期）
+                const endDate = new Date(borrow.end_date);
+                const today = new Date();
+                const daysRemaining = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
+                const isDueSoon = daysRemaining <= 7 && daysRemaining > 0;
+                
+                let statusBadge = '';
+                if (borrow.STATUS === 'borrowed') {
+                    statusBadge = isDueSoon 
+                        ? `<span class="status-badge status-borrowed" style="background: #fff3e0; color: #f39c12;">
+                            <i class="fas fa-clock"></i> ${daysRemaining}天后到期
+                           </span>`
+                        : `<span class="status-badge status-borrowed">借阅中</span>`;
+                } else if (borrow.STATUS === 'overdue') {
+                    statusBadge = `<span class="status-badge status-overdue">已超期</span>`;
+                }
+
+                row.innerHTML = `
+                    <td>
+                        <strong>${borrow.journal_name}</strong><br>
+                        <small style="color: #666;">ID: ${borrow.journal_id}</small>
+                    </td>
+                    <td>${borrow.start_date}</td>
+                    <td>
+                        ${borrow.end_date}
+                        ${isDueSoon ? '<br><small style="color: #f39c12;">即将到期</small>' : ''}
+                    </td>
+                    <td>${statusBadge}</td>
+                    <td>
+                        <button class="action-btn renew-btn" 
+                                onclick="renewJournal(${borrow.borrow_id})"
+                                ${isDueSoon ? '' : 'disabled'}>
+                            ${isDueSoon ? '续借' : '未到期'}
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 续借期刊
+        function renewJournal(borrowId) {
+            const borrow = borrowData.find(item => item.borrow_id === borrowId);
+            if (borrow) {
+                if (confirm(`确认续借《${borrow.journal_name}》吗？续借将延长归还日期30天。`)) {
+                    // 模拟续借操作
+                    const newEndDate = new Date(borrow.end_date);
+                    newEndDate.setDate(newEndDate.getDate() + 30);
+                    
+                    alert(`续借成功！新的应还日期为：${newEndDate.toISOString().split('T')[0]}`);
+                    refreshStats();
+                }
+            }
+        }
+
+        // 刷新统计数据
+        function refreshStats() {
+            document.getElementById('loadingBorrows').style.display = 'block';
+            document.getElementById('borrowTableContainer').style.display = 'none';
+            document.getElementById('noBorrowData').style.display = 'none';
+            
+            setTimeout(() => {
+                loadBorrowData();
+            }, 500);
+        }
+
+    
+    
+
+        // 检查是否有超期期刊（额外的检查逻辑）
+        function checkOverdueItems() {
+            const today = new Date();
+            const overdueItems = borrowData.filter(borrow => {
+                if (borrow.STATUS === 'borrowed') {
+                    const endDate = new Date(borrow.end_date);
+                    return endDate < today;
+                }
+                return false;
+            });
+
+            return overdueItems.length;
+        }
+        
+    </script>
+    <script src="../../js/teacher-index.js"></script>
+</body>
+</html>
