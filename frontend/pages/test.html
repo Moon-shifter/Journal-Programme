@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学院期刊管理系统 - 教师主页</title>
+    <!-- 沿用管理员主页的CSS依赖 -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- 复用管理员主页的自定义样式，保持风格统一 -->
+    <style>
+        :root {
+            --primary-color: #2c5282;
+            --secondary-color: #3182ce;
+            --sidebar-bg: #1a365d;
+            --sidebar-hover: #2c629e;
+            --text-light: #f7fafc;
+            --text-dark: #2d3748;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --success-color: #38a169;
+            --warning-color: #d69e2e;
+            --danger-color: #e53e3e;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "Segoe UI", Roboto, sans-serif;
+            color: var(--text-dark);
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* 侧边栏样式（复用管理员版，调整菜单） */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 240px;
+            background-color: var(--sidebar-bg);
+            color: var(--text-light);
+            transition: all 0.3s ease;
+            z-index: 100;
+            overflow: hidden;
+        }
+
+        .sidebar-collapsed {
+            width: 60px !important;
+        }
+        .sidebar-collapsed .logo h3,
+        .sidebar-collapsed .nav-link span {
+            display: none !important;
+        }
+        .sidebar-collapsed .logo {
+            justify-content: center;
+            padding: 1.5rem 0 !important;
+            gap: 0;
+        }
+        .sidebar-collapsed .nav-link {
+            justify-content: center;
+            padding: 0.8rem 0 !important;
+        }
+
+        .sidebar .logo {
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .sidebar .logo h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            white-space: nowrap;
+        }
+
+        .sidebar .logo-icon {
+            font-size: 1.5rem;
+            color: var(--text-light);
+        }
+
+        .sidebar .nav-menu {
+            padding: 1.5rem 0;
+        }
+
+        .sidebar .nav-item {
+            list-style: none;
+            margin: 0.5rem 0;
+        }
+
+        .sidebar .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1.2rem;
+            color: var(--text-light);
+            text-decoration: none;
+            border-left: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background-color: var(--sidebar-hover);
+            border-left-color: var(--secondary-color);
+        }
+
+        .sidebar .nav-link span {
+            white-space: nowrap;
+        }
+
+        /* 主内容区（复用管理员版） */
+        .main-content {
+            margin-left: 240px;
+            transition: all 0.3s ease;
+        }
+
+        .main-content-expanded {
+            margin-left: 60px !important;
+        }
+
+        /* 顶部导航栏（复用管理员版） */
+        .top-nav {
+            height: 60px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 0 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .top-nav .toggle-btn {
+            background: none;
+            border: none;
+            color: var(--text-dark);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .top-nav .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .top-nav .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        /* 内容容器（复用管理员版） */
+        .content-container {
+            padding: 1.5rem;
+            background-color: #f8f9fa;
+            min-height: calc(100vh - 60px);
+        }
+
+        /* 仪表盘卡片（复用管理员版） */
+        .stat-card {
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            background-color: #fff;
+            padding: 1.2rem;
+            height: 100%;
+            transition: transform 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card .card-icon.primary {
+            background-color: rgba(44, 82, 130, 0.1);
+            color: var(--primary-color);
+        }
+
+        .stat-card .card-icon.success {
+            background-color: rgba(56, 161, 105, 0.1);
+            color: var(--success-color);
+        }
+
+        .stat-card .card-icon.warning {
+            background-color: rgba(214, 158, 46, 0.1);
+            color: var(--warning-color);
+        }
+
+        .stat-card .card-icon.danger {
+            background-color: rgba(229, 62, 62, 0.1);
+            color: var(--danger-color);
+        }
+
+        .stat-card .card-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-card .card-label {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        /* 按钮样式（复用管理员版） */
+        .btn-custom {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            background-color: var(--primary-color);
+        }
+
+        .btn-custom:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            background-color: var(--secondary-color);
+        }
+
+        /* 表格样式（复用管理员版） */
+        .data-table {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table thead {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+        }
+
+        .data-table th {
+            border: none;
+            padding: 1rem;
+            font-weight: 500;
+            text-align: left;
+        }
+
+        .data-table td {
+            border-color: #e2e8f0;
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .badge-status {
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .badge-normal {
+            background-color: rgba(56, 161, 105, 0.1);
+            color: var(--success-color);
+        }
+
+        .badge-overdue {
+            background-color: rgba(229, 62, 62, 0.1);
+            color: var(--danger-color);
+        }
+
+        .badge-pending {
+            background-color: rgba(214, 158, 46, 0.1);
+            color: var(--warning-color);
+        }
+
+        /* 筛选栏样式 */
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            align-items: center;
+        }
+
+        .filter-input {
+            padding: 0.6rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            flex: 1;
+            min-width: 200px;
+            font-size: 0.9rem;
+        }
+
+        .filter-select {
+            padding: 0.6rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            min-width: 150px;
+            font-size: 0.9rem;
+        }
+
+        /* 期刊卡片样式 */
+        .journal-card {
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            background-color: #fff;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: transform 0.2s ease;
+        }
+
+        .journal-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .journal-card .journal-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .journal-card .journal-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .journal-card .journal-desc {
+            color: var(--text-dark);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        /* 响应式适配（复用管理员版） */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 60px;
+            }
+            .main-content {
+                margin-left: 60px;
+            }
+            .sidebar .logo h3, .sidebar .nav-link span {
+                display: none;
+            }
+            .sidebar .logo {
+                justify-content: center;
+                padding: 1.5rem 0;
+            }
+            .sidebar .nav-link {
+                justify-content: center;
+                padding: 0.8rem 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stat-card .card-value {
+                font-size: 1.5rem;
+            }
+            .btn-custom {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.85rem;
+            }
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边栏（教师专属菜单） -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <i class="fas fa-book-journal-whills logo-icon"></i>
+            <h3>期刊管理系统</h3>
+        </div>
+        <ul class="nav-menu p-0">
+            <li class="nav-item">
+                <a href="#" class="nav-link active">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>个人仪表盘</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-search"></i>
+                    <span>期刊查询浏览</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-book-open"></i>
+                    <span>我的借阅</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="teacher-login.html" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>退出登录</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="main-content" id="mainContent">
+        <!-- 顶部导航 -->
+        <div class="top-nav">
+            <button class="toggle-btn" id="toggleSidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="user-info">
+                <span class="me-2">教师：李教授（计算机学院）</span>
+                <div class="user-avatar">李</div>
+            </div>
+        </div>
+
+        <!-- 内容容器 -->
+        <div class="content-container">
+            <!-- 页面标题 -->
+            <div class="mb-4">
+                <h2 class="mb-1">个人仪表盘</h2>
+                <p class="text-muted">欢迎回来，李教授 | 今日可借阅次数：3次</p>
+            </div>
+
+            <!-- 个人借阅数据统计 -->
+            <div class="row mb-5">
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="stat-card">
+                        <div class="card-icon primary">
+                            <i class="fas fa-book fa-lg"></i>
+                        </div>
+                        <div class="card-value">5</div>
+                        <div class="card-label">已借阅期刊</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="stat-card">
+                        <div class="card-icon success">
+                            <i class="fas fa-check-circle fa-lg"></i>
+                        </div>
+                        <div class="card-value">3</div>
+                        <div class="card-label">正常借阅</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="stat-card">
+                        <div class="card-icon warning">
+                            <i class="fas fa-clock fa-lg"></i>
+                        </div>
+                        <div class="card-value">2</div>
+                        <div class="card-label">即将到期</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="stat-card">
+                        <div class="card-icon danger">
+                            <i class="fas fa-exclamation-triangle fa-lg"></i>
+                        </div>
+                        <div class="card-value">0</div>
+                        <div class="card-label">超期未还</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 我的借阅记录 -->
+            <div class="card shadow-sm mb-5">
+                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">我的借阅记录</h5>
+                    <button class="btn-custom btn-sm">
+                        <i class="fas fa-refresh"></i> 刷新记录
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <table class="data-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>期刊ID</th>
+                                <th>期刊名称</th>
+                                <th>借阅时间</th>
+                                <th>到期时间</th>
+                                <th>剩余天数</th>
+                                <th>状态</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>J20250301</td>
+                                <td>《计算机学报》2025年第3期</td>
+                                <td>2025-02-15</td>
+                                <td>2025-04-15</td>
+                                <td>14天</td>
+                                <td><span class="badge-status badge-normal">正常</span></td>
+                            </tr>
+                            <tr>
+                                <td>J20250108</td>
+                                <td>《人工智能进展》2025年第1期</td>
+                                <td>2025-03-02</td>
+                                <td>2025-05-02</td>
+                                <td>31天</td>
+                                <td><span class="badge-status badge-normal">正常</span></td>
+                            </tr>
+                            <tr>
+                                <td>J20241212</td>
+                                <td>《数据挖掘与知识发现》2024年第6期</td>
+                                <td>2025-01-20</td>
+                                <td>2025-03-20</td>
+                                <td>5天</td>
+                                <td><span class="badge-status badge-pending">即将到期</span></td>
+                            </tr>
+                            <tr>
+                                <td>J20250205</td>
+                                <td>《计算机应用研究》2025年第2期</td>
+                                <td>2025-02-28</td>
+                                <td>2025-04-28</td>
+                                <td>23天</td>
+                                <td><span class="badge-status badge-normal">正常</span></td>
+                            </tr>
+                            <tr>
+                                <td>J20250116</td>
+                                <td>《软件工程》2025年第1期</td>
+                                <td>2025-03-10</td>
+                                <td>2025-03-25</td>
+                                <td>0天</td>
+                                <td><span class="badge-status badge-pending">今日到期</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 期刊查询浏览 -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0">期刊查询浏览</h5>
+                </div>
+                <div class="card-body">
+                    <!-- 筛选栏 -->
+                    <div class="filter-bar">
+                        <input type="text" class="filter-input" id="journalSearch" placeholder="搜索期刊名称/ID/关键词">
+                        <select class="filter-select" id="journalCategory">
+                            <option value="">全部类别</option>
+                            <option value="计算机类">计算机类</option>
+                            <option value="文学类">文学类</option>
+                            <option value="数学类">数学类</option>
+                            <option value="机械类">机械类</option>
+                            <option value="经济类">经济类</option>
+                            <option value="外语类">外语类</option>
+                            <option value="艺术类">艺术类</option>
+                        </select>
+                        <select class="filter-select" id="journalIssue">
+                            <option value="">全部刊期</option>
+                            <option value="2025年第3期">2025年第3期</option>
+                            <option value="2025年第2期">2025年第2期</option>
+                            <option value="2025年第1期">2025年第1期</option>
+                            <option value="2024年第6期">2024年第6期</option>
+                            <option value="2024年第5期">2024年第5期</option>
+                        </select>
+                        <button class="btn-custom" id="searchBtn">
+                            <i class="fas fa-search"></i> 搜索
+                        </button>
+                    </div>
+
+                    <!-- 期刊列表（卡片式展示） -->
+                    <div class="journal-list">
+                        <div class="journal-card">
+                            <h4 class="journal-title">《计算机学报》2025年第3期</h4>
+                            <div class="journal-meta">
+                                <span><i class="fas fa-tag"></i> 计算机类</span>
+                                <span><i class="fas fa-calendar"></i> 2025-03-15入库</span>
+                                <span><i class="fas fa-copy"></i> 期刊ID：J20250301</span>
+                                <span><i class="fas fa-check"></i> 可借阅</span>
+                            </div>
+                            <p class="journal-desc">
+                                本期聚焦人工智能、机器学习、大数据处理等前沿领域，收录了12篇高质量学术论文，包括《基于深度学习的图像识别优化研究》《分布式系统中的数据一致性算法》等热点主题，适合计算机相关专业教师和科研人员参考。
+                            </p>
+                            <button class="btn-custom">
+                                <i class="fas fa-handshake"></i> 申请借阅
+                            </button>
+                        </div>
+
+                        <div class="journal-card">
+                            <h4 class="journal-title">《人工智能进展》2025年第1期</h4>
+                            <div class="journal-meta">
+                                <span><i class="fas fa-tag"></i> 计算机类</span>
+                                <span><i class="fas fa-calendar"></i> 2025-01-20入库</span>
+                                <span><i class="fas fa-copy"></i> 期刊ID：J20250108</span>
+                                <span><i class="fas fa-check"></i> 可借阅</span>
+                            </div>
+                            <p class="journal-desc">
+                                本期围绕大语言模型、生成式AI、智能Agent等方向，邀请领域内专家撰写综述文章，同时收录多篇原创研究成果，涵盖AI伦理、模型优化、行业应用等内容，为相关研究提供重要参考。
+                            </p>
+                            <button class="btn-custom">
+                                <i class="fas fa-handshake"></i> 申请借阅
+                            </button>
+                        </div>
+
+                        <div class="journal-card">
+                            <h4 class="journal-title">《经济研究》2025年第1期</h4>
+                            <div class="journal-meta">
+                                <span><i class="fas fa-tag"></i> 经济类</span>
+                                <span><i class="fas fa-calendar"></i> 2025-03-01入库</span>
+                                <span><i class="fas fa-copy"></i> 期刊ID：J20250305</span>
+                                <span><i class="fas fa-check"></i> 可借阅</span>
+                            </div>
+                            <p class="journal-desc">
+                                本期关注数字经济、乡村振兴、金融改革等热点议题，收录了来自高校和科研机构的最新研究成果，分析当前经济形势与发展趋势，为政策制定和学术研究提供参考。
+                            </p>
+                            <button class="btn-custom">
+                                <i class="fas fa-handshake"></i> 申请借阅
+                            </button>
+                        </div>
+
+                        <div class="journal-card">
+                            <h4 class="journal-title">《中国现代文学》2025年第1期</h4>
+                            <div class="journal-meta">
+                                <span><i class="fas fa-tag"></i> 文学类</span>
+                                <span><i class="fas fa-calendar"></i> 2025-03-10入库</span>
+                                <span><i class="fas fa-copy"></i> 期刊ID：J20250302</span>
+                                <span><i class="fas fa-lock"></i> 已被借阅</span>
+                            </div>
+                            <p class="journal-desc">
+                                本期收录了当代文学创作与评论文章，包括小说、散文、诗歌等多种体裁，聚焦新时代文学发展趋势，探讨文学与社会的关系，适合文学专业教师和爱好者阅读。
+                            </p>
+                            <button class="btn-custom" disabled style="opacity: 0.6; cursor: not-allowed;">
+                                <i class="fas fa-lock"></i> 已被借阅
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 原生JS脚本（无外部库依赖） -->
+    <script>
+        // 侧边栏折叠/展开（复用管理员版逻辑）
+        const toggleSidebar = document.getElementById('toggleSidebar');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+
+        toggleSidebar.addEventListener('click', function() {
+            sidebar.classList.toggle('sidebar-collapsed');
+            mainContent.classList.toggle('main-content-expanded');
+            
+            const icon = this.querySelector('i');
+            if (sidebar.classList.contains('sidebar-collapsed')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-expand');
+            } else {
+                icon.classList.remove('fa-expand');
+                icon.classList.add('fa-bars');
+            }
+        });
+
+        // 期刊搜索功能
+        const searchBtn = document.getElementById('searchBtn');
+        const journalSearch = document.getElementById('journalSearch');
+        const journalCategory = document.getElementById('journalCategory');
+        const journalIssue = document.getElementById('journalIssue');
+        const journalCards = document.querySelectorAll('.journal-card');
+
+        searchBtn.addEventListener('click', function() {
+            const searchText = journalSearch.value.toLowerCase().trim();
+            const category = journalCategory.value;
+            const issue = journalIssue.value;
+
+            journalCards.forEach(card => {
+                const title = card.querySelector('.journal-title').textContent.toLowerCase();
+                const cardCategory = card.querySelector('.journal-meta span:first-child').textContent.replace('📌 ', '');
+                const cardIssue = card.querySelector('.journal-title').textContent;
+                const cardId = card.querySelector('.journal-meta span:nth-child(3)').textContent.replace('📋 期刊ID：', '');
+
+                // 搜索逻辑：满足搜索文本、分类、刊期任一条件
+                const matchSearch = searchText === '' || title.includes(searchText) || cardId.includes(searchText);
+                const matchCategory = category === '' || cardCategory.includes(category);
+                const matchIssue = issue === '' || cardIssue.includes(issue);
+
+                if (matchSearch && matchCategory && matchIssue) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            alert(`搜索完成！共找到 ${document.querySelectorAll('.journal-card[style="display: block;"]').length} 本符合条件的期刊`);
+        });
+
+        // 申请借阅按钮事件
+        document.querySelectorAll('.btn-custom:not([disabled])').forEach(btn => {
+            if (btn.textContent.includes('申请借阅')) {
+                btn.addEventListener('click', function() {
+                    const journalTitle = this.closest('.journal-card').querySelector('.journal-title').textContent;
+                    if (confirm(`确认申请借阅《${journalTitle}》吗？\n借阅期限：60天，到期前可申请续借1次`)) {
+                        this.innerHTML = '<i class="fas fa-check"></i> 借阅申请已提交';
+                        this.style.backgroundColor = var(--success-color);
+                        this.disabled = true;
+                        this.style.opacity = 0.8;
+                        alert(`借阅申请提交成功！\n管理员将在1-2个工作日内处理，请注意查看系统通知。`);
+                    }
+                });
+            }
+        });
+
+        // 刷新借阅记录按钮事件
+        document.querySelector('.btn-custom.btn-sm').addEventListener('click', function() {
+            const originalText = this.innerHTML;
+            this.innerHTML = '<span class="loading"></span> 刷新中...';
+            this.disabled = true;
+
+            setTimeout(() => {
+                this.innerHTML = originalText;
+                this.disabled = false;
+                alert('借阅记录已刷新，暂无更新');
+            }, 1500);
+        });
+
+        // 加载动画样式（动态添加）
+        const style = document.createElement('style');
+        style.textContent = `
+            .loading {
+                display: inline-block;
+                width: 16px;
+                height: 16px;
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                border-radius: 50%;
+                border-top-color: #FFFFFF;
+                animation: spin 1s ease-in-out infinite;
+            }
+            @keyframes spin {
+                to { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
