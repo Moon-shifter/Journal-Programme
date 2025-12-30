@@ -1,6 +1,6 @@
 // 1. 创建Axios实例（配置后端基础路径、超时等）
 const requestInstance = axios.create({
-  baseURL: "/api", // 后端接口基础路径（根据实际后端地址修改，如"http://localhost:8080/api"）
+  baseURL: "http://localhost:8080/api", // 后端接口基础路径（根据实际后端地址修改，如"http://localhost:8080/api"）
   timeout: 5000, // 请求超时时间（5秒）
   headers: { "Content-Type": "application/json;charset=utf-8" } // 默认请求头
 });
@@ -10,10 +10,11 @@ const requestInstance = axios.create({
 requestInstance.interceptors.request.use(
   (config) => {
     // 示例：从本地存储中获取Token并添加到请求头（若后端需要认证）
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers["Authorization"] = token; // 格式根据后端要求调整（如"Bearer " + token）
-    }
+    // const token = localStorage.getItem("token");
+    // if (token) {
+    //
+    //   config.headers["Authorization"] = token; // 格式根据后端要求调整（如"Bearer " + token）
+    // }
     return config;
   },
   (error) => {
@@ -56,13 +57,13 @@ requestInstance.interceptors.response.use(
       // 有响应但状态码非2xx
       const { status } = error.response;
       switch (status) {
-        case 401:
-          errorMsg = "未登录，请先登录";
-          window.location.href = "/login.html"; // 跳转到登录页
-          break;
-        case 403:
-          errorMsg = "您没有权限访问该资源";
-          break;
+        // case 401:
+        //   errorMsg = "未登录，请先登录";
+        //   window.location.href = "/login.html"; // 跳转到登录页
+        //   break;
+        // case 403:
+        //   errorMsg = "您没有权限访问该资源";
+        //   break;
         case 404:
           errorMsg = "请求的接口不存在";
           break;

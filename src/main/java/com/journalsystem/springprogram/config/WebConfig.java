@@ -4,6 +4,7 @@ import com.journalsystem.springprogram.interceptor.LoginInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
@@ -29,5 +30,20 @@ public class WebConfig implements WebMvcConfigurer {
                         "/api/auth/**/register", // 注册接口
                         "/api/system/**" // 公共接口
                 );
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // 1. 配置页面（pages目录）的访问映射
+        // 浏览器访问路径：http://localhost:8080/pages/**
+        // 对应项目中资源位置：src/main/resources/frontend/pages/**
+        registry.addResourceHandler("/pages/**")
+                .addResourceLocations("classpath:/frontend/pages/");
+
+        // 2. 配置静态文件（static目录，含css、js）的访问映射
+        // 浏览器访问路径：http://localhost:8080/static/**
+        // 对应项目中资源位置：src/main/resources/frontend/static/**
+        registry.addResourceHandler("/static/**")
+                .addResourceLocations("classpath:/frontend/static/");
     }
 }

@@ -35,7 +35,7 @@
                 
                 // 3秒后跳转登录页
                 setTimeout(() => {
-                    window.location.href = 'teacher-login.html';
+                    window.location.href = '../../pages/teacher/teacher-login.html';
                 }, 3000);
             } else {
                 // 注册失败（业务逻辑错误）

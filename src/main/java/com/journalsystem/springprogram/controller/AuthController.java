@@ -47,6 +47,8 @@ public class AuthController {
         String username=loginRequest.get("username");
         String password=loginRequest.get("password");
 
+        System.out.println("ok");
+
         //2.调用service层验证账号密码是否正确
         AdminInfo adminInfo=adminService.getAdminByUsernameAndPwd(username,password);
 
@@ -80,6 +82,7 @@ public class AuthController {
         String id=loginData.get("id");
         String name=loginData.get("name");
         String phone=loginData.get("phone");
+
 
         //调用教师服务层的登录方法
         teacherService.login(Integer.valueOf(id),name,phone);
