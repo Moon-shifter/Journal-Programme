@@ -29,31 +29,3 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
-.vscode/
-src/main/resources/static/pages/teacher_login&regis.html
-src/main/resources/static/pages/index.html
-src/main/resources/static/js/user_loginJS.js
-src/main/resources/static/pages/index.html
-src/main/resources/static/js/user_loginJS.js
-src/main/resources/static/pages/teacher_login_regist.html
-src/main/resources/static/pages/user_login.html
-.mvn/wrapper/maven-wrapper.properties
-.mvn/wrapper/maven-wrapper.properties
-mvnw
-.mvn/wrapper/maven-wrapper.properties
-src/main/java/com/journalsystem/springprogram/repository/TeacherRepository.java
-src/main/java/com/journalsystem/springprogram/util/ExcelUtil.java
-src/main/java/com/journalsystem/springprogram/util/DateUtil.java
-.mvn/wrapper/maven-wrapper.properties
-mvnw
-mvnw.cmd
-pom.xml
-src/main/java/com/journalsystem/springprogram/common/Result.java
-src/main/java/com/journalsystem/springprogram/config/ExcelConfig.java
-*.java
-*.java
-*.java
-*.java
-src/main/java/com/journalsystem/springprogram/controller/SystemController.java
-src/main/resources/static/pages/teacher/teacher-login-regist.html
