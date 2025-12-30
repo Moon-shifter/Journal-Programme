@@ -63,13 +63,20 @@ async function handleLogin() {
     loginBtn.textContent = "登录中...";
     
     try {
-        const formData = new FormData(document.getElementById("userForm"));
+        const userForm = new FormData(document.getElementById("userForm"));
+        const params = {
+            username: userForm.querySelector('input[name="username"]').value.trim(),
+            password: userForm.querySelector('input[name="password"]').value.trim(),
+            // 如有验证码/其他字段，继续追加
+            // code: userForm.querySelector('input[name="code"]').value.trim()
+        };
+
         // 调用登录接口（使用全局api对象）
         const response = await api.post(
             "/admin/login",  // 登录接口路径
-            formData,
+            params,
             {},
-            true  // 标记为FormData格式
+            false // 标记为FormData格式
         );
         
         if (response.success) {
