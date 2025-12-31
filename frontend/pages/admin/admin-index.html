@@ -4,443 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>学院期刊管理系统 - 管理员主页</title>
-    <!-- Bootstrap CSS -->
+    <!-- 仅保留Bootstrap CSS（如需完全离线，替换为本地Bootstrap CSS文件） -->
     <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome CSS -->
+    <!-- Font Awesome CSS（如需完全离线，替换为本地文件） -->
     <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- 自定义样式 -->
-    <style>
-        :root {
-            --primary-color: #2c5282;
-            --secondary-color: #3182ce;
-            --sidebar-bg: #1a365d;
-            --sidebar-hover: #2c629e;
-            --text-light: #f7fafc;
-            --text-dark: #2d3748;
-            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --success-color: #38a169;
-            --warning-color: #d69e2e;
-            --danger-color: #e53e3e;
-        }
-
-        body {
-            font-family: "Microsoft YaHei", "Segoe UI", Roboto, sans-serif;
-            color: var(--text-dark);
-            overflow-x: hidden;
-            margin: 0;
-            padding: 0;
-        }
-
-        /* 侧边栏样式 - 确保折叠逻辑优先级 */
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100vh;
-            width: 240px;
-            background-color: var(--sidebar-bg);
-            color: var(--text-light);
-            transition: width 0.3s ease;
-            z-index: 100;
-            overflow: hidden;
-        }
-
-        /* 折叠状态 - 强制宽度+隐藏文字 */
-        .sidebar.sidebar-collapsed {
-            width: 60px !important;
-        }
-        .sidebar.sidebar-collapsed .logo h3,
-        .sidebar.sidebar-collapsed .nav-link span {
-            display: none !important;
-        }
-        .sidebar.sidebar-collapsed .logo {
-            justify-content: center;
-            padding: 1.5rem 0 !important;
-            gap: 0;
-        }
-        .sidebar.sidebar-collapsed .nav-link {
-            justify-content: center;
-            padding: 0.8rem 0 !important;
-        }
-
-        .sidebar .logo {
-            padding: 1.5rem 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-        }
-
-        .sidebar .logo h3 {
-            margin: 0;
-            font-size: 1.1rem;
-            white-space: nowrap;
-        }
-
-        .sidebar .logo-icon {
-            font-size: 1.5rem;
-            color: var(--text-light);
-        }
-
-        .sidebar .nav-menu {
-            padding: 1.5rem 0;
-        }
-
-        .sidebar .nav-item {
-            list-style: none;
-            margin: 0.5rem 0;
-        }
-
-        .sidebar .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            padding: 0.8rem 1.2rem;
-            color: var(--text-light);
-            text-decoration: none;
-            border-left: 3px solid transparent;
-            transition: all 0.2s ease;
-        }
-
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            background-color: var(--sidebar-hover);
-            border-left-color: var(--secondary-color);
-        }
-
-        .sidebar .nav-link span {
-            white-space: nowrap;
-        }
-
-        /* 主内容区 - 确保折叠后间距正确 */
-        .main-content {
-            margin-left: 240px;
-            transition: margin-left 0.3s ease;
-        }
-
-        .main-content.main-content-expanded {
-            margin-left: 60px !important;
-        }
-
-        /* 顶部导航栏 */
-        .top-nav {
-            height: 60px;
-            background-color: #fff;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            padding: 0 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .top-nav .toggle-btn {
-            background: none;
-            border: none;
-            color: var(--text-dark);
-            font-size: 1.2rem;
-            cursor: pointer;
-        }
-
-        .top-nav .user-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .top-nav .user-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background-color: var(--primary-color);
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-        }
-
-        /* 内容容器 */
-        .content-container {
-            padding: 1.5rem;
-            background-color: #f8f9fa;
-            min-height: calc(100vh - 60px);
-        }
-
-        /* 仪表盘卡片 */
-        .stat-card {
-            border-radius: 8px;
-            box-shadow: var(--card-shadow);
-            background-color: #fff;
-            padding: 1.2rem;
-            height: 100%;
-            transition: transform 0.2s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .stat-card .card-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 1rem;
-        }
-
-        .stat-card .card-icon.primary {
-            background-color: rgba(44, 82, 130, 0.1);
-            color: var(--primary-color);
-        }
-
-        .stat-card .card-icon.success {
-            background-color: rgba(56, 161, 105, 0.1);
-            color: var(--success-color);
-        }
-
-        .stat-card .card-icon.warning {
-            background-color: rgba(214, 158, 46, 0.1);
-            color: var(--warning-color);
-        }
-
-        .stat-card .card-icon.danger {
-            background-color: rgba(229, 62, 62, 0.1);
-            color: var(--danger-color);
-        }
-
-        .stat-card .card-value {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 0.3rem;
-        }
-
-        .stat-card .card-label {
-            color: #718096;
-            font-size: 0.9rem;
-        }
-
-        /* 快捷操作按钮 */
-        .action-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.6rem 1.2rem;
-            border-radius: 6px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            border: none;
-            color: #fff;
-            cursor: pointer;
-        }
-
-        .action-btn.btn-primary {
-            background-color: var(--primary-color);
-        }
-
-        .action-btn.btn-success {
-            background-color: var(--success-color);
-        }
-
-        .action-btn.btn-warning {
-            background-color: var(--warning-color);
-        }
-
-        .action-btn.btn-danger {
-            background-color: var(--danger-color);
-        }
-
-        .action-btn.btn-info {
-            background-color: #86909c;
-        }
-
-        .action-btn:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-        }
-
-        /* 表格样式 */
-        .data-table {
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: var(--card-shadow);
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .data-table thead {
-            background-color: var(--primary-color);
-            color: var(--text-light);
-        }
-
-        .data-table th {
-            border: none;
-            padding: 1rem;
-            font-weight: 500;
-            text-align: left;
-        }
-
-        .data-table td {
-            border-color: #e2e8f0;
-            padding: 0.8rem 1rem;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .badge-status {
-            padding: 0.3rem 0.6rem;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        .badge-overdue {
-            background-color: rgba(229, 62, 62, 0.1);
-            color: var(--danger-color);
-        }
-
-        .badge-normal {
-            background-color: rgba(56, 161, 105, 0.1);
-            color: var(--success-color);
-        }
-
-        /* 纯CSS柱状图 */
-        .css-chart {
-            width: 100%;
-            height: 250px;
-            display: flex;
-            align-items: flex-end;
-            gap: 8px;
-            padding: 0 10px;
-            box-sizing: border-box;
-        }
-
-        .chart-bar {
-            flex: 1;
-            background-color: var(--primary-color);
-            border-radius: 4px 4px 0 0;
-            position: relative;
-            transition: height 0.5s ease;
-        }
-
-        .chart-bar:nth-child(1) { height: 45%; background-color: rgba(44, 82, 130, 0.7); }
-        .chart-bar:nth-child(2) { height: 38%; background-color: rgba(56, 161, 105, 0.7); }
-        .chart-bar:nth-child(3) { height: 32%; background-color: rgba(214, 158, 46, 0.7); }
-        .chart-bar:nth-child(4) { height: 41%; background-color: rgba(229, 62, 62, 0.7); }
-        .chart-bar:nth-child(5) { height: 29%; background-color: rgba(168, 85, 247, 0.7); }
-        .chart-bar:nth-child(6) { height: 22%; background-color: rgba(236, 72, 153, 0.7); }
-        .chart-bar:nth-child(7) { height: 15%; background-color: rgba(249, 115, 22, 0.7); }
-
-        .chart-bar-label {
-            position: absolute;
-            bottom: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 12px;
-            white-space: nowrap;
-            color: #718096;
-        }
-
-        .chart-bar-value {
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        /* 响应式适配 */
-        @media (max-width: 992px) {
-            .sidebar {
-                width: 60px;
-            }
-            .main-content {
-                margin-left: 60px;
-            }
-            .sidebar .logo h3, .sidebar .nav-link span {
-                display: none;
-            }
-            .sidebar .logo {
-                justify-content: center;
-                padding: 1.5rem 0;
-            }
-            .sidebar .nav-link {
-                justify-content: center;
-                padding: 0.8rem 0;
-            }
-            .chart-bar-label {
-                font-size: 10px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .stat-card .card-value {
-                font-size: 1.5rem;
-            }
-            .action-btn {
-                padding: 0.5rem 0.8rem;
-                font-size: 0.85rem;
-            }
-            .css-chart {
-                height: 200px;
-            }
-        }
-    </style>
+    <!-- 自定义样式（包含纯CSS柱状图） -->
+    <link rel="stylesheet" href="../../static/css/admin-index.css">
 </head>
 <body>
     <!-- 侧边栏 -->
     <div class="sidebar" id="sidebar">
         <div class="logo">
-            <<i class="fas fa-book-journal-whills logo-icon"></</i>
+            <i class="fas fa-book-journal-whills logo-icon"></i>
             <h3>期刊管理系统</h3>
         </div>
         <ul class="nav-menu p-0">
             <li class="nav-item">
                 <a href="#" class="nav-link active">
-                    <<i class="fas fa-tachometer-alt"></</i>
+                    <i class="fas fa-tachometer-alt"></i>
                     <span>仪表盘</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="#" class="nav-link">
-                    <<i class="fas fa-book"></</i>
+                    <i class="fas fa-book"></i>
                     <span>期刊信息管理</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="#" class="nav-link">
-                    <<i class="fas fa-users"></</i>
+                    <i class="fas fa-users"></i>
                     <span>教师信息管理</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="#" class="nav-link">
-                    <<i class="fas fa-handshake"></</i>
+                    <i class="fas fa-handshake"></i>
                     <span>图书借阅办理</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="#" class="nav-link">
-                    <<i class="fas fa-exclamation-triangle"></</i>
+                    <i class="fas fa-exclamation-triangle"></i>
                     <span>超期催还管理</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="#" class="nav-link">
-                    <<i class="fas fa-file-excel"></</i>
+                    <i class="fas fa-file-excel"></i>
                     <span>报表导出</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="#" class="nav-link">
-                    <<i class="fas fa-cog"></</i>
+                    <i class="fas fa-cog"></i>
                     <span>系统设置</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="admin-login.html" class="nav-link">
-                    <<i class="fas fa-sign-out-alt"></</i>
+                    <i class="fas fa-sign-out-alt"></i>
                     <span>退出登录</span>
                 </a>
             </li>
@@ -452,7 +75,7 @@
         <!-- 顶部导航 -->
         <div class="top-nav">
             <button class="toggle-btn" id="toggleSidebar">
-                <<i class="fas fa-bars"></</i>
+                <i class="fas fa-bars"></i>
             </button>
             <div class="user-info">
                 <span class="me-2">管理员：张管理员</span>
@@ -473,7 +96,7 @@
                 <div class="col-md-3 col-sm-6 mb-4">
                     <div class="stat-card">
                         <div class="card-icon primary">
-                            <<i class="fas fa-book fa-lg"></</i>
+                            <i class="fas fa-book fa-lg"></i>
                         </div>
                         <div class="card-value">864</div>
                         <div class="card-label">期刊总数</div>
@@ -482,7 +105,7 @@
                 <div class="col-md-3 col-sm-6 mb-4">
                     <div class="stat-card">
                         <div class="card-icon success">
-                            <<i class="fas fa-users fa-lg"></</i>
+                            <i class="fas fa-users fa-lg"></i>
                         </div>
                         <div class="card-value">248</div>
                         <div class="card-label">教师总数</div>
@@ -491,7 +114,7 @@
                 <div class="col-md-3 col-sm-6 mb-4">
                     <div class="stat-card">
                         <div class="card-icon warning">
-                            <<i class="fas fa-handshake fa-lg"></</i>
+                            <i class="fas fa-handshake fa-lg"></i>
                         </div>
                         <div class="card-value">56</div>
                         <div class="card-label">待处理借阅</div>
@@ -500,7 +123,7 @@
                 <div class="col-md-3 col-sm-6 mb-4">
                     <div class="stat-card">
                         <div class="card-icon danger">
-                            <<i class="fas fa-exclamation-triangle fa-lg"></</i>
+                            <i class="fas fa-exclamation-triangle fa-lg"></i>
                         </div>
                         <div class="card-value">12</div>
                         <div class="card-label">超期未还</div>
@@ -515,23 +138,23 @@
                         <h5 class="mb-3">快捷操作</h5>
                         <div class="d-flex flex-wrap gap-3">
                             <button class="action-btn btn-primary">
-                                <<i class="fas fa-plus"></</i>
+                                <i class="fas fa-plus"></i>
                                 <span>添加期刊</span>
                             </button>
                             <button class="action-btn btn-success">
-                                <<i class="fas fa-plus"></</i>
+                                <i class="fas fa-plus"></i>
                                 <span>添加教师</span>
                             </button>
                             <button class="action-btn btn-warning">
-                                <<i class="fas fa-handshake"></</i>
+                                <i class="fas fa-handshake"></i>
                                 <span>办理借阅手续</span>
                             </button>
                             <button class="action-btn btn-danger">
-                                <<i class="fas fa-file-print"></</i>
+                                <i class="fas fa-file-print"></i>
                                 <span>生成催还单</span>
                             </button>
                             <button class="action-btn btn-info">
-                                <<i class="fas fa-file-excel"></</i>
+                                <i class="fas fa-file-excel"></i>
                                 <span>导出Excel报表</span>
                             </button>
                         </div>
@@ -541,13 +164,14 @@
 
             <!-- 数据可视化 + 超期提醒 -->
             <div class="row mb-5">
-                <!-- 系部教师数量图表 -->
+                <!-- 系部教师数量图表（纯CSS替代Chart.js） -->
                 <div class="col-md-6 mb-4">
                     <div class="card shadow-sm h-100">
                         <div class="card-header bg-white border-bottom">
                             <h5 class="mb-0">各系部教师数量统计</h5>
                         </div>
                         <div class="card-body">
+                            <!-- 纯CSS柱状图 -->
                             <div class="css-chart">
                                 <div class="chart-bar">
                                     <span class="chart-bar-value">45</span>
@@ -588,19 +212,19 @@
                         <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">超期借阅提醒</h5>
                             <button class="btn btn-sm btn-danger">
-                                <<i class="fas fa-print"></</i> 打印催还单
+                                <i class="fas fa-print"></i> 打印催还单
                             </button>
                         </div>
                         <div class="card-body p-0">
                             <table class="data-table mb-0">
                                 <thead>
                                     <tr>
-                                        <<th>教师ID</</th>
-                                        <<th>姓名</</th>
-                                        <<th>系部</</th>
-                                        <<th>借阅期刊</</th>
-                                        <<th>超期天数</</th>
-                                        <<th>状态</</th>
+                                        <th>教师ID</th>
+                                        <th>姓名</th>
+                                        <th>系部</th>
+                                        <th>借阅期刊</th>
+                                        <th>超期天数</th>
+                                        <th>状态</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -653,50 +277,54 @@
         </div>
     </div>
 
-    <!-- 原生JS脚本 -->
+    <!-- 原生JS脚本（无外部库依赖） -->
     <script>
-        // 侧边栏折叠/展开逻辑（修复类名拼接问题）
-        const toggleSidebarBtn = document.getElementById('toggleSidebar');
-        const sidebarEl = document.getElementById('sidebar');
-        const mainContentEl = document.getElementById('mainContent');
+        // 侧边栏折叠/展开 - 原生JS实现
+        const toggleSidebar = document.getElementById('toggleSidebar');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
 
-        toggleSidebarBtn.addEventListener('click', function() {
-            // 切换侧边栏+主内容区类名
-            sidebarEl.classList.toggle('sidebar-collapsed');
-            mainContentEl.classList.toggle('main-content-expanded');
+        toggleSidebar.addEventListener('click', function() {
+            // 切换折叠类
+            sidebar.classList.toggle('sidebar-collapsed');
+            mainContent.classList.toggle('main-content-expanded');
             
             // 切换按钮图标
-            const iconEl = this.querySelector('i');
-            if (sidebarEl.classList.contains('sidebar-collapsed')) {
-                iconEl.classList.replace('fa-bars', 'fa-expand');
+            const icon = this.querySelector('i');
+            if (sidebar.classList.contains('sidebar-collapsed')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-expand');
             } else {
-                iconEl.classList.replace('fa-expand', 'fa-bars');
+                icon.classList.remove('fa-expand');
+                icon.classList.add('fa-bars');
             }
         });
 
-        // 按钮点击交互（优化选择器+提示逻辑）
+        // 按钮点击事件 - 原生JS实现
         document.querySelectorAll('.action-btn, .btn-sm').forEach(btn => {
             btn.addEventListener('click', function() {
                 const btnText = this.textContent.trim();
-                
-                switch (true) {
-                    case btnText.includes('导出Excel报表'):
-                        alert('Excel报表导出成功！文件已保存到本地');
-                        break;
-                    case btnText.includes('生成催还单'):
-                        alert('超期催还单生成成功！');
-                        break;
-                    case btnText.includes('打印催还单'):
-                        alert('催还单打印指令已发送，请前往打印机领取');
-                        break;
-                    case btnText.includes('添加'):
-                        alert(`${btnText}功能已触发，请填写新增信息`);
-                        break;
-                    case btnText.includes('办理借阅手续'):
-                        alert('请扫描教师证件或输入教师ID办理借阅');
-                        break;
-                    default:
-                        break;
+                if (btnText.includes('导出Excel报表')) {
+                    alert('Excel报表导出成功！文件已保存到本地');
+                } else if (btnText.includes('生成催还单')) {
+                    alert('超期催还单生成成功！');
+                } else if (btnText.includes('打印催还单')) {
+                    alert('催还单打印指令已发送，请前往打印机领取');
+                } else if (btnText.includes('添加')) {
+                    alert(`${btnText}功能已触发，请填写新增信息`);
+                } else if (btnText.includes('办理借阅手续')) {
+                    alert('请扫描教师证件或输入教师ID办理借阅');
+                } else if (btnText.includes('编辑') || btnText.includes('fa-edit')) {
+                    const row = this.closest('tr');
+                    const id = row.cells[0].textContent;
+                    alert(`正在编辑ID为「${id}」的记录`);
+                } else if (btnText.includes('删除') || btnText.includes('fa-trash')) {
+                    const row = this.closest('tr');
+                    const id = row.cells[0].textContent;
+                    if (confirm(`确认删除ID为「${id}」的记录吗？`)) {
+                        row.style.opacity = '0.5';
+                        setTimeout(() => row.remove(), 500);
+                    }
                 }
             });
         });
