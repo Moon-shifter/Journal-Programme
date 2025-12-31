@@ -3,432 +3,703 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>期刊管理系统 - 管理员首页</title>
-     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../../static/css/admin-index.css">
+    <title>学院期刊管理系统 - 管理员主页</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome CSS -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- 自定义样式 -->
+    <style>
+        :root {
+            --primary-color: #2c5282;
+            --secondary-color: #3182ce;
+            --sidebar-bg: #1a365d;
+            --sidebar-hover: #2c629e;
+            --text-light: #f7fafc;
+            --text-dark: #2d3748;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --success-color: #38a169;
+            --warning-color: #d69e2e;
+            --danger-color: #e53e3e;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "Segoe UI", Roboto, sans-serif;
+            color: var(--text-dark);
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* 侧边栏样式 - 确保折叠逻辑优先级 */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 240px;
+            background-color: var(--sidebar-bg);
+            color: var(--text-light);
+            transition: width 0.3s ease;
+            z-index: 100;
+            overflow: hidden;
+        }
+
+        /* 折叠状态 - 强制宽度+隐藏文字 */
+        .sidebar.sidebar-collapsed {
+            width: 60px !important;
+        }
+        .sidebar.sidebar-collapsed .logo h3,
+        .sidebar.sidebar-collapsed .nav-link span {
+            display: none !important;
+        }
+        .sidebar.sidebar-collapsed .logo {
+            justify-content: center;
+            padding: 1.5rem 0 !important;
+            gap: 0;
+        }
+        .sidebar.sidebar-collapsed .nav-link {
+            justify-content: center;
+            padding: 0.8rem 0 !important;
+        }
+
+        .sidebar .logo {
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .sidebar .logo h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            white-space: nowrap;
+        }
+
+        .sidebar .logo-icon {
+            font-size: 1.5rem;
+            color: var(--text-light);
+        }
+
+        .sidebar .nav-menu {
+            padding: 1.5rem 0;
+        }
+
+        .sidebar .nav-item {
+            list-style: none;
+            margin: 0.5rem 0;
+        }
+
+        .sidebar .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1.2rem;
+            color: var(--text-light);
+            text-decoration: none;
+            border-left: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background-color: var(--sidebar-hover);
+            border-left-color: var(--secondary-color);
+        }
+
+        .sidebar .nav-link span {
+            white-space: nowrap;
+        }
+
+        /* 主内容区 - 确保折叠后间距正确 */
+        .main-content {
+            margin-left: 240px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.main-content-expanded {
+            margin-left: 60px !important;
+        }
+
+        /* 顶部导航栏 */
+        .top-nav {
+            height: 60px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 0 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .top-nav .toggle-btn {
+            background: none;
+            border: none;
+            color: var(--text-dark);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .top-nav .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .top-nav .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        /* 内容容器 */
+        .content-container {
+            padding: 1.5rem;
+            background-color: #f8f9fa;
+            min-height: calc(100vh - 60px);
+        }
+
+        /* 仪表盘卡片 */
+        .stat-card {
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            background-color: #fff;
+            padding: 1.2rem;
+            height: 100%;
+            transition: transform 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card .card-icon.primary {
+            background-color: rgba(44, 82, 130, 0.1);
+            color: var(--primary-color);
+        }
+
+        .stat-card .card-icon.success {
+            background-color: rgba(56, 161, 105, 0.1);
+            color: var(--success-color);
+        }
+
+        .stat-card .card-icon.warning {
+            background-color: rgba(214, 158, 46, 0.1);
+            color: var(--warning-color);
+        }
+
+        .stat-card .card-icon.danger {
+            background-color: rgba(229, 62, 62, 0.1);
+            color: var(--danger-color);
+        }
+
+        .stat-card .card-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-card .card-label {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        /* 快捷操作按钮 */
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .action-btn.btn-primary {
+            background-color: var(--primary-color);
+        }
+
+        .action-btn.btn-success {
+            background-color: var(--success-color);
+        }
+
+        .action-btn.btn-warning {
+            background-color: var(--warning-color);
+        }
+
+        .action-btn.btn-danger {
+            background-color: var(--danger-color);
+        }
+
+        .action-btn.btn-info {
+            background-color: #86909c;
+        }
+
+        .action-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        /* 表格样式 */
+        .data-table {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table thead {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+        }
+
+        .data-table th {
+            border: none;
+            padding: 1rem;
+            font-weight: 500;
+            text-align: left;
+        }
+
+        .data-table td {
+            border-color: #e2e8f0;
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .badge-status {
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .badge-overdue {
+            background-color: rgba(229, 62, 62, 0.1);
+            color: var(--danger-color);
+        }
+
+        .badge-normal {
+            background-color: rgba(56, 161, 105, 0.1);
+            color: var(--success-color);
+        }
+
+        /* 纯CSS柱状图 */
+        .css-chart {
+            width: 100%;
+            height: 250px;
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
+        .chart-bar {
+            flex: 1;
+            background-color: var(--primary-color);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            transition: height 0.5s ease;
+        }
+
+        .chart-bar:nth-child(1) { height: 45%; background-color: rgba(44, 82, 130, 0.7); }
+        .chart-bar:nth-child(2) { height: 38%; background-color: rgba(56, 161, 105, 0.7); }
+        .chart-bar:nth-child(3) { height: 32%; background-color: rgba(214, 158, 46, 0.7); }
+        .chart-bar:nth-child(4) { height: 41%; background-color: rgba(229, 62, 62, 0.7); }
+        .chart-bar:nth-child(5) { height: 29%; background-color: rgba(168, 85, 247, 0.7); }
+        .chart-bar:nth-child(6) { height: 22%; background-color: rgba(236, 72, 153, 0.7); }
+        .chart-bar:nth-child(7) { height: 15%; background-color: rgba(249, 115, 22, 0.7); }
+
+        .chart-bar-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            white-space: nowrap;
+            color: #718096;
+        }
+
+        .chart-bar-value {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        /* 响应式适配 */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 60px;
+            }
+            .main-content {
+                margin-left: 60px;
+            }
+            .sidebar .logo h3, .sidebar .nav-link span {
+                display: none;
+            }
+            .sidebar .logo {
+                justify-content: center;
+                padding: 1.5rem 0;
+            }
+            .sidebar .nav-link {
+                justify-content: center;
+                padding: 0.8rem 0;
+            }
+            .chart-bar-label {
+                font-size: 10px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stat-card .card-value {
+                font-size: 1.5rem;
+            }
+            .action-btn {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.85rem;
+            }
+            .css-chart {
+                height: 200px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- 页面头部 -->
-    <header class="admin-header">
-        <div class="admin-info">
-            <div class="admin-avatar">
-                <i class="fas fa-user-cog"></i>
-            </div>
-            <div class="admin-details">
-                <h1>期刊管理系统 - 管理员控制台</h1>
-                <p>欢迎回来，系统管理员 </p>
-            </div>
+    <!-- 侧边栏 -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <<i class="fas fa-book-journal-whills logo-icon"></</i>
+            <h3>期刊管理系统</h3>
         </div>
-        <button class="logout-btn" onclick="logout()">
-            <i class="fas fa-sign-out-alt"></i> 退出登录
-        </button>
-    </header>
-    
-  <!-- 统计信息区域 -->
-<section class="stats-section">
-    <h2 class="stats-title">系统概览</h2>
-    <div class="stats-grid">
-        <div class="stat-card stat-journal">
-            <div class="stat-icon">
-                <i class="fas fa-book"></i>
-            </div>
-            <div class="stat-info">
-                <h4>期刊总数</h4>
-                <div class="stat-number" id="journalCount">加载中...</div>
-            </div>
-        </div>
-        
-        <div class="stat-card stat-teacher">
-            <div class="stat-icon">
-                <i class="fas fa-chalkboard-teacher"></i>
-            </div>
-            <div class="stat-info">
-                <h4>教师总数</h4>
-                <div class="stat-number" id="teacherCount">加载中...</div>
-            </div>
-        </div>
-        
-        <div class="stat-card stat-borrow">
-            <div class="stat-icon">
-                <i class="fas fa-handshake"></i>
-            </div>
-            <div class="stat-info">
-                <h4>借阅中</h4>
-                <div class="stat-number" id="borrowCount">加载中...</div>
-            </div>
-        </div>
-        
-        <div class="stat-card stat-overdue">
-            <div class="stat-icon">
-                <i class="fas fa-exclamation-triangle"></i>
-            </div>
-            <div class="stat-info">
-                <h4>超期资料</h4>
-                <div class="stat-number" id="overdueCount">加载中...</div>
-            </div>
-        </div>
+        <ul class="nav-menu p-0">
+            <li class="nav-item">
+                <a href="#" class="nav-link active">
+                    <<i class="fas fa-tachometer-alt"></</i>
+                    <span>仪表盘</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <<i class="fas fa-book"></</i>
+                    <span>期刊信息管理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <<i class="fas fa-users"></</i>
+                    <span>教师信息管理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <<i class="fas fa-handshake"></</i>
+                    <span>图书借阅办理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <<i class="fas fa-exclamation-triangle"></</i>
+                    <span>超期催还管理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <<i class="fas fa-file-excel"></</i>
+                    <span>报表导出</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <<i class="fas fa-cog"></</i>
+                    <span>系统设置</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-login.html" class="nav-link">
+                    <<i class="fas fa-sign-out-alt"></</i>
+                    <span>退出登录</span>
+                </a>
+            </li>
+        </ul>
     </div>
-</section>
 
-
-    <!-- 功能卡片区域 -->
-    <main class="dashboard">
-        <!-- 期刊信息管理 -->
-        <div class="function-card card-journal">
-            <div class="card-icon">
-                <i class="fas fa-newspaper"></i>
+    <!-- 主内容区 -->
+    <div class="main-content" id="mainContent">
+        <!-- 顶部导航 -->
+        <div class="top-nav">
+            <button class="toggle-btn" id="toggleSidebar">
+                <<i class="fas fa-bars"></</i>
+            </button>
+            <div class="user-info">
+                <span class="me-2">管理员：张管理员</span>
+                <div class="user-avatar">张</div>
             </div>
-            <div class="card-content">
-                <h3>期刊信息管理</h3>
-                <p>管理图书馆期刊信息，包括添加新期刊、编辑现有期刊信息、删除过期期刊等操作。可查看期刊名称、类别、出版社、出版日期和状态。</p>
-                <div class="card-actions">
-                    <button class="card-btn primary" onclick="openModal('journalManage')">
-                        <i class="fas fa-cog"></i> 管理期刊
-                    </button>
-                    <button class="card-btn secondary" onclick="openModal('journalAdd')">
-                        <i class="fas fa-plus"></i> 添加期刊
-                    </button>
+        </div>
+
+        <!-- 内容容器 -->
+        <div class="content-container">
+            <!-- 页面标题 -->
+            <div class="mb-4">
+                <h2 class="mb-1">管理员仪表盘</h2>
+                <p class="text-muted">欢迎回来，今日数据概览</p>
+            </div>
+
+            <!-- 数据统计卡片 -->
+            <div class="row mb-5">
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="stat-card">
+                        <div class="card-icon primary">
+                            <<i class="fas fa-book fa-lg"></</i>
+                        </div>
+                        <div class="card-value">864</div>
+                        <div class="card-label">期刊总数</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="stat-card">
+                        <div class="card-icon success">
+                            <<i class="fas fa-users fa-lg"></</i>
+                        </div>
+                        <div class="card-value">248</div>
+                        <div class="card-label">教师总数</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="stat-card">
+                        <div class="card-icon warning">
+                            <<i class="fas fa-handshake fa-lg"></</i>
+                        </div>
+                        <div class="card-value">56</div>
+                        <div class="card-label">待处理借阅</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="stat-card">
+                        <div class="card-icon danger">
+                            <<i class="fas fa-exclamation-triangle fa-lg"></</i>
+                        </div>
+                        <div class="card-value">12</div>
+                        <div class="card-label">超期未还</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 快捷操作区 -->
+            <div class="row mb-5">
+                <div class="col-12">
+                    <div class="card p-4 shadow-sm">
+                        <h5 class="mb-3">快捷操作</h5>
+                        <div class="d-flex flex-wrap gap-3">
+                            <button class="action-btn btn-primary">
+                                <<i class="fas fa-plus"></</i>
+                                <span>添加期刊</span>
+                            </button>
+                            <button class="action-btn btn-success">
+                                <<i class="fas fa-plus"></</i>
+                                <span>添加教师</span>
+                            </button>
+                            <button class="action-btn btn-warning">
+                                <<i class="fas fa-handshake"></</i>
+                                <span>办理借阅手续</span>
+                            </button>
+                            <button class="action-btn btn-danger">
+                                <<i class="fas fa-file-print"></</i>
+                                <span>生成催还单</span>
+                            </button>
+                            <button class="action-btn btn-info">
+                                <<i class="fas fa-file-excel"></</i>
+                                <span>导出Excel报表</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 数据可视化 + 超期提醒 -->
+            <div class="row mb-5">
+                <!-- 系部教师数量图表 -->
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-white border-bottom">
+                            <h5 class="mb-0">各系部教师数量统计</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="css-chart">
+                                <div class="chart-bar">
+                                    <span class="chart-bar-value">45</span>
+                                    <span class="chart-bar-label">计算机学院</span>
+                                </div>
+                                <div class="chart-bar">
+                                    <span class="chart-bar-value">38</span>
+                                    <span class="chart-bar-label">文学院</span>
+                                </div>
+                                <div class="chart-bar">
+                                    <span class="chart-bar-value">32</span>
+                                    <span class="chart-bar-label">理学院</span>
+                                </div>
+                                <div class="chart-bar">
+                                    <span class="chart-bar-value">41</span>
+                                    <span class="chart-bar-label">工学院</span>
+                                </div>
+                                <div class="chart-bar">
+                                    <span class="chart-bar-value">29</span>
+                                    <span class="chart-bar-label">商学院</span>
+                                </div>
+                                <div class="chart-bar">
+                                    <span class="chart-bar-value">22</span>
+                                    <span class="chart-bar-label">外国语学院</span>
+                                </div>
+                                <div class="chart-bar">
+                                    <span class="chart-bar-value">15</span>
+                                    <span class="chart-bar-label">艺术学院</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 超期借阅提醒 -->
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">超期借阅提醒</h5>
+                            <button class="btn btn-sm btn-danger">
+                                <<i class="fas fa-print"></</i> 打印催还单
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="data-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <<th>教师ID</</th>
+                                        <<th>姓名</</th>
+                                        <<th>系部</</th>
+                                        <<th>借阅期刊</</th>
+                                        <<th>超期天数</</th>
+                                        <<th>状态</</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>T008</td>
+                                        <td>李教授</td>
+                                        <td>计算机学院</td>
+                                        <td>《计算机学报》2025年第3期</td>
+                                        <td>8天</td>
+                                        <td><span class="badge-status badge-overdue">超期</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>T024</td>
+                                        <td>王老师</td>
+                                        <td>文学院</td>
+                                        <td>《中国现代文学》2025年第1期</td>
+                                        <td>15天</td>
+                                        <td><span class="badge-status badge-overdue">超期</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>T056</td>
+                                        <td>赵讲师</td>
+                                        <td>理学院</td>
+                                        <td>《数学进展》2025年第2期</td>
+                                        <td>5天</td>
+                                        <td><span class="badge-status badge-overdue">超期</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>T109</td>
+                                        <td>陈老师</td>
+                                        <td>工学院</td>
+                                        <td>《机械工程学报》2025年第4期</td>
+                                        <td>12天</td>
+                                        <td><span class="badge-status badge-overdue">超期</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>T188</td>
+                                        <td>孙教授</td>
+                                        <td>商学院</td>
+                                        <td>《经济研究》2025年第1期</td>
+                                        <td>3天</td>
+                                        <td><span class="badge-status badge-overdue">超期</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    
-
-        <!-- 教师信息管理 -->
-        <div class="function-card card-teacher">
-            <div class="card-icon">
-                <i class="fas fa-users"></i>
-            </div>
-            <div class="card-content">
-                <h3>教师信息管理</h3>
-                <p>按系部、办公室、实验室管理教师基本信息。可添加、修改、删除教师信息，分配借阅权限，查看教师借阅记录。</p>
-                <div class="card-actions">
-                    <button class="card-btn primary" onclick="openModal('teacherManage')">
-                        <i class="fas fa-user-edit"></i> 管理教师
-                    </button>
-                    <button class="card-btn secondary" onclick="openModal('teacherAdd')">
-                        <i class="fas fa-sitemap"></i> 添加教师
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 期刊查询功能 -->
-        <div class="function-card card-search">
-            <div class="card-icon">
-                <i class="fas fa-search"></i>
-            </div>
-            <div class="card-content">
-                <h3>期刊查询功能</h3>
-                <p>按不同查询条件和关键字搜索期刊信息，支持按名称、类别、出版社、日期等条件筛选。可浏览选定资料的详细信息。</p>
-                <div class="card-actions">
-                    <button class="card-btn primary" onclick="openModal('journalSearch')">
-                        <i class="fas fa-search"></i> 高级查询
-                    </button>
-                    <button class="card-btn secondary" onclick="openModal('quickSearch')">
-                        <i class="fas fa-bolt"></i> 快速查询
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 借阅手续办理 -->
-        <div class="function-card card-borrow">
-            <div class="card-icon">
-                <i class="fas fa-hand-holding"></i>
-            </div>
-            <div class="card-content">
-                <h3>借阅手续办理</h3>
-                <p>为学院教职员工办理图书资料的借阅手续，包括借阅登记、归还处理、续借操作等。支持批量处理和快速办理。</p>
-                <div class="card-actions">
-                    <button class="card-btn primary" onclick="openModal('borrowProcess')">
-                        <i class="fas fa-clipboard-check"></i> 办理借阅
-                    </button>
-                    <button class="card-btn secondary" onclick="openModal('returnProcess')">
-                        <i class="fas fa-undo"></i> 办理归还
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 超期资料管理 -->
-        <div class="function-card card-overdue">
-            <div class="card-icon">
-                <i class="fas fa-exclamation-circle"></i>
-            </div>
-            <div class="card-content">
-                <h3>超期资料管理</h3>
-                <p>浏览超期资料信息，生成并打印催还单。支持导出Excel报表，自定义催还单格式，批量发送催还通知。</p>
-                <div class="card-actions">
-                    <button class="card-btn primary" onclick="openModal('overdueList')">
-                        <i class="fas fa-list"></i> 超期列表
-                    </button>
-                    <button class="card-btn secondary" onclick="exportExcel()">
-                        <i class="fas fa-file-excel"></i> 导出Excel
-                    </button>
-                </div>
-            </div>
-        </div>
-    </main>
-    <br><br>
-
-
-
-    <!-- 全局页脚 -->
-    <footer class="footer">
-        <div class="footer-left">
-            <div class="footer-item">
-                <i class="fas fa-database"></i>
-                <span>系统版本：v2.5.1</span>
-            </div>
-        </div>
-        <div class="footer-center">
-            <div class="footer-item">
-                <i class="fas fa-copyright"></i>
-                <span>2023 版权所有 - <span class="team-name">图书馆管理系统团队</span></span>
-            </div>
-        </div>
-        <div class="footer-right">
-            <div class="footer-item">
-                <i class="fas fa-server"></i>
-                <span>服务器状态：<span style="color:#2e7d32;">正常</span></span>
-            </div>
-        </div>
-    </footer>
-    
-
-
-    <!-- 模态框：期刊管理 -->
-    <div id="journalManageModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>期刊信息管理</h3>
-                <button class="close-modal" onclick="closeModal('journalManageModal')">&times;</button>
-            </div>
-            <div class="form-group">
-                <label for="journalId">ID</label>
-                <input type="text" id="journalId" placeholder="请输入期刊id">
-            </div>
-            <div class="form-group">
-                <label for="journalName">期刊名称</label>
-                <input type="text" id="journalName" placeholder="请输入期刊名称">
-            </div>
-            <div class="form-group">
-                <label for="journalCategory">期刊类别</label>
-                <select id="journalCategory">
-                    <option value="">请选择类别</option>
-                    <option value="academic">学术期刊</option>
-                    <option value="professional">专业期刊</option>
-                    <option value="popular">大众期刊</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="journalPublisher">出版社</label>
-                <input type="text" id="journalPublisher" placeholder="请输入出版社">
-            </div>
-            <div class="form-group">
-                <label for="publishDate">出版日期</label>
-                <input type="date" id="publishDate">
-            </div>
-            <div class="form-group">
-                <label for="journalStatus">状态</label>
-                <select id="journalStatus">
-                    <option value="available">可借阅</option>
-                    <option value="unavailable">已借出</option>
-                </select>
-            </div>
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button class="btn-primary" style="flex:1;" onclick="saveJournal()">保存更改</button>
-                <button class="btn-secondary" style="flex:1;" onclick="deleteJournal()">删除</button>
-            </div>
-        </div>
     </div>
-        <!-- 模态框：期刊添加 -->
- <div id="journalAddModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>添加期刊</h3>
-                <button class="close-modal" onclick="closeModal('journalAddModal')">&times;</button>
-            </div>
-            <div class="form-group">
-                <label for="journalName">期刊名称</label>
-                <input type="text" id="journalName" placeholder="请输入期刊名称">
-            </div>
-              <div class="form-group">
-                <label for="journalISBN">ISBN</label>
-                <input type="text" id="journalISBN" placeholder="请输入ISBN">
-            </div>
-            <div class="form-group">
-                <label for="journalCategory">期刊类别</label>
-                <select id="journalCategory">
-                    <option value="">请选择类别</option>
-                    <option value="academic">学术期刊</option>
-                    <option value="professional">专业期刊</option>
-                    <option value="popular">大众期刊</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="journalPublisher">出版社</label>
-                <input type="text" id="journalPublisher" placeholder="请输入出版社">
-            </div>
-            <div class="form-group">
-                <label for="journalIssueNumber">期号</label>
-                <input type="text" id="journalIssueNumber" placeholder="请输入期号">
-            </div>
-            <div class="form-group">
-                <label for="publishDate">出版日期</label>
-                <input type="date" id="publishDate">
-            </div>
-               <div class="form-group">
-                <label for="journalDescription">简介</label>
-                <input type="text" id="journalDescription" placeholder="请输入简介">
-            </div>
-            <div class="form-group">
-                <label for="journalTotalQuantity">总数量</label>
-                <input type="number" id="journalTotalQuantity" placeholder="请输入总数量">
-            </div>
-             <div class="form-group">
-                <label for="journalAvailableQuantity">可借数量</label>
-                <input type="number" id="journalAvailableQuantity" placeholder="请输入可借数量">
-            </div>
-            <div class="form-group">
-                <label for="journalStatus">状态</label>
-                <select id="journalStatus">
-                    <option value="available">可借阅</option>
-                    <option value="unavailable">已借出</option>
-                </select>
-            </div>
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button class="btn-primary" style="flex:1;" onclick="addJournal()">添加</button>
-            </div>
-        </div>
-    </div>
-  <!-- 模态框：教师信息管理 -->
-<div id="teacherManageModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>教师信息管理</h3>
-            <button class="close-modal" onclick="closeModal('teacherManageModal')">&times;</button>
-        </div>
-        <div class="form-group">
-            <label for="teacherId">教师ID</label>
-            <input type="text" id="teacherId" placeholder="请输入教师ID">
-        </div>
-        <div class="form-group">
-            <label for="teacherName">教师姓名</label>
-            <input type="text" id="teacherName" placeholder="请输入教师姓名">
-        </div>
-        <div class="form-group">
-            <label for="teacherDepartment">所属系部</label>
-            <input type="text" id="teacherDepartment" placeholder="请输入所属系部">
-        </div>
-        <div class="form-group">
-            <label for="teacherEmail">邮箱</label>
-            <input type="email" id="teacherEmail" placeholder="请输入教师邮箱">
-        </div>
-        <div class="form-group">
-            <label for="teacherPhone">联系电话</label>
-            <input type="tel" id="teacherPhone" placeholder="请输入联系电话">
-        </div>
-        <div class="form-group">
-            <label for="teacherMaxBorrow">最大可借阅数</label>
-            <input type="number" id="teacherMaxBorrow" placeholder="请输入最大可借阅数" value="5">
-        </div>
-        <div class="form-group">
-            <label for="teacherCurrentBorrow">当前借阅数</label>
-            <input type="number" id="teacherCurrentBorrow" placeholder="当前借阅数" value="0" readonly>
-        </div>
-        <div class="form-group">
-            <label for="teacherStatus">状态</label>
-            <select id="teacherStatus">
-                <option value="active">正常</option>
-                <option value="inactive">禁用</option>
-            </select>
-        </div>
-        <div style="display: flex; gap: 10px; margin-top: 20px;">
-            <button class="btn-primary" style="flex:1;" onclick="saveTeacher()">保存更改</button>
-            <button class="btn-secondary" style="flex:1;" onclick="deleteTeacher()">删除</button>
-        </div>
-    </div>
-</div>
-<!-- 模态框：添加新教师 -->
-<div id="teacherAddModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>添加新教师</h3>
-            <button class="close-modal" onclick="closeModal('teacherAddModal')">&times;</button>
-        </div>
-        <div class="form-group">
-            <label for="addTeacherName">教师姓名 <span style="color: red;">*</span></label>
-            <input type="text" id="addTeacherName" placeholder="请输入教师姓名">
-        </div>
-        <div class="form-group">
-            <label for="addTeacherDepartment">所属系部 <span style="color: red;">*</span></label>
-            <input type="text" id="addTeacherDepartment" placeholder="请输入所属系部">
-        </div>
-        <div class="form-group">
-            <label for="addTeacherEmail">邮箱 <span style="color: red;">*</span></label>
-            <input type="email" id="addTeacherEmail" placeholder="请输入教师邮箱">
-        </div>
-        <div class="form-group">
-            <label for="addTeacherPhone">联系电话 <span style="color: red;">*</span></label>
-            <input type="tel" id="addTeacherPhone" placeholder="请输入联系电话">
-        </div>
-        <div class="form-group">
-            <label for="addTeacherMaxBorrow">最大可借阅数 <span style="color: red;">*</span></label>
-            <input type="number" id="addTeacherMaxBorrow" placeholder="默认5本" value="5" min="1" max="20">
-        </div>
-        <div class="form-group">
-            <label for="addTeacherStatus">状态 <span style="color: red;">*</span></label>
-            <select id="addTeacherStatus">
-                <option value="active" selected>正常</option>
-                <option value="inactive">禁用</option>
-            </select>
-        </div>
-        <div style="display: flex; gap: 10px; margin-top: 20px;">
-            <button class="btn-primary" style="flex:1;" onclick="addNewTeacher()">确认添加</button>
-            <button class="btn-secondary" style="flex:1;" onclick="closeModal('teacherAddModal')">取消</button>
-        </div>
-    </div>
-</div>
 
-    <!-- 模态框示例：快速查询 -->
-    <div id="quickSearchModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>快速查询期刊</h3>
-                <button class="close-modal" onclick="closeModal('quickSearchModal')">&times;</button>
-            </div>
-            <div class="form-group">
-                <label for="searchKeyword">关键词</label>
-                <input type="text" id="searchKeyword" placeholder="请输入期刊名称、作者或关键词">
-            </div>
-            <div class="form-group">
-                <label for="searchCategory">查询类别</label>
-                <select id="searchCategory">
-                    <option value="all">全部</option>
-                    <option value="name">期刊名称</option>
-                    <option value="author">作者</option>
-                    <option value="publisher">出版社</option>
-                    <option value="category">期刊类别</option>
-                </select>
-            </div>
-            <div class="message success" id="searchResultMessage" style="display:none;">
-                找到15条相关记录
-            </div>
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button class="btn-primary" style="flex:1;" onclick="performSearch()">开始查询</button>
-                <button class="btn-secondary" style="flex:1;" onclick="closeModal('quickSearchModal')">取消</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- 成功提示 -->
-    <div id="successMessage" class="message success" style="display:none; position:fixed; top:20px; right:20px; max-width:300px; z-index:1001;">
-        操作成功完成！
-    </div>
-    
-    <script src="../../js/admin-index.js"></script>
+    <!-- 原生JS脚本 -->
+    <script>
+        // 侧边栏折叠/展开逻辑（修复类名拼接问题）
+        const toggleSidebarBtn = document.getElementById('toggleSidebar');
+        const sidebarEl = document.getElementById('sidebar');
+        const mainContentEl = document.getElementById('mainContent');
+
+        toggleSidebarBtn.addEventListener('click', function() {
+            // 切换侧边栏+主内容区类名
+            sidebarEl.classList.toggle('sidebar-collapsed');
+            mainContentEl.classList.toggle('main-content-expanded');
+            
+            // 切换按钮图标
+            const iconEl = this.querySelector('i');
+            if (sidebarEl.classList.contains('sidebar-collapsed')) {
+                iconEl.classList.replace('fa-bars', 'fa-expand');
+            } else {
+                iconEl.classList.replace('fa-expand', 'fa-bars');
+            }
+        });
+
+        // 按钮点击交互（优化选择器+提示逻辑）
+        document.querySelectorAll('.action-btn, .btn-sm').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const btnText = this.textContent.trim();
+                
+                switch (true) {
+                    case btnText.includes('导出Excel报表'):
+                        alert('Excel报表导出成功！文件已保存到本地');
+                        break;
+                    case btnText.includes('生成催还单'):
+                        alert('超期催还单生成成功！');
+                        break;
+                    case btnText.includes('打印催还单'):
+                        alert('催还单打印指令已发送，请前往打印机领取');
+                        break;
+                    case btnText.includes('添加'):
+                        alert(`${btnText}功能已触发，请填写新增信息`);
+                        break;
+                    case btnText.includes('办理借阅手续'):
+                        alert('请扫描教师证件或输入教师ID办理借阅');
+                        break;
+                    default:
+                        break;
+                }
+            });
+        });
+    </script>
 </body>
 </html>

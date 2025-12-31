@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>学院期刊管理系统 - 教师主页</title>
-    <!-- 沿用管理员主页的CSS依赖 -->
+    <title>学院期刊管理系统 - 管理员主页</title>
+    <!-- 仅保留Bootstrap CSS（如需完全离线，替换为本地Bootstrap CSS文件） -->
     <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome CSS（如需完全离线，替换为本地文件） -->
     <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- 复用管理员主页的自定义样式，保持风格统一 -->
+    <!-- 自定义样式（包含纯CSS柱状图） -->
     <style>
         :root {
             --primary-color: #2c5282;
@@ -30,7 +31,7 @@
             padding: 0;
         }
 
-        /* 侧边栏样式（复用管理员版，调整菜单） */
+        /* 侧边栏样式 - 核心修复折叠逻辑 */
         .sidebar {
             position: fixed;
             top: 0;
@@ -41,21 +42,25 @@
             color: var(--text-light);
             transition: all 0.3s ease;
             z-index: 100;
-            overflow: hidden;
+            overflow: hidden; /* 防止折叠后内容溢出 */
         }
 
+        /* 折叠状态样式 - 完全收窄为60px，隐藏文字 */
         .sidebar-collapsed {
             width: 60px !important;
         }
+        /* 折叠后隐藏文字元素 */
         .sidebar-collapsed .logo h3,
         .sidebar-collapsed .nav-link span {
             display: none !important;
         }
+        /* 折叠后logo居中显示图标 */
         .sidebar-collapsed .logo {
             justify-content: center;
             padding: 1.5rem 0 !important;
             gap: 0;
         }
+        /* 折叠后导航链接图标居中 */
         .sidebar-collapsed .nav-link {
             justify-content: center;
             padding: 0.8rem 0 !important;
@@ -109,7 +114,7 @@
             white-space: nowrap;
         }
 
-        /* 主内容区（复用管理员版） */
+        /* 主内容区 */
         .main-content {
             margin-left: 240px;
             transition: all 0.3s ease;
@@ -119,7 +124,7 @@
             margin-left: 60px !important;
         }
 
-        /* 顶部导航栏（复用管理员版） */
+        /* 顶部导航栏 */
         .top-nav {
             height: 60px;
             background-color: #fff;
@@ -156,14 +161,14 @@
             font-weight: 600;
         }
 
-        /* 内容容器（复用管理员版） */
+        /* 内容容器 */
         .content-container {
             padding: 1.5rem;
             background-color: #f8f9fa;
             min-height: calc(100vh - 60px);
         }
 
-        /* 仪表盘卡片（复用管理员版） */
+        /* 仪表盘卡片 */
         .stat-card {
             border-radius: 8px;
             box-shadow: var(--card-shadow);
@@ -218,8 +223,8 @@
             font-size: 0.9rem;
         }
 
-        /* 按钮样式（复用管理员版） */
-        .btn-custom {
+        /* 快捷操作按钮 */
+        .action-btn {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
@@ -230,16 +235,34 @@
             border: none;
             color: #fff;
             cursor: pointer;
+        }
+
+        .action-btn.btn-primary {
             background-color: var(--primary-color);
         }
 
-        .btn-custom:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-            background-color: var(--secondary-color);
+        .action-btn.btn-success {
+            background-color: var(--success-color);
         }
 
-        /* 表格样式（复用管理员版） */
+        .action-btn.btn-warning {
+            background-color: var(--warning-color);
+        }
+
+        .action-btn.btn-danger {
+            background-color: var(--danger-color);
+        }
+
+        .action-btn.btn-info {
+            background-color: #86909c;
+        }
+
+        .action-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        /* 表格样式 */
         .data-table {
             border-radius: 8px;
             overflow: hidden;
@@ -273,85 +296,64 @@
             font-weight: 500;
         }
 
-        .badge-normal {
-            background-color: rgba(56, 161, 105, 0.1);
-            color: var(--success-color);
-        }
-
         .badge-overdue {
             background-color: rgba(229, 62, 62, 0.1);
             color: var(--danger-color);
         }
 
-        .badge-pending {
-            background-color: rgba(214, 158, 46, 0.1);
-            color: var(--warning-color);
+        .badge-normal {
+            background-color: rgba(56, 161, 105, 0.1);
+            color: var(--success-color);
         }
 
-        /* 筛选栏样式 */
-        .filter-bar {
+        /* 纯CSS柱状图样式（替代Chart.js） */
+        .css-chart {
+            width: 100%;
+            height: 250px;
             display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            align-items: center;
+            align-items: flex-end;
+            gap: 8px;
+            padding: 0 10px;
+            box-sizing: border-box;
         }
 
-        .filter-input {
-            padding: 0.6rem 1rem;
-            border: 1px solid #ddd;
-            border-radius: 6px;
+        .chart-bar {
             flex: 1;
-            min-width: 200px;
-            font-size: 0.9rem;
+            background-color: var(--primary-color);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            transition: height 0.5s ease;
         }
 
-        .filter-select {
-            padding: 0.6rem 1rem;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            min-width: 150px;
-            font-size: 0.9rem;
-        }
+        .chart-bar:nth-child(1) { height: 45%; background-color: rgba(44, 82, 130, 0.7); }
+        .chart-bar:nth-child(2) { height: 38%; background-color: rgba(56, 161, 105, 0.7); }
+        .chart-bar:nth-child(3) { height: 32%; background-color: rgba(214, 158, 46, 0.7); }
+        .chart-bar:nth-child(4) { height: 41%; background-color: rgba(229, 62, 62, 0.7); }
+        .chart-bar:nth-child(5) { height: 29%; background-color: rgba(168, 85, 247, 0.7); }
+        .chart-bar:nth-child(6) { height: 22%; background-color: rgba(236, 72, 153, 0.7); }
+        .chart-bar:nth-child(7) { height: 15%; background-color: rgba(249, 115, 22, 0.7); }
 
-        /* 期刊卡片样式 */
-        .journal-card {
-            border-radius: 8px;
-            box-shadow: var(--card-shadow);
-            background-color: #fff;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            transition: transform 0.2s ease;
-        }
-
-        .journal-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .journal-card .journal-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-        }
-
-        .journal-card .journal-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-            margin-bottom: 1rem;
+        .chart-bar-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            white-space: nowrap;
             color: #718096;
-            font-size: 0.9rem;
         }
 
-        .journal-card .journal-desc {
+        .chart-bar-value {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            font-weight: 600;
             color: var(--text-dark);
-            line-height: 1.6;
-            margin-bottom: 1rem;
         }
 
-        /* 响应式适配（复用管理员版） */
+        /* 响应式适配 - 兼容小屏幕 */
         @media (max-width: 992px) {
             .sidebar {
                 width: 60px;
@@ -370,25 +372,27 @@
                 justify-content: center;
                 padding: 0.8rem 0;
             }
+            .chart-bar-label {
+                font-size: 10px;
+            }
         }
 
         @media (max-width: 768px) {
             .stat-card .card-value {
                 font-size: 1.5rem;
             }
-            .btn-custom {
+            .action-btn {
                 padding: 0.5rem 0.8rem;
                 font-size: 0.85rem;
             }
-            .filter-bar {
-                flex-direction: column;
-                align-items: stretch;
+            .css-chart {
+                height: 200px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- 侧边栏（教师专属菜单） -->
+    <!-- 侧边栏 -->
     <div class="sidebar" id="sidebar">
         <div class="logo">
             <i class="fas fa-book-journal-whills logo-icon"></i>
@@ -398,23 +402,47 @@
             <li class="nav-item">
                 <a href="#" class="nav-link active">
                     <i class="fas fa-tachometer-alt"></i>
-                    <span>个人仪表盘</span>
+                    <span>仪表盘</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="#" class="nav-link">
-                    <i class="fas fa-search"></i>
-                    <span>期刊查询浏览</span>
+                    <i class="fas fa-book"></i>
+                    <span>期刊信息管理</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="#" class="nav-link">
-                    <i class="fas fa-book-open"></i>
-                    <span>我的借阅</span>
+                    <i class="fas fa-users"></i>
+                    <span>教师信息管理</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="teacher-login.html" class="nav-link">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-handshake"></i>
+                    <span>图书借阅办理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>超期催还管理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-file-excel"></i>
+                    <span>报表导出</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>系统设置</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-login.html" class="nav-link">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>退出登录</span>
                 </a>
@@ -430,8 +458,8 @@
                 <i class="fas fa-bars"></i>
             </button>
             <div class="user-info">
-                <span class="me-2">教师：李教授（计算机学院）</span>
-                <div class="user-avatar">李</div>
+                <span class="me-2">管理员：张管理员</span>
+                <div class="user-avatar">张</div>
             </div>
         </div>
 
@@ -439,37 +467,37 @@
         <div class="content-container">
             <!-- 页面标题 -->
             <div class="mb-4">
-                <h2 class="mb-1">个人仪表盘</h2>
-                <p class="text-muted">欢迎回来，李教授 | 今日可借阅次数：3次</p>
+                <h2 class="mb-1">管理员仪表盘</h2>
+                <p class="text-muted">欢迎回来，今日数据概览</p>
             </div>
 
-            <!-- 个人借阅数据统计 -->
+            <!-- 数据统计卡片 -->
             <div class="row mb-5">
                 <div class="col-md-3 col-sm-6 mb-4">
                     <div class="stat-card">
                         <div class="card-icon primary">
                             <i class="fas fa-book fa-lg"></i>
                         </div>
-                        <div class="card-value">5</div>
-                        <div class="card-label">已借阅期刊</div>
+                        <div class="card-value">864</div>
+                        <div class="card-label">期刊总数</div>
                     </div>
                 </div>
                 <div class="col-md-3 col-sm-6 mb-4">
                     <div class="stat-card">
                         <div class="card-icon success">
-                            <i class="fas fa-check-circle fa-lg"></i>
+                            <i class="fas fa-users fa-lg"></i>
                         </div>
-                        <div class="card-value">3</div>
-                        <div class="card-label">正常借阅</div>
+                        <div class="card-value">248</div>
+                        <div class="card-label">教师总数</div>
                     </div>
                 </div>
                 <div class="col-md-3 col-sm-6 mb-4">
                     <div class="stat-card">
                         <div class="card-icon warning">
-                            <i class="fas fa-clock fa-lg"></i>
+                            <i class="fas fa-handshake fa-lg"></i>
                         </div>
-                        <div class="card-value">2</div>
-                        <div class="card-label">即将到期</div>
+                        <div class="card-value">56</div>
+                        <div class="card-label">待处理借阅</div>
                     </div>
                 </div>
                 <div class="col-md-3 col-sm-6 mb-4">
@@ -477,174 +505,151 @@
                         <div class="card-icon danger">
                             <i class="fas fa-exclamation-triangle fa-lg"></i>
                         </div>
-                        <div class="card-value">0</div>
+                        <div class="card-value">12</div>
                         <div class="card-label">超期未还</div>
                     </div>
                 </div>
             </div>
 
-            <!-- 我的借阅记录 -->
-            <div class="card shadow-sm mb-5">
-                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">我的借阅记录</h5>
-                    <button class="btn-custom btn-sm">
-                        <i class="fas fa-refresh"></i> 刷新记录
-                    </button>
-                </div>
-                <div class="card-body p-0">
-                    <table class="data-table mb-0">
-                        <thead>
-                            <tr>
-                                <th>期刊ID</th>
-                                <th>期刊名称</th>
-                                <th>借阅时间</th>
-                                <th>到期时间</th>
-                                <th>剩余天数</th>
-                                <th>状态</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>J20250301</td>
-                                <td>《计算机学报》2025年第3期</td>
-                                <td>2025-02-15</td>
-                                <td>2025-04-15</td>
-                                <td>14天</td>
-                                <td><span class="badge-status badge-normal">正常</span></td>
-                            </tr>
-                            <tr>
-                                <td>J20250108</td>
-                                <td>《人工智能进展》2025年第1期</td>
-                                <td>2025-03-02</td>
-                                <td>2025-05-02</td>
-                                <td>31天</td>
-                                <td><span class="badge-status badge-normal">正常</span></td>
-                            </tr>
-                            <tr>
-                                <td>J20241212</td>
-                                <td>《数据挖掘与知识发现》2024年第6期</td>
-                                <td>2025-01-20</td>
-                                <td>2025-03-20</td>
-                                <td>5天</td>
-                                <td><span class="badge-status badge-pending">即将到期</span></td>
-                            </tr>
-                            <tr>
-                                <td>J20250205</td>
-                                <td>《计算机应用研究》2025年第2期</td>
-                                <td>2025-02-28</td>
-                                <td>2025-04-28</td>
-                                <td>23天</td>
-                                <td><span class="badge-status badge-normal">正常</span></td>
-                            </tr>
-                            <tr>
-                                <td>J20250116</td>
-                                <td>《软件工程》2025年第1期</td>
-                                <td>2025-03-10</td>
-                                <td>2025-03-25</td>
-                                <td>0天</td>
-                                <td><span class="badge-status badge-pending">今日到期</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <!-- 快捷操作区 -->
+            <div class="row mb-5">
+                <div class="col-12">
+                    <div class="card p-4 shadow-sm">
+                        <h5 class="mb-3">快捷操作</h5>
+                        <div class="d-flex flex-wrap gap-3">
+                            <button class="action-btn btn-primary">
+                                <i class="fas fa-plus"></i>
+                                <span>添加期刊</span>
+                            </button>
+                            <button class="action-btn btn-success">
+                                <i class="fas fa-plus"></i>
+                                <span>添加教师</span>
+                            </button>
+                            <button class="action-btn btn-warning">
+                                <i class="fas fa-handshake"></i>
+                                <span>办理借阅手续</span>
+                            </button>
+                            <button class="action-btn btn-danger">
+                                <i class="fas fa-file-print"></i>
+                                <span>生成催还单</span>
+                            </button>
+                            <button class="action-btn btn-info">
+                                <i class="fas fa-file-excel"></i>
+                                <span>导出Excel报表</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- 期刊查询浏览 -->
-            <div class="card shadow-sm">
-                <div class="card-header bg-white border-bottom">
-                    <h5 class="mb-0">期刊查询浏览</h5>
-                </div>
-                <div class="card-body">
-                    <!-- 筛选栏 -->
-                    <div class="filter-bar">
-                        <input type="text" class="filter-input" id="journalSearch" placeholder="搜索期刊名称/ID/关键词">
-                        <select class="filter-select" id="journalCategory">
-                            <option value="">全部类别</option>
-                            <option value="计算机类">计算机类</option>
-                            <option value="文学类">文学类</option>
-                            <option value="数学类">数学类</option>
-                            <option value="机械类">机械类</option>
-                            <option value="经济类">经济类</option>
-                            <option value="外语类">外语类</option>
-                            <option value="艺术类">艺术类</option>
-                        </select>
-                        <select class="filter-select" id="journalIssue">
-                            <option value="">全部刊期</option>
-                            <option value="2025年第3期">2025年第3期</option>
-                            <option value="2025年第2期">2025年第2期</option>
-                            <option value="2025年第1期">2025年第1期</option>
-                            <option value="2024年第6期">2024年第6期</option>
-                            <option value="2024年第5期">2024年第5期</option>
-                        </select>
-                        <button class="btn-custom" id="searchBtn">
-                            <i class="fas fa-search"></i> 搜索
-                        </button>
+            <!-- 数据可视化 + 超期提醒 -->
+            <div class="row mb-5">
+                <!-- 系部教师数量图表（纯CSS替代Chart.js） -->
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-white border-bottom">
+                            <h5 class="mb-0">各系部教师数量统计</h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- 纯CSS柱状图 -->
+                            <div class="css-chart">
+                                <div class="chart-bar">
+                                    <span class="chart-bar-value">45</span>
+                                    <span class="chart-bar-label">计算机学院</span>
+                                </div>
+                                <div class="chart-bar">
+                                    <span class="chart-bar-value">38</span>
+                                    <span class="chart-bar-label">文学院</span>
+                                </div>
+                                <div class="chart-bar">
+                                    <span class="chart-bar-value">32</span>
+                                    <span class="chart-bar-label">理学院</span>
+                                </div>
+                                <div class="chart-bar">
+                                    <span class="chart-bar-value">41</span>
+                                    <span class="chart-bar-label">工学院</span>
+                                </div>
+                                <div class="chart-bar">
+                                    <span class="chart-bar-value">29</span>
+                                    <span class="chart-bar-label">商学院</span>
+                                </div>
+                                <div class="chart-bar">
+                                    <span class="chart-bar-value">22</span>
+                                    <span class="chart-bar-label">外国语学院</span>
+                                </div>
+                                <div class="chart-bar">
+                                    <span class="chart-bar-value">15</span>
+                                    <span class="chart-bar-label">艺术学院</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                </div>
 
-                    <!-- 期刊列表（卡片式展示） -->
-                    <div class="journal-list">
-                        <div class="journal-card">
-                            <h4 class="journal-title">《计算机学报》2025年第3期</h4>
-                            <div class="journal-meta">
-                                <span><i class="fas fa-tag"></i> 计算机类</span>
-                                <span><i class="fas fa-calendar"></i> 2025-03-15入库</span>
-                                <span><i class="fas fa-copy"></i> 期刊ID：J20250301</span>
-                                <span><i class="fas fa-check"></i> 可借阅</span>
-                            </div>
-                            <p class="journal-desc">
-                                本期聚焦人工智能、机器学习、大数据处理等前沿领域，收录了12篇高质量学术论文，包括《基于深度学习的图像识别优化研究》《分布式系统中的数据一致性算法》等热点主题，适合计算机相关专业教师和科研人员参考。
-                            </p>
-                            <button class="btn-custom">
-                                <i class="fas fa-handshake"></i> 申请借阅
+                <!-- 超期借阅提醒 -->
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">超期借阅提醒</h5>
+                            <button class="btn btn-sm btn-danger">
+                                <i class="fas fa-print"></i> 打印催还单
                             </button>
                         </div>
-
-                        <div class="journal-card">
-                            <h4 class="journal-title">《人工智能进展》2025年第1期</h4>
-                            <div class="journal-meta">
-                                <span><i class="fas fa-tag"></i> 计算机类</span>
-                                <span><i class="fas fa-calendar"></i> 2025-01-20入库</span>
-                                <span><i class="fas fa-copy"></i> 期刊ID：J20250108</span>
-                                <span><i class="fas fa-check"></i> 可借阅</span>
-                            </div>
-                            <p class="journal-desc">
-                                本期围绕大语言模型、生成式AI、智能Agent等方向，邀请领域内专家撰写综述文章，同时收录多篇原创研究成果，涵盖AI伦理、模型优化、行业应用等内容，为相关研究提供重要参考。
-                            </p>
-                            <button class="btn-custom">
-                                <i class="fas fa-handshake"></i> 申请借阅
-                            </button>
-                        </div>
-
-                        <div class="journal-card">
-                            <h4 class="journal-title">《经济研究》2025年第1期</h4>
-                            <div class="journal-meta">
-                                <span><i class="fas fa-tag"></i> 经济类</span>
-                                <span><i class="fas fa-calendar"></i> 2025-03-01入库</span>
-                                <span><i class="fas fa-copy"></i> 期刊ID：J20250305</span>
-                                <span><i class="fas fa-check"></i> 可借阅</span>
-                            </div>
-                            <p class="journal-desc">
-                                本期关注数字经济、乡村振兴、金融改革等热点议题，收录了来自高校和科研机构的最新研究成果，分析当前经济形势与发展趋势，为政策制定和学术研究提供参考。
-                            </p>
-                            <button class="btn-custom">
-                                <i class="fas fa-handshake"></i> 申请借阅
-                            </button>
-                        </div>
-
-                        <div class="journal-card">
-                            <h4 class="journal-title">《中国现代文学》2025年第1期</h4>
-                            <div class="journal-meta">
-                                <span><i class="fas fa-tag"></i> 文学类</span>
-                                <span><i class="fas fa-calendar"></i> 2025-03-10入库</span>
-                                <span><i class="fas fa-copy"></i> 期刊ID：J20250302</span>
-                                <span><i class="fas fa-lock"></i> 已被借阅</span>
-                            </div>
-                            <p class="journal-desc">
-                                本期收录了当代文学创作与评论文章，包括小说、散文、诗歌等多种体裁，聚焦新时代文学发展趋势，探讨文学与社会的关系，适合文学专业教师和爱好者阅读。
-                            </p>
-                            <button class="btn-custom" disabled style="opacity: 0.6; cursor: not-allowed;">
-                                <i class="fas fa-lock"></i> 已被借阅
-                            </button>
+                        <div class="card-body p-0">
+                            <table class="data-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>教师ID</th>
+                                        <th>姓名</th>
+                                        <th>系部</th>
+                                        <th>借阅期刊</th>
+                                        <th>超期天数</th>
+                                        <th>状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>T008</td>
+                                        <td>李教授</td>
+                                        <td>计算机学院</td>
+                                        <td>《计算机学报》2025年第3期</td>
+                                        <td>8天</td>
+                                        <td><span class="badge-status badge-overdue">超期</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>T024</td>
+                                        <td>王老师</td>
+                                        <td>文学院</td>
+                                        <td>《中国现代文学》2025年第1期</td>
+                                        <td>15天</td>
+                                        <td><span class="badge-status badge-overdue">超期</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>T056</td>
+                                        <td>赵讲师</td>
+                                        <td>理学院</td>
+                                        <td>《数学进展》2025年第2期</td>
+                                        <td>5天</td>
+                                        <td><span class="badge-status badge-overdue">超期</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>T109</td>
+                                        <td>陈老师</td>
+                                        <td>工学院</td>
+                                        <td>《机械工程学报》2025年第4期</td>
+                                        <td>12天</td>
+                                        <td><span class="badge-status badge-overdue">超期</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>T188</td>
+                                        <td>孙教授</td>
+                                        <td>商学院</td>
+                                        <td>《经济研究》2025年第1期</td>
+                                        <td>3天</td>
+                                        <td><span class="badge-status badge-overdue">超期</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -654,15 +659,17 @@
 
     <!-- 原生JS脚本（无外部库依赖） -->
     <script>
-        // 侧边栏折叠/展开（复用管理员版逻辑）
+        // 侧边栏折叠/展开 - 原生JS实现
         const toggleSidebar = document.getElementById('toggleSidebar');
         const sidebar = document.getElementById('sidebar');
         const mainContent = document.getElementById('mainContent');
 
         toggleSidebar.addEventListener('click', function() {
+            // 切换折叠类
             sidebar.classList.toggle('sidebar-collapsed');
             mainContent.classList.toggle('main-content-expanded');
             
+            // 切换按钮图标
             const icon = this.querySelector('i');
             if (sidebar.classList.contains('sidebar-collapsed')) {
                 icon.classList.remove('fa-bars');
@@ -673,85 +680,34 @@
             }
         });
 
-        // 期刊搜索功能
-        const searchBtn = document.getElementById('searchBtn');
-        const journalSearch = document.getElementById('journalSearch');
-        const journalCategory = document.getElementById('journalCategory');
-        const journalIssue = document.getElementById('journalIssue');
-        const journalCards = document.querySelectorAll('.journal-card');
-
-        searchBtn.addEventListener('click', function() {
-            const searchText = journalSearch.value.toLowerCase().trim();
-            const category = journalCategory.value;
-            const issue = journalIssue.value;
-
-            journalCards.forEach(card => {
-                const title = card.querySelector('.journal-title').textContent.toLowerCase();
-                const cardCategory = card.querySelector('.journal-meta span:first-child').textContent.replace('📌 ', '');
-                const cardIssue = card.querySelector('.journal-title').textContent;
-                const cardId = card.querySelector('.journal-meta span:nth-child(3)').textContent.replace('📋 期刊ID：', '');
-
-                // 搜索逻辑：满足搜索文本、分类、刊期任一条件
-                const matchSearch = searchText === '' || title.includes(searchText) || cardId.includes(searchText);
-                const matchCategory = category === '' || cardCategory.includes(category);
-                const matchIssue = issue === '' || cardIssue.includes(issue);
-
-                if (matchSearch && matchCategory && matchIssue) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
+        // 按钮点击事件 - 原生JS实现
+        document.querySelectorAll('.action-btn, .btn-sm').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const btnText = this.textContent.trim();
+                if (btnText.includes('导出Excel报表')) {
+                    alert('Excel报表导出成功！文件已保存到本地');
+                } else if (btnText.includes('生成催还单')) {
+                    alert('超期催还单生成成功！');
+                } else if (btnText.includes('打印催还单')) {
+                    alert('催还单打印指令已发送，请前往打印机领取');
+                } else if (btnText.includes('添加')) {
+                    alert(`${btnText}功能已触发，请填写新增信息`);
+                } else if (btnText.includes('办理借阅手续')) {
+                    alert('请扫描教师证件或输入教师ID办理借阅');
+                } else if (btnText.includes('编辑') || btnText.includes('fa-edit')) {
+                    const row = this.closest('tr');
+                    const id = row.cells[0].textContent;
+                    alert(`正在编辑ID为「${id}」的记录`);
+                } else if (btnText.includes('删除') || btnText.includes('fa-trash')) {
+                    const row = this.closest('tr');
+                    const id = row.cells[0].textContent;
+                    if (confirm(`确认删除ID为「${id}」的记录吗？`)) {
+                        row.style.opacity = '0.5';
+                        setTimeout(() => row.remove(), 500);
+                    }
                 }
             });
-
-            alert(`搜索完成！共找到 ${document.querySelectorAll('.journal-card[style="display: block;"]').length} 本符合条件的期刊`);
         });
-
-        // 申请借阅按钮事件
-        document.querySelectorAll('.btn-custom:not([disabled])').forEach(btn => {
-            if (btn.textContent.includes('申请借阅')) {
-                btn.addEventListener('click', function() {
-                    const journalTitle = this.closest('.journal-card').querySelector('.journal-title').textContent;
-                    if (confirm(`确认申请借阅《${journalTitle}》吗？\n借阅期限：60天，到期前可申请续借1次`)) {
-                        this.innerHTML = '<i class="fas fa-check"></i> 借阅申请已提交';
-                        this.style.backgroundColor = var(--success-color);
-                        this.disabled = true;
-                        this.style.opacity = 0.8;
-                        alert(`借阅申请提交成功！\n管理员将在1-2个工作日内处理，请注意查看系统通知。`);
-                    }
-                });
-            }
-        });
-
-        // 刷新借阅记录按钮事件
-        document.querySelector('.btn-custom.btn-sm').addEventListener('click', function() {
-            const originalText = this.innerHTML;
-            this.innerHTML = '<span class="loading"></span> 刷新中...';
-            this.disabled = true;
-
-            setTimeout(() => {
-                this.innerHTML = originalText;
-                this.disabled = false;
-                alert('借阅记录已刷新，暂无更新');
-            }, 1500);
-        });
-
-        // 加载动画样式（动态添加）
-        const style = document.createElement('style');
-        style.textContent = `
-            .loading {
-                display: inline-block;
-                width: 16px;
-                height: 16px;
-                border: 2px solid rgba(255, 255, 255, 0.3);
-                border-radius: 50%;
-                border-top-color: #FFFFFF;
-                animation: spin 1s ease-in-out infinite;
-            }
-            @keyframes spin {
-                to { transform: rotate(360deg); }
-            }
-        `;
-        document.head.appendChild(style);
     </script>
 </body>
 </html>

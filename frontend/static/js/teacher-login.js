@@ -1,101 +1,83 @@
-  // 登录表单处理
-    const loginForm = document.getElementById('loginForm');
-    const message = document.getElementById('message');
-    const submitBtn = document.getElementById('submitBtn');
-    const btnText = document.getElementById('btnText');
-    const loading = submitBtn.querySelector('.loading');
-    const forgotIdLink = document.getElementById('forgotId');
+// 教师登录核心逻辑 - teacher-login.js
+document.addEventListener("DOMContentLoaded", () => {
+    // 元素获取
+    const loginForm = document.getElementById("loginForm");
+    const submitBtn = document.getElementById("submitBtn");
+    const btnText = document.getElementById("btnText");
+    const loadingIcon = submitBtn.querySelector(".loading");
+    const messageEl = document.getElementById("message");
 
-    loginForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        // 显示加载状态
-        btnText.textContent = '登录中';
-        loading.style.display = 'inline-block';
-        submitBtn.disabled = true;
-        
+    // 表单提交事件
+    submitBtn.addEventListener("click", async () => {
         try {
-            // 获取表单数据
-            const teacherId = document.getElementById('teacherId').value;
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
-            
-            // 前端基础验证
-            if (!teacherId || !name || !email) {
-                showMessage('请填写完整信息', 'error');
-                resetButton();
+            // 1. 获取并校验表单数据
+            const teacherId = document.getElementById("teacherId").value.trim();
+            const name = document.getElementById("name").value.trim();
+            const email = document.getElementById("email").value.trim();
+
+            // 非空校验
+            if (!teacherId) {
+                api.showMessage("请输入教师ID", "error");
                 return;
             }
-            
-            // 邮箱格式验证
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                showMessage('请输入有效的邮箱地址', 'error');
-                resetButton();
+            if (!name) {
+                api.showMessage("请输入姓名", "error");
+                return;
+            }
+            if (!email) {
+                api.showMessage("请输入邮箱", "error");
+                return;
+            }
+            // 邮箱格式校验
+            const emailReg = /^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+            if (!emailReg.test(email)) {
+                api.showMessage("请输入有效的邮箱地址", "error");
                 return;
             }
 
-            // 调用真实登录API（使用common-api.js提供的api方法）
-            const response = await api.post(
-                '/auth/teacher/login',  // 登录接口路径，会与baseURL拼接
-                { teacherId, name, email },  // 请求参数
-                {},  // 自定义请求头（可选）
-                false,  // 不使用FormData格式
-                false   // 不使用x-www-form-urlencoded格式
-            );
+            // 2. 显示加载状态
+            submitBtn.disabled = true;
+            btnText.textContent = "登录中...";
+            loadingIcon.style.display = "inline-block";
+            messageEl.style.display = "none"; // 清空之前的提示
 
-            if (response.success) {
-                // 登录成功处理
-                showMessage(`登录成功，欢迎您，${name}老师！`, 'success');
-                
-                // 存储后端返回的Token（如果有）
-                if (response.data.token) {
-                    setCookie(API_CONFIG.tokenKey, response.data.token, 7);
-                }
-                
-                // 跳转到系统主页
-                setTimeout(() => {
-                    window.location.href = 'teacher-index.html';
-                }, 2000);
-            } else {
-                // 登录失败显示错误信息
-                showMessage(response.message || '登录失败，请检查信息后重试', 'error');
-                resetButton();
-            }
-        } catch (error) {
-            // 捕获异常
-            showMessage('网络异常，请稍后重试', 'error');
-            console.error('登录请求异常:', error);
-            resetButton();
-        }
-    });
+            // 3. 发起登录请求（接口地址根据实际后端调整）
+            const loginData = {
+                teacherId: teacherId,
+                name: name,
+                email: email
+            };
+            // 登录接口：POST /api/teacher/login（可根据实际接口调整）
+            const userInfo = await api.post("/api/teacher/login", loginData);
 
-    // 链接点击事件
-    forgotIdLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        showMessage('请联系管理员查询您的教师ID', 'warning');
-    });
-
-    // 显示消息提示
-    function showMessage(text, type) {
-        message.textContent = text;
-        message.className = 'message ' + type;
-        message.style.display = 'block';
-        
-        // 添加显示动画
-        message.style.animation = 'fadeIn 0.3s ease';
-        
-        // 3秒后自动隐藏非成功消息
-        if (type !== 'success') {
+            // 4. 登录成功处理
+            api.showMessage("登录成功，即将跳转...", "success");
+            console.log("登录成功，用户信息：", userInfo);
+            
+            // 存储用户信息到本地
+            localStorage.setItem("teacherInfo", JSON.stringify(userInfo));
+            
+            // 延迟跳转（体验更友好）
             setTimeout(() => {
-                message.style.display = 'none';
-            }, 3000);
-        }
-    }
+                window.location.href = "/teacher/index.html"; // 替换为实际教师首页地址
+            }, 1500);
 
-    // 重置按钮状态
-    function resetButton() {
-        btnText.textContent = '登录系统';
-        loading.style.display = 'none';
-        submitBtn.disabled = false;
-    }
+        } catch (error) {
+            // 5. 登录失败处理
+            console.error("登录失败：", error.message);
+            api.showMessage(error.message, "error");
+
+        } finally {
+            // 6. 恢复按钮状态
+            submitBtn.disabled = false;
+            btnText.textContent = "登录系统";
+            loadingIcon.style.display = "none";
+        }
+    });
+
+    // 重置按钮清空提示
+    const resetBtn = loginForm.querySelector(".btn-secondary");
+    resetBtn.addEventListener("click", () => {
+        messageEl.style.display = "none";
+    });
+});

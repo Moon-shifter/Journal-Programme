@@ -1,65 +1,78 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>系统登录</title>
-    <!-- 1. 引入全局公共CSS -->
-     <link rel="stylesheet" href="../../static/css/common.css">
-    <!-- 2. 引入管理员登录页专属CSS -->
-    <link rel="stylesheet" href="../../static/css/admin-login.css">
-    <style>
-        /* 新增错误提示样式（替代alert弹窗） */
-        .error-message {
-            color: #dc3545;
-            font-size: 0.9em;
-            height: 20px;
-            margin: 8px 0;
-            text-align: center;
-        }
-        /* 加载状态样式 */
-        .loading {
-            cursor: wait;
-            opacity: 0.7;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理员登录 - 期刊管理系统</title>
+  <link rel="stylesheet" href="../../static/css/admin-login.css">
 </head>
+
 <body>
-    <div class="login-container">
-        <div class="login-header">
-            <h2>系统登录</h2>
-        </div>
+  <div class="login-container">
+    <h2 class="login-title">管理员登录</h2>
+    <!-- 登录表单：ID与JS配置一致 -->
+    <form id="adminLoginForm">
+      <div class="form-group">
+        <label for="username">用户名</label>
+        <input type="text" id="username" name="username" class="form-control" placeholder="请输入管理员用户名"
+          autocomplete="off">
+        <div class="error-tip" id="usernameError"></div>
+      </div>
 
-      
-        <form id="userForm">
-            <!-- 新增错误提示容器 -->
-            <div class="error-message" id="errorMsg"></div>
-            
-            <div class="form-group">
-                <label for="userName">用户名</label>
-                <input type="text" name="userName" id="userName" 
-                       placeholder="请输入用户名" required 
-                       maxlength="20" autocomplete="username">
-            </div>
+      <div class="form-group">
+        <label for="password">密码</label>
+        <input type="password" id="password" name="password" class="form-control" placeholder="请输入密码">
+        <div class="error-tip" id="passwordError"></div>
+      </div>
 
-            <div class="form-group">
-                <label for="passWord">密码</label>
-                <input type="password" id="passWord" name="passWord" 
-                       placeholder="请输入密码" required 
-                       minlength="6" maxlength="20" autocomplete="current-password">
-            </div>
+      <button type="submit" class="btn-login">登录</button>
+    </form>
+  </div>
 
-            <div class="button-group">
-                <button type="button" id="loginBtn" class="btn-primary">登录</button>
-                <button type="button" id="resetBtn" class="btn-secondary">清空</button>
-            </div>
-        </form>
-    </div>
+  <!-- 引入依赖脚本（顺序不可颠倒） -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="../../static/js/common-request.js"></script>
+  <script src="../../static/js/admin-login.js"></script>
 
-         
-            <script src="../../static/js/pretend-js/pretendAdmin-login.js"></script>
-            
-            <!-- 放在页面<head>或<body>末尾 -->
-           <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <!-- 初始化登录逻辑 -->
+  <script>
+    // 初始化登录表单（使用默认配置，可根据实际需求修改）
+    AdminLogin.init({
+      loginApiUrl: "/admin/login", // 登录接口路径（需与后端一致）
+      successRedirectUrl: "/admin/index.html" // 登录成功跳转地址
+    });
+
+    // 可选：扩展表单实时校验（提升用户体验）
+    const usernameInput = document.getElementById("username");
+    const passwordInput = document.getElementById("password");
+    const usernameError = document.getElementById("usernameError");
+    const passwordError = document.getElementById("passwordError");
+
+    // 用户名实时校验
+    usernameInput.addEventListener("blur", () => {
+      if (!usernameInput.value.trim()) {
+        usernameError.textContent = "用户名不能为空";
+        usernameError.style.display = "block";
+      } else {
+        usernameError.style.display = "none";
+      }
+    });
+
+    // 密码实时校验
+    passwordInput.addEventListener("blur", () => {
+      const pwd = passwordInput.value.trim();
+      if (!pwd) {
+        passwordError.textContent = "密码不能为空";
+        passwordError.style.display = "block";
+      } else if (pwd.length < 6) {
+        passwordError.textContent = "密码长度不能少于6位";
+        passwordError.style.display = "block";
+      } else {
+        passwordError.style.display = "none";
+      }
+    });
+  </script>
 </body>
+
 </html>

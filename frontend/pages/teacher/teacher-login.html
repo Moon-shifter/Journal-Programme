@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>学院期刊管理系统 - 教师登录</title>
+    <!-- 字体图标 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-     <link rel="stylesheet" href="../../static/css/teacher-login.css">
-  
+    <!-- 登录页面样式（可根据实际需求补充css内容） -->
+    <link rel="stylesheet" href="../../static/css/teacher-login.css">
+    <!-- axios 依赖 -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
     <div class="login-container">
@@ -45,7 +48,7 @@
                 </div>
 
                 <div class="btn-container">
-                    <button type="submit" class="btn-primary" id="submitBtn">
+                    <button type="button" class="btn-primary" id="submitBtn">
                         <span id="btnText">登录系统</span>
                         <span class="loading" style="display: none;"></span>
                     </button>
@@ -64,10 +67,9 @@
         </div>
     </div>
 
- <!-- <script src="../../js/common-cookie.js"></script>
-<script src="../../js/common-api.js"></script>
-<script src="../../js/teacher-login.js"></script> -->
-     <script src="../../static/js/pretend-js/pretendTeacher-login.js"></script>
-
+    <!-- 公共请求封装 -->
+    <script src="../../static/js/common-request.js"></script>
+    <!-- 教师登录逻辑 -->
+    <script src="../../static/js/teacher-login.js"></script>
 </body>
 </html>
