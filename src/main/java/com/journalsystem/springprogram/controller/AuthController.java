@@ -78,20 +78,20 @@ public class AuthController {
     @PostMapping("/teacher/login")
     public Result<Map<String, Object>> teacherLogin(@RequestBody Map<String, String> loginData,HttpServletRequest request) {
 
-        //提取前端的JSON数据中的id、name、phone
+        //提取前端的JSON数据中的id、name、邮箱
         String id=loginData.get("id");
         String name=loginData.get("name");
-        String phone=loginData.get("phone");
+        String email=loginData.get("email");
 
 
         //调用教师服务层的登录方法
-        teacherService.login(Integer.valueOf(id),name,phone);
+        teacherService.login(Integer.valueOf(id),name,email);
 
         //返回响应，用hasMap存储响应数据,用result包装响应
         Map<String, Object> data = new HashMap<>();
         data.put("teacherId", id);
         data.put("name", name);
-        data.put("phone", phone);
+        data.put("phone", email);
 
         //存储session
         request.getSession().setAttribute("loginTeacher", data);
@@ -113,6 +113,8 @@ public class AuthController {
 
     @PostMapping("/teacher/register")
     public Result<Map<String, Object>> register(@RequestBody TeacherDTO regDTO) {
+
+        System.out.println("ok");
 
         //调用教师服务层的注册方法
         teacherService.register(regDTO);
