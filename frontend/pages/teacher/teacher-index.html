@@ -119,37 +119,6 @@
                 </div>
             </div>
 
-            <!-- 快捷操作区 -->
-            <div class="row mb-5">
-                <div class="col-12">
-                    <div class="card p-4 shadow-sm">
-                        <h5 class="mb-3">快捷操作</h5>
-                        <div class="d-flex flex-wrap gap-3">
-                            <button class="action-btn btn-primary" data-action="search-journal" onclick="window.location.href='../journal-search.html'">
-                                <i class="fas fa-search"></i>
-                                <span>期刊查询</span>
-                            </button>
-                            <button class="action-btn btn-success" data-action="apply-renew">
-                                <i class="fas fa-redo"></i>
-                                <span>申请续借</span>
-                            </button>
-                            <button class="action-btn btn-info" data-action="reserve-journal">
-                                <i class="fas fa-calendar-alt"></i>
-                                <span>预约期刊</span>
-                            </button>
-                            <button class="action-btn btn-warning" data-action="view-history">
-                                <i class="fas fa-history"></i>
-                                <span>查看借阅历史</span>
-                            </button>
-                            <button class="action-btn btn-secondary" data-action="reminder-settings">
-                                <i class="fas fa-bell"></i>
-                                <span>借阅提醒设置</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- 当前借阅列表 -->
             <div class="row mb-5">
                 <div class="col-12">
@@ -255,68 +224,31 @@
                     </div>
                 </div>
             </div>
-
-            <!-- 推荐期刊 -->
-            <div class="row">
-                <div class="col-12">
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-white border-bottom">
-                            <h5 class="mb-0">为您推荐</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row" id="recommendJournalRow">
-                                <!-- 动态渲染区域，初始静态数据仅作占位 -->
-                                <div class="col-md-3 col-sm-6 mb-4">
-                                    <div class="journal-card">
-                                        <h6>《计算机工程与设计》</h6>
-                                        <p class="text-sm text-muted">2025年第3期</p>
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <span class="badge badge-success">可借阅</span>
-                                            <button class="btn btn-sm btn-primary" onclick="window.location.href='journal-search.html'">查看详情</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3 col-sm-6 mb-4">
-                                    <div class="journal-card">
-                                        <h6>《自动化学报》</h6>
-                                        <p class="text-sm text-muted">2025年第2期</p>
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <span class="badge badge-success">可借阅</span>
-                                            <button class="btn btn-sm btn-primary" onclick="window.location.href='journal-search.html'">查看详情</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3 col-sm-6 mb-4">
-                                    <div class="journal-card">
-                                        <h6>《电子学报》</h6>
-                                        <p class="text-sm text-muted">2025年第4期</p>
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <span class="badge badge-warning">可预约</span>
-                                            <button class="btn btn-sm btn-primary" onclick="window.location.href='journal-search.html'">查看详情</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3 col-sm-6 mb-4">
-                                    <div class="journal-card">
-                                        <h6>《通信学报》</h6>
-                                        <p class="text-sm text-muted">2025年第1期</p>
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <span class="badge badge-success">可借阅</span>
-                                            <button class="btn btn-sm btn-primary" onclick="window.location.href='journal-search.html'">查看详情</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
     <!-- 引入封装的JS文件（按项目目录结构适配路径） -->
     <script src="../../static/js/common-cookie.js"></script>
     <script src="../../static/js/common-request.js"></script>
-    <script src="../../static/js/teacher-index.js"></script>
+    <script>
+    // 侧边栏折叠/展开功能
+    const toggleSidebar = document.getElementById('toggleSidebar');
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+
+    toggleSidebar.addEventListener('click', function() {
+        sidebar.classList.toggle('sidebar-collapsed');
+        mainContent.classList.toggle('main-content-expanded');
+        
+        const icon = this.querySelector('i');
+        if (sidebar.classList.contains('sidebar-collapsed')) {
+            icon.classList.remove('fa-bars');
+            icon.classList.add('fa-expand');
+        } else {
+            icon.classList.remove('fa-expand');
+            icon.classList.add('fa-bars');
+        }
+    });
+</script>
 </body>
 </html>
