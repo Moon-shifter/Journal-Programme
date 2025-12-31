@@ -22,7 +22,7 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public boolean login(Integer id, String name, String phone) {
+    public boolean login(Integer id, String name, String email) {
         //1.根据ID查询教师信息
        TeacherInfo teacherInfo=teacherRepository.findById(id).orElse(null);
        if (teacherInfo==null){
@@ -33,7 +33,7 @@ public class TeacherServiceImpl implements TeacherService {
            throw new BusinessException(400, "登录信息不匹配");//这个抛出异常会被全局异常处理器捕获
        }
        //3.检查教师手机号是否匹配
-        if (!teacherInfo.getPhone().equals(phone)){
+        if (!teacherInfo.getEmail().equals(email)){
             throw new BusinessException(400, "登录信息不匹配");//这个抛出异常会被全局异常处理器捕获
         }
         return true;
