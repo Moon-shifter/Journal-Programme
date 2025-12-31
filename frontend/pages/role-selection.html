@@ -1,63 +1,129 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>期刊借阅管理系统 - 角色选择</title>
-    <!-- 引入外部CDN（字体图标） -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- 引入全局通用样式 -->
-    <link rel="stylesheet" href="../../frontend/static/css/common.css">
-    <!-- 引入角色选择页专属样式 -->
-    <link rel="stylesheet" href="../../frontend/static/css/role-select.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学院期刊管理系统 - 角色选择</title>
+  <!-- 引入Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入Font Awesome图标 -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- 自定义配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#6B7280',
+            admin: '#2563EB',
+            teacher: '#059669',
+            neutral: '#F3F4F6'
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      /* 自定义工具类 */
+      .content-auto {
+        content-visibility: auto;
+      }
+      .card-hover {
+        @apply transition-all duration-300 hover:scale-105 hover:shadow-xl;
+      }
+      .btn-primary {
+        @apply w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+      }
+      .bg-gradient-custom {
+        @apply bg-gradient-to-br from-primary/5 to-primary/10;
+      }
+    }
+  </style>
 </head>
-<body>
-    <div id="role-select-container">
-        <!-- 系统标题区 -->
-        <div class="system-header">
-            <div class="logo">
-                <i class="fas fa-book-reader"></i>
-                <h1>学院期刊借阅管理系统</h1>
-            </div>
-            <p class="system-desc">请选择您的登录角色，进入对应功能模块</p>
-        </div>
+<body class="min-h-screen bg-gradient-custom font-inter flex flex-col items-center justify-center p-4">
+  <!-- 系统标题 -->
+  <div class="text-center mb-10 max-w-md">
+    <h1 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-gray-800 mb-2">学院期刊管理系统</h1>
+    <p class="text-gray-600">请选择您的登录角色</p>
+  </div>
 
-        <!-- 角色选择区 -->
-        <div class="role-card-wrapper">
-            <!-- 管理员角色卡片 -->
-            <div class="role-card" id="admin-role">
-                <div class="role-icon">
-                    <i class="fas fa-shield-halved"></i>
-                </div>
-                <h2 class="role-title">系统管理员</h2>
-                <div class="role-btn">
-                    <button class="btn-primary">进入管理员登录</button>
-                </div>
-            </div>
-
-            <!-- 教师角色卡片 -->
-            <div class="role-card" id="teacher-role">
-                <div class="role-icon">
-                    <i class="fas fa-user-tie"></i>
-                </div>
-                <h2 class="role-title">教师用户</h2>
-                <div class="role-btn">
-                    <button class="btn-primary">进入教师登录/注册</button>
-                </div>
-            </div>
+  <!-- 角色选择卡片 -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl w-full">
+    <!-- 管理员角色卡片 -->
+    <div class="bg-white rounded-2xl shadow-lg p-8 card-hover border border-gray-100">
+      <div class="flex flex-col items-center text-center">
+        <div class="w-20 h-20 rounded-full bg-admin/10 flex items-center justify-center mb-6">
+          <i class="fa fa-shield text-3xl text-admin"></i>
         </div>
-
-        <!-- 底部信息区 -->
-        <div class="footer">
-            <div class="footer-center">
-                <div class="footer-item">
-                    <i class="far fa-copyright"></i>
-                    <span>2025 学院期刊管理系统 版权所有</span>
-                </div>
-            </div>
-        </div>
+        <h3 class="text-xl font-semibold text-gray-800 mb-2">系统管理员</h3>
+        <p class="text-gray-600 mb-8 text-sm">负责期刊系统的整体管理、用户权限配置、数据维护等</p>
+        <button 
+          onclick="window.location.href='admin/admin-login.html'"
+          class="btn-primary bg-admin text-white hover:bg-admin/90 focus:ring-admin"
+        >
+          管理员登录
+        </button>
+      </div>
     </div>
 
-   
+    <!-- 教师角色卡片 -->
+    <div class="bg-white rounded-2xl shadow-lg p-8 card-hover border border-gray-100">
+      <div class="flex flex-col items-center text-center">
+        <div class="w-20 h-20 rounded-full bg-teacher/10 flex items-center justify-center mb-6">
+          <i class="fa fa-user-circle text-3xl text-teacher"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-800 mb-2">教师</h3>
+        <p class="text-gray-600 mb-8 text-sm">负责期刊投稿、审核查看、个人稿件管理等操作</p>
+        <button 
+          onclick="window.location.href='teacher/teacher-login.html'"
+          class="btn-primary bg-teacher text-white hover:bg-teacher/90 focus:ring-teacher"
+        >
+          教师登录
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 页脚信息 -->
+  <div class="mt-12 text-center text-gray-500 text-sm">
+    <p>© 2025 某某学院期刊编辑部 版权所有</p>
+  </div>
+
+  <!-- 简单的交互增强脚本 -->
+  <script>
+    // 页面加载动画
+    document.addEventListener('DOMContentLoaded', () => {
+      const cards = document.querySelectorAll('.card-hover');
+      cards.forEach((card, index) => {
+        setTimeout(() => {
+          card.classList.add('opacity-100');
+          card.classList.remove('opacity-0');
+        }, 100 * index);
+      });
+    });
+
+    // 防止重复点击
+    let isClicking = false;
+    document.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        if (isClicking) {
+          e.preventDefault();
+          return;
+        }
+        isClicking = true;
+        btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> 跳转中...';
+        setTimeout(() => {
+          isClicking = false;
+        }, 1000);
+      });
+    });
+  </script>
 </body>
 </html>
