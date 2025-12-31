@@ -125,23 +125,23 @@
                     <div class="card p-4 shadow-sm">
                         <h5 class="mb-3">快捷操作</h5>
                         <div class="d-flex flex-wrap gap-3">
-                            <button class="action-btn btn-primary" onclick="window.location.href='../journal-search.html'">
+                            <button class="action-btn btn-primary" data-action="search-journal" onclick="window.location.href='../journal-search.html'">
                                 <i class="fas fa-search"></i>
                                 <span>期刊查询</span>
                             </button>
-                            <button class="action-btn btn-success">
+                            <button class="action-btn btn-success" data-action="apply-renew">
                                 <i class="fas fa-redo"></i>
                                 <span>申请续借</span>
                             </button>
-                            <button class="action-btn btn-info">
+                            <button class="action-btn btn-info" data-action="reserve-journal">
                                 <i class="fas fa-calendar-alt"></i>
                                 <span>预约期刊</span>
                             </button>
-                            <button class="action-btn btn-warning">
+                            <button class="action-btn btn-warning" data-action="view-history">
                                 <i class="fas fa-history"></i>
                                 <span>查看借阅历史</span>
                             </button>
-                            <button class="action-btn btn-secondary">
+                            <button class="action-btn btn-secondary" data-action="reminder-settings">
                                 <i class="fas fa-bell"></i>
                                 <span>借阅提醒设置</span>
                             </button>
@@ -156,7 +156,7 @@
                     <div class="card shadow-sm">
                         <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">当前借阅期刊</h5>
-                            <button class="btn btn-sm btn-primary" onclick="window.location.href='journal-search.html'">
+                            <button class="btn btn-sm btn-primary" data-action="search-more-journal" onclick="window.location.href='journal-search.html'">
                                 <i class="fas fa-search"></i> 查找更多期刊
                             </button>
                         </div>
@@ -172,7 +172,8 @@
                                         <th>操作</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="borrowListTbody">
+                                    <!-- 动态渲染区域，初始静态数据仅作占位，会被JS替换 -->
                                     <tr>
                                         <td>《计算机学报》</td>
                                         <td>2025年第3期</td>
@@ -180,8 +181,12 @@
                                         <td>2025-05-15</td>
                                         <td><span class="badge-status badge-overdue">已超期</span></td>
                                         <td>
-                                            <button class="btn btn-sm btn-success"><i class="fas fa-redo"></i> 续借</button>
-                                            <button class="btn btn-sm btn-secondary"><i class="fas fa-undo"></i> 归还</button>
+                                            <button class="btn btn-sm btn-success" data-action="renew" data-id="1">
+                                                <i class="fas fa-redo"></i> 续借
+                                            </button>
+                                            <button class="btn btn-sm btn-secondary" data-action="return" data-id="1">
+                                                <i class="fas fa-undo"></i> 归还
+                                            </button>
                                         </td>
                                     </tr>
                                     <tr>
@@ -191,8 +196,12 @@
                                         <td>2025-06-02</td>
                                         <td><span class="badge-status badge-warning">即将到期</span></td>
                                         <td>
-                                            <button class="btn btn-sm btn-success"><i class="fas fa-redo"></i> 续借</button>
-                                            <button class="btn btn-sm btn-secondary"><i class="fas fa-undo"></i> 归还</button>
+                                            <button class="btn btn-sm btn-success" data-action="renew" data-id="2">
+                                                <i class="fas fa-redo"></i> 续借
+                                            </button>
+                                            <button class="btn btn-sm btn-secondary" data-action="return" data-id="2">
+                                                <i class="fas fa-undo"></i> 归还
+                                            </button>
                                         </td>
                                     </tr>
                                     <tr>
@@ -202,8 +211,12 @@
                                         <td>2025-06-10</td>
                                         <td><span class="badge-status badge-success">正常</span></td>
                                         <td>
-                                            <button class="btn btn-sm btn-success"><i class="fas fa-redo"></i> 续借</button>
-                                            <button class="btn btn-sm btn-secondary"><i class="fas fa-undo"></i> 归还</button>
+                                            <button class="btn btn-sm btn-success" data-action="renew" data-id="3">
+                                                <i class="fas fa-redo"></i> 续借
+                                            </button>
+                                            <button class="btn btn-sm btn-secondary" data-action="return" data-id="3">
+                                                <i class="fas fa-undo"></i> 归还
+                                            </button>
                                         </td>
                                     </tr>
                                     <tr>
@@ -213,8 +226,12 @@
                                         <td>2025-06-12</td>
                                         <td><span class="badge-status badge-success">正常</span></td>
                                         <td>
-                                            <button class="btn btn-sm btn-success"><i class="fas fa-redo"></i> 续借</button>
-                                            <button class="btn btn-sm btn-secondary"><i class="fas fa-undo"></i> 归还</button>
+                                            <button class="btn btn-sm btn-success" data-action="renew" data-id="4">
+                                                <i class="fas fa-redo"></i> 续借
+                                            </button>
+                                            <button class="btn btn-sm btn-secondary" data-action="return" data-id="4">
+                                                <i class="fas fa-undo"></i> 归还
+                                            </button>
                                         </td>
                                     </tr>
                                     <tr>
@@ -224,8 +241,12 @@
                                         <td>2025-06-18</td>
                                         <td><span class="badge-status badge-warning">即将到期</span></td>
                                         <td>
-                                            <button class="btn btn-sm btn-success"><i class="fas fa-redo"></i> 续借</button>
-                                            <button class="btn btn-sm btn-secondary"><i class="fas fa-undo"></i> 归还</button>
+                                            <button class="btn btn-sm btn-success" data-action="renew" data-id="5">
+                                                <i class="fas fa-redo"></i> 续借
+                                            </button>
+                                            <button class="btn btn-sm btn-secondary" data-action="return" data-id="5">
+                                                <i class="fas fa-undo"></i> 归还
+                                            </button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -243,7 +264,8 @@
                             <h5 class="mb-0">为您推荐</h5>
                         </div>
                         <div class="card-body">
-                            <div class="row">
+                            <div class="row" id="recommendJournalRow">
+                                <!-- 动态渲染区域，初始静态数据仅作占位 -->
                                 <div class="col-md-3 col-sm-6 mb-4">
                                     <div class="journal-card">
                                         <h6>《计算机工程与设计》</h6>
@@ -292,60 +314,9 @@
         </div>
     </div>
 
-    <!-- 原生JS脚本 -->
-    <script>
-        // 侧边栏折叠/展开
-        const toggleSidebar = document.getElementById('toggleSidebar');
-        const sidebar = document.getElementById('sidebar');
-        const mainContent = document.getElementById('mainContent');
-
-        toggleSidebar.addEventListener('click', function() {
-            sidebar.classList.toggle('sidebar-collapsed');
-            mainContent.classList.toggle('main-content-expanded');
-            
-            const icon = this.querySelector('i');
-            if (sidebar.classList.contains('sidebar-collapsed')) {
-                icon.classList.remove('fa-bars');
-                icon.classList.add('fa-expand');
-            } else {
-                icon.classList.remove('fa-expand');
-                icon.classList.add('fa-bars');
-            }
-        });
-
-        // 按钮点击事件
-        document.querySelectorAll('.action-btn, .btn-sm').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                // 如果是跳转链接则不处理
-                if (this.hasAttribute('onclick') || this.getAttribute('href') !== '#') {
-                    return;
-                }
-                
-                const btnText = this.textContent.trim();
-                if (btnText.includes('期刊查询')) {
-                    window.location.href = 'journal-search.html';
-                } else if (btnText.includes('申请续借')) {
-                    alert('请在借阅列表中选择需要续借的期刊');
-                } else if (btnText.includes('预约期刊')) {
-                    alert('请先查询需要预约的期刊，然后点击预约按钮');
-                } else if (btnText.includes('查看借阅历史')) {
-                    alert('正在加载您的借阅历史记录...');
-                } else if (btnText.includes('借阅提醒设置')) {
-                    alert('借阅提醒设置已打开');
-                } else if (btnText.includes('续借')) {
-                    const row = this.closest('tr');
-                    const journalName = row.cells[0].textContent;
-                    alert(`《${journalName}》续借申请已提交，审核通过后将延长30天借阅期`);
-                } else if (btnText.includes('归还')) {
-                    const row = this.closest('tr');
-                    const journalName = row.cells[0].textContent;
-                    if (confirm(`确认归还《${journalName}》吗？`)) {
-                        row.style.opacity = '0.5';
-                        setTimeout(() => row.remove(), 500);
-                    }
-                }
-            });
-        });
-    </script>
+    <!-- 引入封装的JS文件（按项目目录结构适配路径） -->
+    <script src="../../static/js/common-cookie.js"></script>
+    <script src="../../static/js/common-request.js"></script>
+    <script src="../../static/js/teacher-index.js"></script>
 </body>
 </html>
