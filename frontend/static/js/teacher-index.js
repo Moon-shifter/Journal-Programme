@@ -45,7 +45,7 @@ function loadUserInfo() {
     const userId = getCurrentUserId();
     if (!userId) {
         // 未登录，跳转到登录页
-       window.location.href = '../teacher/teacher-login.html';
+      // window.location.href = '../teacher/teacher-login.html';
         return;
     }
     
@@ -152,26 +152,6 @@ function loadBorrowList() {
             console.error('加载借阅列表失败:', err);
         });
 }
-
-// 绑定续借和归还按钮事件（保持不变）
-function bindOperationButtons() {
-    document.querySelectorAll('[data-action="renew"]').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const borrowId = this.getAttribute('data-id');
-            renewBorrow(borrowId);
-        });
-    });
-    
-    document.querySelectorAll('[data-action="return"]').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const borrowId = this.getAttribute('data-id');
-            returnBorrow(borrowId);
-        });
-    });
-}
-
-
-
 // 日期格式化工具函数
 function formatDate(dateString) {
     if (!dateString) return '';
