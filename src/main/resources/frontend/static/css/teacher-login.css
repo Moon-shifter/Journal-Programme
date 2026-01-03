@@ -5,8 +5,7 @@
             justify-content: center;
             min-height: 100vh;
             padding: 20px;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4eaf1 100%);
-            background-attachment: fixed;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4eaf1 100%) fixed;
         }
 
         .login-container {

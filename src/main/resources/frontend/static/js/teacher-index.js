@@ -45,7 +45,7 @@ function loadUserInfo() {
     const userId = getCurrentUserId();
     if (!userId) {
         // 未登录，跳转到登录页
-       window.location.href = '../teacher/teacher-login.html';
+     //  window.location.href = '../teacher/teacher-login.html';
         return;
     }
     
@@ -57,7 +57,7 @@ function loadUserInfo() {
             
             if (userInfoElem && userAvatarElem) {
                 userInfoElem.textContent = `教师：${data.name}`;
-                userAvatarElem.textContent = data.name.charAt(0);   // 用用户姓名的第一个字符作为头像文本
+                userAvatarElem.textContent = data.name.charAt(0);  
             }
         })
         .catch(err => {

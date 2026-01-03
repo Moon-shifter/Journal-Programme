@@ -1,380 +1,381 @@
-  /* 教师主页特定样式 */
+
         :root {
-            --primary-color: #3498db;
-            --secondary-color: #2c3e50;
-            --success-color: #27ae60;
-            --warning-color: #f39c12;
-            --danger-color: #e74c3c;
-            --light-bg: #f8f9fa;
+            --primary-color: #2c5282;
+            --secondary-color: #3182ce;
+            --sidebar-bg: #1a365d;
+            --sidebar-hover: #2c629e;
+            --text-light: #f7fafc;
+            --text-dark: #2d3748;
             --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --success-color: #38a169;
+            --warning-color: #d69e2e;
+            --danger-color: #e53e3e;
         }
 
-        /* 页面头部 */
-        .teacher-header {
-            background: linear-gradient(135deg, var(--secondary-color), #34495e);
-            color: white;
-            padding: 25px 40px;
+        body {
+            font-family: "Microsoft YaHei", "Segoe UI", Roboto, sans-serif;
+            color: var(--text-dark);
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* 侧边栏样式 - 核心修复折叠逻辑 */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 240px;
+            background-color: var(--sidebar-bg);
+            color: var(--text-light);
+            transition: all 0.3s ease;
+            z-index: 100;
+            overflow: hidden; /* 防止折叠后内容溢出 */
+        }
+
+        /* 折叠状态样式 - 完全收窄为60px，隐藏文字 */
+        .sidebar-collapsed {
+            width: 60px !important;
+        }
+        /* 折叠后隐藏文字元素 */
+        .sidebar-collapsed .logo h3,
+        .sidebar-collapsed .nav-link span {
+            display: none !important;
+        }
+        /* 折叠后logo居中显示图标 */
+        .sidebar-collapsed .logo {
+            justify-content: center;
+            padding: 1.5rem 0 !important;
+            gap: 0;
+        }
+        /* 折叠后导航链接图标居中 */
+        .sidebar-collapsed .nav-link {
+            justify-content: center;
+            padding: 0.8rem 0 !important;
+        }
+
+        .sidebar .logo {
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .sidebar .logo h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            white-space: nowrap;
+        }
+
+        .sidebar .logo-icon {
+            font-size: 1.5rem;
+            color: var(--text-light);
+        }
+
+        .sidebar .nav-menu {
+            padding: 1.5rem 0;
+        }
+
+        .sidebar .nav-item {
+            list-style: none;
+            margin: 0.5rem 0;
+        }
+
+        .sidebar .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1.2rem;
+            color: var(--text-light);
+            text-decoration: none;
+            border-left: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background-color: var(--sidebar-hover);
+            border-left-color: var(--secondary-color);
+        }
+
+        .sidebar .nav-link span {
+            white-space: nowrap;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            margin-left: 240px;
+            transition: all 0.3s ease;
+        }
+
+        .main-content-expanded {
+            margin-left: 60px !important;
+        }
+
+        /* 顶部导航栏 */
+        .top-nav {
+            height: 60px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 0 1.5rem;
+            display: flex;
+            align-items: center;
             justify-content: space-between;
-            align-items: center;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            box-shadow: var(--card-shadow);
         }
 
-        .teacher-info {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .teacher-avatar {
-            width: 70px;
-            height: 70px;
-            background: var(--primary-color);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-        }
-
-        .teacher-details h1 {
-            font-size: 24px;
-            margin-bottom: 5px;
-        }
-
-        .teacher-details p {
-            opacity: 0.9;
-            font-size: 14px;
-        }
-
-        .logout-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .logout-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        /* 功能卡片区域 */
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-
-        .function-card {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: var(--card-shadow);
-            display: flex;
-            flex-direction: column;
-            transition: all 0.3s;
-            border-left: 4px solid var(--primary-color);
-        }
-
-        .function-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .card-icon {
-            font-size: 32px;
-            color: var(--primary-color);
-            margin-bottom: 15px;
-        }
-
-        .card-content h3 {
-            color: var(--secondary-color);
-            margin-bottom: 10px;
-            font-size: 18px;
-        }
-
-        .card-content p {
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-
-        .card-actions {
-            margin-top: auto;
-            display: flex;
-            gap: 10px;
-        }
-
-        .card-btn {
-            flex: 1;
-            padding: 10px;
+        .top-nav .toggle-btn {
+            background: none;
             border: none;
-            border-radius: 6px;
+            color: var(--text-dark);
+            font-size: 1.2rem;
             cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
+        }
+
+        .top-nav .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .top-nav .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            transition: all 0.3s;
+            font-weight: 600;
         }
 
-        .card-btn.primary {
-            background: var(--primary-color);
-            color: white;
+        /* 内容容器 */
+        .content-container {
+            padding: 1.5rem;
+            background-color: #f8f9fa;
+            min-height: calc(100vh - 60px);
         }
 
-        .card-btn.primary:hover {
-            background: #2980b9;
-        }
-
-        .card-btn.secondary {
-            background: var(--light-bg);
-            color: var(--secondary-color);
-            border: 1px solid #ddd;
-        }
-
-        .card-btn.secondary:hover {
-            background: #e9ecef;
-        }
-
-        /* 借阅信息区域 */
-        .borrow-section {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: var(--card-shadow);
-            margin-bottom: 30px;
-        }
-
-        .section-title {
-            font-size: 18px;
-            color: var(--secondary-color);
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--light-bg);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .section-title i {
-            color: var(--primary-color);
-        }
-
-        /* 借阅统计 */
-        .borrow-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
+        /* 仪表盘卡片 */
         .stat-card {
-            background: var(--light-bg);
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            transition: all 0.3s;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            background-color: #fff;
+            padding: 1.2rem;
+            height: 100%;
+            transition: transform 0.2s ease;
         }
 
         .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
         }
 
-        .stat-value {
-            font-size: 32px;
-            font-weight: bold;
-            margin-bottom: 5px;
+        .stat-card .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
         }
 
-        .stat-value.total {
+        .stat-card .card-icon.primary {
+            background-color: rgba(44, 82, 130, 0.1);
             color: var(--primary-color);
         }
 
-        .stat-value.current {
+        .stat-card .card-icon.success {
+            background-color: rgba(56, 161, 105, 0.1);
             color: var(--success-color);
         }
 
-        .stat-value.overdue {
+        .stat-card .card-icon.warning {
+            background-color: rgba(214, 158, 46, 0.1);
+            color: var(--warning-color);
+        }
+
+        .stat-card .card-icon.danger {
+            background-color: rgba(229, 62, 62, 0.1);
             color: var(--danger-color);
         }
 
-        .stat-value.history {
-            color: var(--secondary-color);
+        .stat-card .card-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
         }
 
-        .stat-label {
-            font-size: 14px;
-            color: #666;
+        .stat-card .card-label {
+            color: #718096;
+            font-size: 0.9rem;
         }
 
-        /* 借阅列表 */
-        .borrow-table-container {
-            overflow-x: auto;
-            margin-top: 20px;
+        /* 快捷操作按钮 */
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: none;
+            color: #fff;
+            cursor: pointer;
         }
 
-        .borrow-table {
+        .action-btn.btn-primary {
+            background-color: var(--primary-color);
+        }
+
+        .action-btn.btn-success {
+            background-color: var(--success-color);
+        }
+
+        .action-btn.btn-warning {
+            background-color: var(--warning-color);
+        }
+
+        .action-btn.btn-danger {
+            background-color: var(--danger-color);
+        }
+
+        .action-btn.btn-info {
+            background-color: #86909c;
+        }
+
+        .action-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        /* 表格样式 */
+        .data-table {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
             width: 100%;
             border-collapse: collapse;
-            font-size: 14px;
         }
 
-        .borrow-table th {
-            background: var(--light-bg);
-            color: var(--secondary-color);
-            font-weight: 600;
+        .data-table thead {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+        }
+
+        .data-table th {
+            border: none;
+            padding: 1rem;
+            font-weight: 500;
             text-align: left;
-            padding: 15px;
-            border-bottom: 2px solid #dee2e6;
         }
 
-        .borrow-table td {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-            vertical-align: middle;
+        .data-table td {
+            border-color: #e2e8f0;
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid #e2e8f0;
         }
 
-        .borrow-table tr:hover {
-            background: #f8f9fa;
-        }
-
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
+        .badge-status {
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
             font-weight: 500;
         }
 
-        .status-borrowed {
-            background: #e3f2fd;
-            color: var(--primary-color);
-        }
-
-        .status-returned {
-            background: #e8f5e9;
-            color: var(--success-color);
-        }
-
-        .status-overdue {
-            background: #ffebee;
+        .badge-overdue {
+            background-color: rgba(229, 62, 62, 0.1);
             color: var(--danger-color);
         }
 
-        .action-btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
+        .badge-normal {
+            background-color: rgba(56, 161, 105, 0.1);
+            color: var(--success-color);
         }
 
-        .renew-btn {
-            background: var(--warning-color);
-            color: white;
-        }
-
-        .renew-btn:hover {
-            background: #e67e22;
-        }
-
-        .renew-btn:disabled {
-            background: #bdc3c7;
-            cursor: not-allowed;
-        }
-
-        /* 超期警告 */
-        .overdue-warning {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+        /* 纯CSS柱状图样式（替代Chart.js） */
+        .css-chart {
+            width: 100%;
+            height: 250px;
             display: flex;
-            align-items: center;
-            gap: 10px;
-            animation: pulse 2s infinite;
+            align-items: flex-end;
+            gap: 8px;
+            padding: 0 10px;
+            box-sizing: border-box;
         }
 
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+        .chart-bar {
+            flex: 1;
+            background-color: var(--primary-color);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            transition: height 0.5s ease;
         }
 
-        /* 加载动画 */
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #666;
+        .chart-bar:nth-child(1) { height: 45%; background-color: rgba(44, 82, 130, 0.7); }
+        .chart-bar:nth-child(2) { height: 38%; background-color: rgba(56, 161, 105, 0.7); }
+        .chart-bar:nth-child(3) { height: 32%; background-color: rgba(214, 158, 46, 0.7); }
+        .chart-bar:nth-child(4) { height: 41%; background-color: rgba(229, 62, 62, 0.7); }
+        .chart-bar:nth-child(5) { height: 29%; background-color: rgba(168, 85, 247, 0.7); }
+        .chart-bar:nth-child(6) { height: 22%; background-color: rgba(236, 72, 153, 0.7); }
+        .chart-bar:nth-child(7) { height: 15%; background-color: rgba(249, 115, 22, 0.7); }
+
+        .chart-bar-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            white-space: nowrap;
+            color: #718096;
         }
 
-        .loading i {
-            font-size: 24px;
-            margin-bottom: 10px;
-            color: var(--primary-color);
-            animation: spin 1s linear infinite;
+        .chart-bar-value {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-dark);
         }
 
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        /* 响应式适配 - 兼容小屏幕 */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 60px;
+            }
+            .main-content {
+                margin-left: 60px;
+            }
+            .sidebar .logo h3, .sidebar .nav-link span {
+                display: none;
+            }
+            .sidebar .logo {
+                justify-content: center;
+                padding: 1.5rem 0;
+            }
+            .sidebar .nav-link {
+                justify-content: center;
+                padding: 0.8rem 0;
+            }
+            .chart-bar-label {
+                font-size: 10px;
+            }
         }
 
-        /* 无数据提示 */
-        .no-data {
-            text-align: center;
-            padding: 40px;
-            color: #999;
-            font-style: italic;
-        }
-
-        /* 响应式设计 */
         @media (max-width: 768px) {
-            .teacher-header {
-                flex-direction: column;
-                gap: 20px;
-                text-align: center;
-                padding: 20px;
+            .stat-card .card-value {
+                font-size: 1.5rem;
             }
-
-            .teacher-info {
-                flex-direction: column;
-                text-align: center;
+            .action-btn {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.85rem;
             }
-
-            .dashboard {
-                grid-template-columns: 1fr;
-            }
-
-            .borrow-stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .card-actions {
-                flex-direction: column;
+            .css-chart {
+                height: 200px;
             }
         }
-
-        @media (max-width: 480px) {
-            .borrow-stats {
-                grid-template-columns: 1fr;
-            }
-
-            .borrow-table th,
-            .borrow-table td {
-                padding: 10px 5px;
-                font-size: 12px;
-            }
-        }
+  
