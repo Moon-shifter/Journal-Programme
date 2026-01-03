@@ -72,20 +72,50 @@ document.addEventListener('DOMContentLoaded', () => {
         searchForm.reset();
     }
 
+
+    // ========== 新增：特殊字符转义函数（核心优化） ==========
+    function escapeKeyword(keyword) {
+        return keyword
+            .replace(/%/g, '\\%') // 转义数据库通配符 %（避免被识别为模糊匹配符号）
+            .replace(/_/g, '\\_') // 转义数据库通配符 _（避免被识别为单个字符匹配）
+            .replace(/&/g, '&amp;') // 转义URL特殊字符 &
+            .replace(/=/g, '&equals;'); // 转义URL特殊字符 =
+    }
+
     // 获取期刊列表
     async function fetchJournalList() {
         try {
-            // 收集查询参数
-            const params = {
-                keyword: document.getElementById('searchKeyword').value.trim(),
+           // 1. 收集原始参数（仅保留有效字段）
+            const rawParams = {
+                keyword: searchKeywordInput.value.trim(), // 已trim，过滤全空格
                 category: document.getElementById('category').value,
-                isbn: document.getElementById('isbn').value.trim(),
+                issn: document.getElementById('issn').value.trim(),
                 status: document.getElementById('status').value,
                 page: currentPage,
                 pageSize: pageSize
             };
 
-            // 调用后端接口
+            // 2. 过滤+标准化参数（核心优化）
+            const params = {};
+            // 关键字处理：非空才传递，且转义特殊字符
+            if (rawParams.keyword) {
+                params.keyword = escapeKeyword(rawParams.keyword);
+            }
+            // 其他参数过滤（空值/all不传递）
+            if (rawParams.category && rawParams.category !== 'all') {
+                params.category = rawParams.category;
+            }
+            if (rawParams.isbn) {
+                params.isbn = rawParams.isbn;
+            }
+            if (rawParams.status && rawParams.status !== 'all') {
+                params.status = rawParams.status;
+            }
+            // 强制保留分页参数（避免后端缺失）
+            params.page = rawParams.page;
+            params.pageSize = rawParams.pageSize;
+
+            // 3. 调用后端接口（仅传递有效参数）
             const response = await api.get('/journals', params);
 
             // 更新数据
