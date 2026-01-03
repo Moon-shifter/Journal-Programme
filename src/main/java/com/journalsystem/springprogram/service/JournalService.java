@@ -7,6 +7,7 @@ import com.journalsystem.springprogram.pojo.JournalInfo;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 //定义服务层接口,用于处理期刊相关业务逻辑
 public interface JournalService {
@@ -41,7 +42,7 @@ public interface JournalService {
     }
 
     //9.根据名称模糊查询期刊
-    default List<JournalInfo> getJournalsByNameLike(String name) {
+    default List<JournalInfo> getJournalsByNamesLike(Set<String> names) {
         return null;
     }
 
