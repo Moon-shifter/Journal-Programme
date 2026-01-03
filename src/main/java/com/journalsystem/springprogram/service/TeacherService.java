@@ -27,9 +27,7 @@ public interface TeacherService {
     }
     
     //根据教师ID查询教师信息
-    default TeacherInfo findById(Integer id) {
-        return null;
-    }
+     TeacherInfo findById(Integer id);
     
     //分页查询教师
     default PageResult<TeacherInfo> getTeachersByPage(PageRequest pageRequest) {

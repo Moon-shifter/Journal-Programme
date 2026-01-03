@@ -10,7 +10,7 @@ import java.util.List;
 //借阅服务接口，定义了借阅相关的业务操作
 public interface BorrowService {
     //1.借阅期刊
-    Boolean borrowJournal(Integer teacherId, Integer journalId, LocalDate endDate);
+    Boolean borrowJournal(Integer borrowId, Integer teacherId, Integer journalId, LocalDate endDate);
     
     //2.归还期刊
     Boolean returnJournal(Integer borrowId);
