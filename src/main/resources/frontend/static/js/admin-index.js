@@ -61,12 +61,6 @@ function bindStatisticsData(statistics) {
             color: "success" 
         },
         { 
-            value: statistics.pendingBorrows, 
-            label: "待处理借阅", 
-            icon: "fa-handshake", 
-            color: "warning" 
-        },
-        { 
             value: statistics.overdueItems, 
             label: "超期未还", 
             icon: "fa-exclamation-triangle", 
@@ -76,7 +70,7 @@ function bindStatisticsData(statistics) {
     
     statsConfig.forEach(stat => {
         const colDiv = document.createElement('div');
-        colDiv.className = 'col-md-3 col-sm-6 mb-4';
+        colDiv.className = 'col-md-4 col-sm-6 mb-4'; // 修改为col-md-4保持3列布局
         colDiv.innerHTML = `
             <div class="stat-card">
                 <div class="card-icon ${stat.color}">
@@ -191,6 +185,7 @@ async function loadAdminInfo() {
         });
     }
 }
+
 function bindUserInfo(currentUser) {
     // 姓名显示
     document.querySelector('.user-info span').textContent = `管理员：${currentUser.name}`;
@@ -199,92 +194,8 @@ function bindUserInfo(currentUser) {
     const initial = currentUser.initial || currentUser.name.charAt(0);
     document.querySelector('.user-avatar').textContent = initial;
 }
-function bindUserInfo(currentUser) {
-    document.querySelector('.user-info span').textContent = `管理员：${currentUser.name}`;
-    document.querySelector('.user-avatar').textContent = currentUser.initial || currentUser.name.charAt(0);
-}
 
-// ==================== 侧边栏交互与跳转控制 ====================
-const toggleSidebar = document.getElementById('toggleSidebar');
-const sidebar = document.getElementById('sidebar');
-const mainContent = document.getElementById('mainContent');
 
-// 侧边栏折叠/展开
-toggleSidebar.addEventListener('click', function () {
-    sidebar.classList.toggle('sidebar-collapsed');
-    mainContent.classList.toggle('main-content-expanded');
-
-    const icon = this.querySelector('i');
-    if (sidebar.classList.contains('sidebar-collapsed')) {
-        icon.classList.remove('fa-bars');
-        icon.classList.add('fa-expand');
-    } else {
-        icon.classList.remove('fa-expand');
-        icon.classList.add('fa-bars');
-    }
-});
-
-// 初始化侧边栏导航
-function initSidebarNavigation() {
-    // 1. 获取所有导航链接元素
-    const navLinks = document.querySelectorAll('.nav-menu .nav-link');
-    const currentPath = window.location.pathname.split('/').pop() || 'admin-index.html';
-    
-    // 2. 定义无页面的菜单项（点击不跳转）
-    const noPageMenus = ['仪表盘', '系统设置'];
-    
-    // 3. 遍历每个导航链接进行处理
-    navLinks.forEach(link => {
-        const menuText = link.querySelector('span').textContent;
-        
-        // 4. 设置href属性
-        if (noPageMenus.includes(menuText)) {
-            link.setAttribute('href', '#');
-        } else if (link.getAttribute('href') === '#') {
-            const pagePath = getPagePath(menuText);
-            link.setAttribute('href', pagePath);
-        }
-        
-        // 5. 设置激活状态
-        const linkPath = link.getAttribute('href').split('/').pop();
-        if (linkPath === currentPath) {
-            link.classList.add('active');
-        } else {
-            link.classList.remove('active');
-        }
-        
-        // 6. 绑定点击事件
-        link.addEventListener('click', function(e) {
-            const clickedMenu = this.querySelector('span').textContent;
-            
-            // 7. 阻止特定菜单的默认行为
-            if (noPageMenus.includes(clickedMenu)) {
-                e.preventDefault();
-                return;
-            }
-            
-            // 8. 阻止当前页面的重复跳转
-            if (this.getAttribute('href').split('/').pop() === currentPath) {
-                e.preventDefault();
-                return;
-            }
-        });
-    });
-}
-
-// 根据导航名称获取页面路径
-function getPagePath(navName) {
-    const pageMap = {
-        '仪表盘': '#',
-        '期刊信息管理': 'admin-journals.html',
-        '教师信息管理': 'admin-teachers.html',
-        '图书借阅办理': 'admin-borrow.html',
-        '超期催还管理': 'admin-overdue.html',
-        '报表导出': 'admin-reports.html',
-        '系统设置': '#'
-    };
-    return pageMap[navName] || '#';
-}
 
 // ==================== 退出登录处理 ====================
 document.addEventListener('DOMContentLoaded', function() {

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学院期刊管理系统 - 图书借阅办理</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome CSS -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="../../static/css/admin-index.css">
+<link rel="stylesheet" href="../../static/css/admin-borrow.css">
+</head>
+
+<body>
+    <!-- 侧边栏 -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <i class="fas fa-book-journal-whills logo-icon"></i>
+            <h3>期刊管理系统</h3>
+        </div>
+        <ul class="nav-menu p-0">
+            <li class="nav-item">
+                <a href="admin-index.html" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>仪表盘</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-journals.html" class="nav-link">
+                    <i class="fas fa-book"></i>
+                    <span>期刊信息管理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-teachers.html" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    <span>教师信息管理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-borrow.html" class="nav-link active">
+                    <i class="fas fa-handshake"></i>
+                    <span>图书借阅办理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-overdue.html" class="nav-link">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>超期催还管理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-reports.html" class="nav-link">
+                    <i class="fas fa-file-excel"></i>
+                    <span>报表导出</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>系统设置</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-login.html" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>退出登录</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="main-content" id="mainContent">
+        <!-- 顶部导航 -->
+        <div class="top-nav">
+            <button class="toggle-btn" id="toggleSidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="user-info">
+                <span class="me-2"></span>
+                <div class="user-avatar"></div>
+            </div>
+        </div>
+
+        <!-- 内容容器 -->
+        <div class="content-container">
+            <!-- 页面标题 -->
+            <div class="mb-4">
+                <h2 class="mb-1">图书借阅办理</h2>
+                <p class="text-muted">办理期刊借阅和归还业务</p>
+            </div>
+
+            <!-- 快捷操作按钮 - 触发模态框 -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <button class="action-btn btn-primary" data-bs-toggle="modal" data-bs-target="#borrowModal">
+                        <i class="fas fa-plus-circle"></i>
+                        办理借阅
+                    </button>
+                    <button class="action-btn btn-success" data-bs-toggle="modal" data-bs-target="#returnModal">
+                        <i class="fas fa-undo"></i>
+                        办理归还
+                    </button>
+                </div>
+            </div>
+
+            <!-- 当前借阅记录表格 -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list"></i>
+                        当前借阅记录
+                    </h5>
+                    <span class="badge bg-primary" id="activeBorrowsCount">0</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="data-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>借阅ID</th>
+                                    <th>教师ID</th>
+                                    <th>期刊ID</th>
+                                    <th>借阅日期</th>
+                                    <th>应还日期</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="currentBorrowsTable">
+                                <!-- 动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 历史借阅记录表格 -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history"></i>
+                        历史借阅记录
+                    </h5>
+                    <span class="badge bg-secondary" id="returnedBorrowsCount">0</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="data-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>借阅ID</th>
+                                    <th>教师ID</th>
+                                    <th>期刊ID</th>
+                                    <th>借阅日期</th>
+                                    <th>应还日期</th>
+                                    <th>归还日期</th>
+                                    <th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyBorrowsTable">
+                                <!-- 动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================== -->
+    <!-- 借阅办理模态框 -->
+    <!-- ===================================== -->
+    <div class="modal fade" id="borrowModal" tabindex="-1" aria-labelledby="borrowModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="borrowModalLabel">
+                        <i class="fas fa-plus-circle"></i> 办理借阅
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="borrowForm" class="needs-validation" novalidate>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="borrowerId" class="form-label">教师ID <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="borrowerId" required>
+                                    <button class="btn btn-outline-secondary" type="button" id="searchTeacher">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                                <div class="invalid-feedback">请输入教师ID</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="journalId" class="form-label">期刊ID <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="journalId" required>
+                                    <button class="btn btn-outline-secondary" type="button" id="searchJournal">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                                <div class="invalid-feedback">请输入期刊ID</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="startDate" class="form-label">借阅日期 <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="startDate" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="endDate" class="form-label">应还日期 <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="endDate" required>
+                            </div>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> 系统将自动计算借阅天数，并设置初始状态为"借阅中"
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary" form="borrowForm">
+                        <i class="fas fa-check"></i> 确认借阅
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================== -->
+    <!-- 归还办理模态框 -->
+    <!-- ===================================== -->
+    <div class="modal fade" id="returnModal" tabindex="-1" aria-labelledby="returnModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="returnModalLabel">
+                        <i class="fas fa-undo-alt"></i> 归还登记
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">查询教师借阅记录</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="returnBorrowerId" placeholder="输入教师ID">
+                                <button class="btn btn-outline-secondary" type="button" id="searchBorrowRecords">
+                                    <i class="fas fa-search"></i> 查询
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">或查询期刊借阅记录</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="returnJournalId" placeholder="输入期刊ID">
+                                <button class="btn btn-outline-secondary" type="button" id="searchJournalRecords">
+                                    <i class="fas fa-search"></i> 查询
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="current-borrows" id="currentBorrowsList">
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-info-circle"></i> 请输入教师ID或期刊ID查询可归还记录
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-info" onclick="resetReturnForm()">
+                        <i class="fas fa-redo"></i> 重置查询
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Bootstrap JS Bundle (包含Popper) -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <!-- Axios -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/axios/1.6.0/axios.min.js"></script>
+    <!-- Cookie工具 -->
+    <script src="../../static/js/common-cookie.js"></script>
+    <!-- 请求封装 -->
+    <script src="../../static/js/common-request.js"></script>
+   
+    <!-- 页面业务逻辑 -->
+    <!-- <script src="../../static/js/pretend-js/prentendAdmin-borrow.js"></script> -->
+     <script src="../../static/js/admin-borrow.js"></script>
+</body>
+</html>
