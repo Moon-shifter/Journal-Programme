@@ -16,8 +16,8 @@ const BORROW_API = {
     RETURN_BORROW: '/borrow/return',              // PUT 归还期刊
     
     // 辅助查询接口（用于数据验证和展示）
-    GET_TEACHER: '/teacher/admin',                // GET 查询教师详情
-    GET_JOURNAL: '/journal',                      // GET 查询期刊详情
+    GET_TEACHER: '/borrow/teacher/admin',                // GET 查询教师详情
+    GET_JOURNAL: '/borrow/journal',                      // GET 查询期刊详情
 };
 
 // 2. 页面初始化入口

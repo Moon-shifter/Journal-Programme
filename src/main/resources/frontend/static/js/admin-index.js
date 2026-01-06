@@ -33,7 +33,7 @@ async function loadDashboardData() {
 async function loadStatisticsData() {
     try {
         // 调用后端统计数据接口
-        const statistics = await api.get('/statistics/summary');
+        const statistics = await api.get('/admin/statistics/summary');
         
         // 绑定到UI（复用原有函数）
         bindStatisticsData(statistics);
@@ -88,7 +88,7 @@ function bindStatisticsData(statistics) {
 async function loadDepartmentData() {
     try {
         // 调用后端系部教师统计接口
-        const departmentTeachers = await api.get('/statistics/department-teachers');
+        const departmentTeachers = await api.get('/admin/statistics/department-teachers');
         
         // 绑定到图表
         bindDepartmentChart(departmentTeachers);
@@ -128,7 +128,7 @@ function bindDepartmentChart(departmentTeachers) {
 async function loadOverdueData() {
     try {
         // 调用后端超期借阅接口
-        const overdueRecords = await api.get('/borrow/overdue');
+        const overdueRecords = await api.get('/admin/borrow/overdue');
         
         // 绑定到表格
         bindOverdueRecords(overdueRecords);
@@ -174,7 +174,7 @@ async function loadAdminInfo() {
         }
 
         // 2. 若本地无存储（如未登录或存储失效），再调用接口
-        const currentUser = await api.get('/user/current');
+        const currentUser = await api.get('/admin/user/current');
         bindUserInfo(currentUser);
     } catch (error) {
         console.error('管理员信息加载失败:', error);
