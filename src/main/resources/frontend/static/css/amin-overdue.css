@@ -1,0 +1,43 @@
+   /* 催还单打印样式 */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printSection, #printSection * {
+                visibility: visible;
+            }
+            #printSection {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+        }
+        
+        .overdue-warning {
+            background-color: rgba(229, 62, 62, 0.1);
+            border-left: 4px solid var(--danger-color);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+        }
+        
+        .overdue-warning h5 {
+            color: var(--danger-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .badge-overdue-critical {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .badge-overdue-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }

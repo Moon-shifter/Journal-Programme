@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>超期催还管理 - 学院期刊管理系统</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome CSS -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="../../static/css/admin-index.css">
+    <link rel="stylesheet" href="../../static/css/admin-overdue.css">
+</head>
+
+<body>
+    <!-- 侧边栏 -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <i class="fas fa-book-journal-whills logo-icon"></i>
+            <h3>期刊管理系统</h3>
+        </div>
+        <ul class="nav-menu p-0">
+            <li class="nav-item">
+                <a href="admin-index.html" class="nav-link" data-page="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>仪表盘</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-journals.html" class="nav-link" data-page="journals">
+                    <i class="fas fa-book"></i>
+                    <span>期刊信息管理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-teachers.html" class="nav-link" data-page="teachers">
+                    <i class="fas fa-users"></i>
+                    <span>教师信息管理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-borrow.html" class="nav-link" data-page="borrow">
+                    <i class="fas fa-handshake"></i>
+                    <span>图书借阅办理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link active">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>超期催还管理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-reports.html" class="nav-link" data-page="reports">
+                    <i class="fas fa-file-excel"></i>
+                    <span>报表导出</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-page="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>系统设置</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-login.html" class="nav-link logout-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>退出登录</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="main-content" id="mainContent">
+        <!-- 顶部导航 -->
+        <div class="top-nav">
+            <button class="toggle-btn" id="toggleSidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="user-info">
+                <span class="me-2">管理员</span>
+                <div class="user-avatar"></div>
+            </div>
+        </div>
+
+        <!-- 内容容器 -->
+        <div class="content-container">
+            <!-- 页面标题和面包屑 -->
+            <div class="mb-4">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item active" aria-current="page">超期催还管理</li>
+                    </ol>
+                </nav>
+                <h2 class="mb-1">超期催还管理</h2>
+                <p class="text-muted">查看并处理超期未还的期刊借阅记录</p>
+            </div>
+
+            <!-- 超期统计警告栏 -->
+            <div class="overdue-warning" id="overdueWarning">
+                <h5><i class="fas fa-exclamation-triangle"></i> 超期提醒</h5>
+                <p class="mb-0">当前共有 <strong id="totalOverdueCount">0</strong> 条超期记录，请尽快处理！</p>
+            </div>
+
+            <!-- 操作栏 -->
+            <div class="action-bar">
+                <div class="row align-items-center">
+                    <div class="col-lg-12 text-lg-end">
+                        <!-- 批量打印 -->
+                        <button class="btn btn-danger btn-sm me-2" id="batchPrintBtn">
+                            <i class="fas fa-print me-1"></i>批量打印催还单
+                        </button>
+                        
+                        <!-- 批量发送通知（新增） -->
+                        <button class="btn btn-warning btn-sm me-2" id="batchSendBtn">
+                            <i class="fas fa-paper-plane me-1"></i>批量发送通知
+                        </button>
+                        
+                        <!-- 导出Excel -->
+                        <button class="btn btn-success btn-sm" id="exportExcelBtn">
+                            <i class="fas fa-file-excel me-1"></i>导出Excel
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 数据表格 -->
+            <div class="data-table">
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width: 3%;">
+                                    <input type="checkbox" id="selectAll">
+                                </th>
+                                <th style="width: 12%;">教师ID</th>
+                                <th style="width: 10%;">姓名</th>
+                                <th style="width: 12%;">系部</th>
+                                <th style="width: 13%;">联系方式</th>
+                                <th style="width: 18%;">期刊名称</th>
+                                <th style="width: 10%;">借阅日期</th>
+                                <th style="width: 10%;">应还日期</th>
+                                <th style="width: 8%;">超期天数</th>
+                                <th style="width: 8%;">状态</th>
+                                <th style="width: 10%;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="overdueTableBody">
+                            <!-- 数据由JS动态加载 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 动态分页容器 -->
+            <div id="paginationContainer" class="mt-4"></div>
+        </div>
+    </div>
+
+    <!-- 催还单打印模板（隐藏） -->
+    <div id="printTemplate" style="display: none;">
+        <div style="padding: 20px; font-family: 'SimSun', serif;">
+            <h2 style="text-align: center; margin-bottom: 30px;">期刊催还通知单</h2>
+            <div style="margin-bottom: 20px;">
+                <p><strong>尊敬的教师：</strong></p>
+                <p>您借阅的以下期刊已超期，请尽快归还：</p>
+            </div>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                <thead>
+                    <tr style="background-color: #f0f0f0;">
+                        <th style="border: 1px solid #000; padding: 8px;">期刊名称</th>
+                        <th style="border: 1px solid #000; padding: 8px;">借阅日期</th>
+                        <th style="border: 1px solid #000; padding: 8px;">应还日期</th>
+                        <th style="border: 1px solid #000; padding: 8px;">超期天数</th>
+                    </tr>
+                </thead>
+                <tbody id="printTableBody">
+                    <!-- 动态填充 -->
+                </tbody>
+            </table>
+            <div style="margin-top: 30px;">
+                <p>请尽快到图书馆归还期刊，以免影响您的借阅信用。</p>
+                <p>如有疑问，请联系管理员。</p>
+                <p style="text-align: right; margin-top: 40px;">
+                    学院期刊管理员<br>
+                    <span id="printDate"></span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 隐藏的iframe用于打印 -->
+    <iframe id="printIframe" style="display:none;"></iframe>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <!-- Axios -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/axios/1.6.0/axios.min.js"></script>
+    <!-- SheetJS for Excel导出 -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- 工具脚本 -->
+    <script src="../../static/js/common-cookie.js"></script>
+    <script src="../../static/js/common-request.js"></script>
+    <!-- 页面逻辑 -->
+    <script src="../../static/js/admin-overdue.js"></script>
+</body>
+</html>

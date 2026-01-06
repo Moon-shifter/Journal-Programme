@@ -96,37 +96,51 @@ function loadStatisticData() {
 function loadBorrowList() {
     const userId = getCurrentUserId();
     if (!userId) return;
-    
-    // 调用借阅列表接口
-    api.get('/teacher/borrow/list', { teacherId: userId })
+    api.get('/borrow/teacher/list', { teacherId: userId })
         .then(data => {
             const tbody = document.getElementById('borrowListTbody');
             if (!tbody) return;
             
             tbody.innerHTML = ''; // 清空现有内容
             
-            data.forEach(borrow => {
+            // 过滤掉已归还的记录，只显示当前借阅
+            const currentBorrows = data.filter(borrow => borrow.status !== 'returned');
+            
+            currentBorrows.forEach(borrow => {
                 let statusClass = '';
                 let statusText = '';
                 
-                switch (borrow.status) {
-                    case 'OVERDUE':
-                        statusClass = 'badge-overdue';
-                        statusText = '已超期';
-                        break;
-                    case 'UPCOMING_EXPIRE':
+                // 适配接口文档中的状态值并动态计算
+                if (borrow.status === 'overdue') {
+                    // 接口文档中的"已超期"状态
+                    statusClass = 'badge-overdue';
+                    statusText = '已超期';
+                } else if (borrow.status === 'borrowed') {
+                    // 接口文档中的"已借出"状态，需根据日期判断子状态
+                    const today = new Date();
+                    const dueDate = new Date(borrow.dueDate);
+                    const daysDiff = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+                    
+                    if (daysDiff <= 7 && daysDiff > 0) {
+                        // 7天内到期，视为"即将到期"
                         statusClass = 'badge-warning';
                         statusText = '即将到期';
-                        break;
-                    case 'NORMAL':
+                    } else if (daysDiff <= 0) {
+                        // 已超期但状态未更新（兜底处理）
+                        statusClass = 'badge-overdue';
+                        statusText = '已超期';
+                    } else {
+                        // 正常借阅
                         statusClass = 'badge-success';
                         statusText = '正常';
-                        break;
-                    default:
-                        statusClass = 'badge-secondary';
-                        statusText = '未知';
+                    }
+                } else {
+                    // 兜底处理
+                    statusClass = 'badge-secondary';
+                    statusText = '未知';
                 }
                 
+                const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${borrow.journalName}</td>
                     <td>${borrow.volumeIssue}</td>
@@ -137,8 +151,6 @@ function loadBorrowList() {
                 
                 tbody.appendChild(row);
             });
-            
-            bindOperationButtons();
         })
         .catch(err => {
             console.error('加载借阅列表失败:', err);

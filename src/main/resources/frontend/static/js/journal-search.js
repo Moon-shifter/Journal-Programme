@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const detailModal = document.getElementById('detailModal');
     const closeModalBtn = document.getElementById('closeModal');
     const journalDetailContent = document.getElementById('journalDetailContent');
-    const borrowFormSection = document.getElementById('borrowFormSection');
 
     // 分页参数
     let currentPage = 1;
@@ -30,34 +29,31 @@ document.addEventListener('DOMContentLoaded', () => {
         // 绑定事件监听
         searchForm.addEventListener('click', handleSearch);
         resetBtn.addEventListener('click', handleReset);
-        backHomeBtn.addEventListener('click', () => {
-            // 从本地存储获取教师登录信息
-            const teacherStr = localStorage.getItem("teacherInfo");
-            if (!teacherStr) {
-                // 未登录状态：跳转到登录页
-                alert("请先登录");
-                window.location.href = "teacher/teacher-login.html";
-                return;
-            }
-
-            const teacherInfo = JSON.parse(teacherStr);
-            // 验证角色是否为教师（增强安全性）
-            if (teacherInfo.role !== "teacher") {
-                alert("权限错误，请使用教师账号登录");
-                window.location.href = "teacher/teacher-login.html";
-                return;
-            }
-            // 已登录的教师：跳转到主页（保持登录状态）
-            window.location.href = "teacher/teacher-index.html";
-        });
+        backHomeBtn.addEventListener('click', handleBackHome);
         firstPageBtn.addEventListener('click', () => goToPage(1));
         prevPageBtn.addEventListener('click', () => goToPage(currentPage - 1));
         nextPageBtn.addEventListener('click', () => goToPage(currentPage + 1));
         lastPageBtn.addEventListener('click', () => goToPage(totalPages));
         closeModalBtn.addEventListener('click', closeModal);
-        detailModal.addEventListener('click', (e) => {
-            if (e.target === detailModal) closeModal();
-        });
+        detailModal.addEventListener('click', handleModalClick);
+    }
+
+    // 返回主页
+    function handleBackHome() {
+        const teacherStr = localStorage.getItem("teacherInfo");
+        if (!teacherStr) {
+            alert("请先登录");
+            window.location.href = "teacher-login.html";
+            return;
+        }
+
+        const teacherInfo = JSON.parse(teacherStr);
+        if (teacherInfo.role !== "teacher") {
+            alert("权限错误，请使用教师账号登录");
+            window.location.href = "teacher-login.html";
+            return;
+        }
+        window.location.href = "teacher-index.html";
     }
 
     // 处理搜索请求
@@ -72,8 +68,12 @@ document.addEventListener('DOMContentLoaded', () => {
         searchForm.reset();
     }
 
+    // 处理模态框点击
+    function handleModalClick(e) {
+        if (e.target === detailModal) closeModal();
+    }
 
-    // ========== 新增：特殊字符转义函数（核心优化） ==========
+    // ========== 特殊字符转义函数（核心优化） ==========
     function escapeKeyword(keyword) {
         return keyword
             .replace(/%/g, '\\%') // 转义数据库通配符 %（避免被识别为模糊匹配符号）
@@ -82,40 +82,47 @@ document.addEventListener('DOMContentLoaded', () => {
             .replace(/=/g, '&equals;'); // 转义URL特殊字符 =
     }
 
-    // 获取期刊列表
+    /**
+     * 获取期刊列表
+     * 对应后端接口: GET /journals
+     * 请求参数对应journal_info表字段
+     */
     async function fetchJournalList() {
         try {
-           // 1. 收集原始参数（仅保留有效字段）
+            // 收集原始参数（仅保留有效字段）
+            const searchKeywordInput = document.getElementById('searchKeyword');
             const rawParams = {
-                keyword: searchKeywordInput.value.trim(), // 已trim，过滤全空格
+                // keyword: 对应journal_info.name字段，后端应使用LIKE %name%模糊查询
+                keyword: searchKeywordInput.value.trim(),
+                // category: 对应journal_info.category字段，精确匹配
                 category: document.getElementById('category').value,
+                // issn: 对应journal_info.issn字段，精确匹配
                 issn: document.getElementById('issn').value.trim(),
+                // status: 对应journal_info.status字段，精确匹配
                 status: document.getElementById('status').value,
+                // 分页参数
                 page: currentPage,
                 pageSize: pageSize
             };
 
-            // 2. 过滤+标准化参数（核心优化）
+            // 过滤+标准化参数（空值不传递）
             const params = {};
-            // 关键字处理：非空才传递，且转义特殊字符
             if (rawParams.keyword) {
                 params.keyword = escapeKeyword(rawParams.keyword);
             }
-            // 其他参数过滤（空值/all不传递）
             if (rawParams.category && rawParams.category !== 'all') {
                 params.category = rawParams.category;
             }
-            if (rawParams.isbn) {
-                params.isbn = rawParams.isbn;
+            if (rawParams.issn) {
+                params.issn = rawParams.issn;
             }
             if (rawParams.status && rawParams.status !== 'all') {
                 params.status = rawParams.status;
             }
-            // 强制保留分页参数（避免后端缺失）
             params.page = rawParams.page;
             params.pageSize = rawParams.pageSize;
 
-            // 3. 调用后端接口（仅传递有效参数）
+            // 调用后端接口（仅传递有效参数）
             const response = await api.get('/journals', params);
 
             // 更新数据
@@ -148,25 +155,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const row = document.createElement('tr');
             row.innerHTML = `
         <td>${journal.name}</td>
-        <td>${journal.isbn}</td>
+        <td>${journal.issn}</td>
         <td>${journal.category}</td>
         <td>${journal.publisher}</td>
         <td>${formatDate(journal.publishDate)}</td>
-        <td>${journal.stockQuantity}</td>
+        <td>${journal.availableQuantity}</td>
         <td>
           <span class="status-tag ${journal.status === 'available' ? 'status-available' : 'status-unavailable'}">
-            ${journal.status === 'available' ? '可预约' : '不可预约'}
+            ${journal.status === 'available' ? '可借阅' : '不可借阅'}
           </span>
         </td>
         <td>
           <button class="btn-view" onclick="viewJournalDetail(${journal.id})">
             <i class="fas fa-eye"></i> 详情
           </button>
-          ${journal.status === 'available' ? `
-            <button class="btn-borrow" onclick="showBorrowForm(${journal.id})">
-              <i class="fas fa-hand-holding"></i> 预约
-            </button>
-          ` : ''}
         </td>
       `;
             journalTableBody.appendChild(row);
@@ -193,10 +195,14 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchJournalList();
     }
 
-    // 查看期刊详情
+    /**
+     * 查看期刊详情
+     * 对应后端接口: GET /journal/{id}
+     * 路径参数id对应journal_info.id字段
+     */
     window.viewJournalDetail = async (id) => {
         try {
-            const journal = await api.get(`/journals/${id}`);
+            const journal = await api.get(`/journal/${id}`);
             renderJournalDetail(journal);
             openModal();
         } catch (error) {
@@ -212,8 +218,8 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="detail-value">${journal.name}</div>
       </div>
       <div class="detail-row">
-        <div class="detail-label">ISBN:</div>
-        <div class="detail-value">${journal.isbn}</div>
+        <div class="detail-label">ISSN:</div>
+        <div class="detail-value">${journal.issn}</div>
       </div>
       <div class="detail-row">
         <div class="detail-label">类别:</div>
@@ -228,18 +234,14 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="detail-value">${formatDate(journal.publishDate)}</div>
       </div>
       <div class="detail-row">
-        <div class="detail-label">主编:</div>
-        <div class="detail-value">${journal.editor}</div>
-      </div>
-      <div class="detail-row">
-        <div class="detail-label">库存数量:</div>
-        <div class="detail-value">${journal.stockQuantity}</div>
+        <div class="detail-label">可借数量:</div>
+        <div class="detail-value">${journal.availableQuantity}</div>
       </div>
       <div class="detail-row">
         <div class="detail-label">状态:</div>
         <div class="detail-value">
           <span class="status-tag ${journal.status === 'available' ? 'status-available' : 'status-unavailable'}">
-            ${journal.status === 'available' ? '可预约' : '不可预约'}
+            ${journal.status === 'available' ? '可借阅' : '不可借阅'}
           </span>
         </div>
       </div>
@@ -248,68 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="detail-value">${journal.description || '暂无简介'}</div>
       </div>
     `;
-
-        // 渲染借阅表单（如果可预约）
-        borrowFormSection.innerHTML = journal.status === 'available' ? `
-      <div class="form-title">借阅预约</div>
-      <form id="borrowForm">
-        <input type="hidden" id="journalId" value="${journal.id}">
-        <div class="form-group">
-          <label for="borrowDays">借阅天数:</label>
-          <select id="borrowDays" required>
-            <option value="7">7天</option>
-            <option value="14" selected>14天</option>
-            <option value="21">21天</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="contactInfo">联系信息:</label>
-          <input type="text" id="contactInfo" placeholder="请输入手机号或邮箱" required>
-        </div>
-        <div class="form-actions">
-          <button type="submit" class="btn-primary">确认预约</button>
-        </div>
-      </form>
-    ` : '';
-
-        // 绑定借阅表单提交事件
-        const borrowForm = document.getElementById('borrowForm');
-        if (borrowForm) {
-            borrowForm.addEventListener('click', handleBorrowSubmit);
-        }
     }
-
-    // 处理借阅预约提交
-    async function handleBorrowSubmit(e) {
-        e.preventDefault();
-
-        const journalId = document.getElementById('journalId').value;
-        const borrowDays = document.getElementById('borrowDays').value;
-        const contactInfo = document.getElementById('contactInfo').value.trim();
-
-        try {
-            const data = {
-                journalId,
-                borrowDays,
-                contactInfo,
-                borrowDate: new Date().toISOString().split('T')[0]
-            };
-
-            await api.post('/journals/borrow', data);
-            alert('借阅预约成功！');
-            closeModal();
-            fetchJournalList(); // 刷新列表
-        } catch (error) {
-            console.error('借阅预约失败:', error);
-        }
-    }
-
-    // 显示借阅表单（直接显示详情模态框）
-    window.showBorrowForm = (id) => {
-        window.viewJournalDetail(id);
-    };
-
-
 
     // 打开模态框
     function openModal() {
@@ -321,11 +262,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function closeModal() {
         detailModal.style.display = 'none';
         document.body.style.overflow = '';
-        // 移除表单事件监听，防止重复绑定
-        const borrowForm = document.getElementById('borrowForm');
-        if (borrowForm) {
-            borrowForm.removeEventListener('submit', handleBorrowSubmit);
-        }
     }
 
     // 日期格式化工具
