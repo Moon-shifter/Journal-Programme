@@ -98,4 +98,9 @@ public class Constants {
      * 教师默认最大借阅数量
      */
     public static final Integer DEFAULT_TEACHER_MAX_BORROW = 5;
+
+    /**
+     * 借阅ID基础值
+     */
+    public static final Integer BASE_NUM=10000;
 }

@@ -54,6 +54,7 @@ public class BorrowServiceImpl implements BorrowService {
 
         // 4. 检查期刊是否有可借数量
         if (journal.getAvailableQuantity() <= 0) {
+            journal.setStatus(Constants.JOURNAL_STATUS_UNAVAILABLE);
             throw new BusinessException(400, "期刊已无可用数量");
         }
 
@@ -244,6 +245,27 @@ public class BorrowServiceImpl implements BorrowService {
                 .stream()
                 .filter(borrowInfo -> borrowInfo.getBorrower().getId().equals(teacherId))
                 .count();
+    }
+
+    @Override
+    public List<BorrowInfo> getBorrowsByStatus(String status, Integer limit) {
+        List<BorrowInfo> borrowInfos;
+
+        // 解析状态参数，支持多个状态用逗号分隔
+        if (status != null && !status.isEmpty()) {
+            List<String> statuses = List.of(status.split(","));
+            borrowInfos = borrowInfoRepository.findAllByStatusIn(statuses);
+        } else {
+            // 如果没有指定状态，查询所有记录
+            borrowInfos = borrowInfoRepository.findAll();
+        }
+
+        // 应用limit限制
+        if (limit != null && limit > 0 && limit < borrowInfos.size()) {
+            return borrowInfos.subList(0, limit);
+        }
+
+        return borrowInfos;
     }
 
 }

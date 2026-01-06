@@ -50,4 +50,7 @@ public interface BorrowService {
     
     //14.统计教师借阅次数
     Integer getBorrowCountByTeacherId(Integer teacherId);
+
+    //15.按状态查询并支持限制返回数量
+    List<BorrowInfo> getBorrowsByStatus(String status, Integer limit);
 }
