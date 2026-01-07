@@ -102,6 +102,11 @@ public class TeacherServiceImpl implements TeacherService {
         return teacherRepository.findById(id).orElse(null);
     }
 
+    @Override
+    public TeacherInfo findByPhone(String phone) {
+        return teacherRepository.findByPhone(phone);
+    }
+
 
     //查询所有教师
     @Override

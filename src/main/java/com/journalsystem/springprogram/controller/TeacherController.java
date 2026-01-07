@@ -11,13 +11,11 @@ import com.journalsystem.springprogram.service.TeacherService;
 import com.journalsystem.springprogram.util.DateUtil;
 import com.journalsystem.springprogram.util.DtoUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 教师相关接口
@@ -171,6 +169,118 @@ public class TeacherController {
 
     }
 
+    /**
+     * 获取所有教师接口
+     * @return 统一响应结果：
+     *       成功：
+     *       {code:200,msg:"获取所有教师成功",data:{teacherList}}
+     *       失败：
+     *       {code:404,msg:"教师不存在"}
+     */
+    @GetMapping("/admin/list")
+    public Result<List<TeacherDTO>> getALlTeacher(){
+        //1.查询所有教师信息
+        List<TeacherInfo> teacherInfoList=teacherService.getAllTeachers();
+        if(teacherInfoList.isEmpty()){
+            return Result.fail(404,"教师不存在");
+        }
+        //2.将教师信息转换为教师DTO
+        List<TeacherDTO> teacherDTOList=DtoUtil.convertList(teacherInfoList,TeacherDTO.class);
+
+        //3.返回教师DTO列表
+        return Result.success(teacherDTOList,"获取所有教师成功");
+    }
+
+    /**
+     * 获取教师接口
+     * @param teacherId 教师id
+     * @return 统一响应结果：
+     *       成功：
+     *       {code:200,msg:"获取教师成功",data:{teacherDTO}}
+     *       失败：
+     *       {code:404,msg:"教师不存在"}
+     */
+    @GetMapping("/admin/{teacherId}")
+    public Result<TeacherDTO> getTeacher(@PathVariable Integer teacherId){
+        //1.根据id查询教师信息
+        TeacherInfo teacherInfo=teacherService.findById(teacherId);
+        if(teacherInfo==null){
+            return Result.fail(404,"教师不存在");
+        }
+        //2.将教师信息转换为教师DTO
+        TeacherDTO teacherDTO=new TeacherDTO();
+        DtoUtil.copyAllFields(teacherInfo,teacherDTO);
+        //3.返回教师DTO
+        return Result.success(teacherDTO,"获取教师成功");
+    }
+
+    /**
+     * 添加教师接口
+     * @param teacherDTO 教师DTO
+     * @return 统一响应结果：
+     *       成功：
+     *       {code:200,msg:"添加教师成功",data:{teacherDTO}}
+     *       失败：
+     *       {code:400,msg:"添加教师失败"}
+     */
+    @PostMapping("/admin/add")
+    public Result<TeacherDTO> addTeacher(@RequestBody TeacherDTO teacherDTO){
+        teacherService.register(teacherDTO);
+        return Result.success(teacherDTO,"添加教师成功");
+    }
+
+    /**
+     * 更新教师接口
+     * @param teacherDTO 教师DTO
+     * @return 统一响应结果：
+     *       成功：
+     *       {code:200,msg:"更新教师成功",data:{teacherDTO}}
+     *       失败：
+     *       {code:400,msg:"更新教师失败"}
+     */
+    @PutMapping("/admin/update")
+    public Result<TeacherDTO> updateTeacher(@RequestBody TeacherDTO teacherDTO){
+        teacherService.update(teacherDTO.getId(),teacherDTO);
+        return Result.success(teacherDTO,"更新教师成功");
+    }
+
+    /**
+     * 删除教师接口
+     * @param teacherId 教师id
+     * @return 统一响应结果：
+     *       成功：
+     *       {code:200,msg:"删除教师成功"}
+     *       失败：
+     *       {code:400,msg:"删除教师失败"}
+     */
+    @DeleteMapping("/admin/delete/{teacherId}")
+    public Result<Integer> deleteTeacher(@PathVariable Integer teacherId){
+        teacherService.delete(teacherId);
+        return Result.success(teacherId,"删除教师成功");
+    }
+
+    /**
+     * 根据手机号查询教师接口
+     * @param phone 教师手机号
+     * @return 统一响应结果：
+     *       成功：
+     *       {code:200,msg:"获取教师成功",data:{teacherDTO}}
+     *       失败：
+     *       {code:404,msg:"教师不存在"}
+     */
+    @GetMapping("/admin/search")
+    public Result<TeacherDTO> searchTeacherByPhone(@RequestParam String phone){
+        //1.根据手机号查询教师信息
+        TeacherInfo teacherInfo=teacherService.findByPhone(phone);
+        if(teacherInfo==null){
+            return Result.fail(404,"教师不存在");
+        }
+        //2.将教师信息转换为教师DTO
+        TeacherDTO teacherDTO=new TeacherDTO();
+        DtoUtil.copyAllFields(teacherInfo,teacherDTO);
+        //3.返回教师DTO
+        return Result.success(teacherDTO,"获取教师成功");
+    }
 
 
 

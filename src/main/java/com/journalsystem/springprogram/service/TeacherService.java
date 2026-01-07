@@ -24,6 +24,9 @@ public interface TeacherService {
     //根据教师ID查询教师信息
     TeacherInfo findById(Integer id);
 
+    //根据手机号查询教师信息
+    TeacherInfo findByPhone(String phone);
+
     //根据姓名查询教师信息
     default List<TeacherInfo> findByName(String name) {
         return null;
