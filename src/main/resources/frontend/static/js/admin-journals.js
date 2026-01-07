@@ -1,10 +1,10 @@
 // ==================== API路径配置（根据接口文档） ====================
 const JOURNAL_API_PATHS = {
-    LIST: '/journals',
+    LIST: '/journal/journals',
     DETAIL: (id) => `/journal/${id}`,
     ADD: '/journal/admin/add',
     UPDATE: '/journal/admin/update',
-    DELETE: (id) => `/journal/admin/${id}`
+    DELETE: (id) => `/journal/admin/delete/${id}`
 };
 
 // ==================== 字段名映射配置（代码下划线 → 文档驼峰） ====================
