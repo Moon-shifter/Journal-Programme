@@ -20,15 +20,18 @@ public interface TeacherService {
     
     //更新教师信息
     boolean update(Integer id, TeacherDTO updateDTO);
-    
+
+    //根据教师ID查询教师信息
+    TeacherInfo findById(Integer id);
+
     //根据姓名查询教师信息
     default List<TeacherInfo> findByName(String name) {
         return null;
     }
-    
-    //根据教师ID查询教师信息
-     TeacherInfo findById(Integer id);
-    
+
+    //查询所有教师
+    default List<TeacherInfo> getAllTeachers() {return null;}
+
     //分页查询教师
     default PageResult<TeacherInfo> getTeachersByPage(PageRequest pageRequest) {
         return null;

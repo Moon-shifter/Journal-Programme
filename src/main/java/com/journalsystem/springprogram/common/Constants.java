@@ -1,5 +1,7 @@
 package com.journalsystem.springprogram.common;
 
+import java.util.List;
+
 /**
  * 系统常量类
  * 定义系统中使用的各种常量
@@ -103,4 +105,12 @@ public class Constants {
      * 借阅ID基础值
      */
     public static final Integer BASE_NUM=10000;
+
+    /**
+     * 教师部门集合
+     */
+    public static final List<String> DEPARTMENT_TEACHERS = List.of(
+            "文学院", "汽修学院", "计算机学院", "自动化学院", "数学学院","校党委","舞蹈与艺术学院","工程学院","法学院","农学院",
+            "商学院","管理学院"
+    );
 }
