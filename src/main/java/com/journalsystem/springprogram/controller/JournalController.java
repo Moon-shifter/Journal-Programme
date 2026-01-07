@@ -27,14 +27,10 @@ import java.util.Map;
 @RequestMapping("/api/journal")
 public class JournalController {
     private final JournalService journalService;
-    private final TeacherService teacherService;
-    private final BorrowService borrowService;
 
     @Autowired
-    public JournalController(JournalService journalService, TeacherService teacherService, BorrowService borrowService) {
+    public JournalController(JournalService journalService) {
         this.journalService = journalService;
-        this.teacherService = teacherService;
-        this.borrowService = borrowService;
     }
 
     /**
@@ -189,7 +185,7 @@ public class JournalController {
      *            "msg": "删除期刊失败：[异常信息]"
      *        }
      */
-    @DeleteMapping("/admin/{id}")
+    @DeleteMapping("/admin/delete/{id}")
     public Result<String> deleteJournal(@PathVariable Integer id) {
         try {
             journalService.deleteJournal(id);

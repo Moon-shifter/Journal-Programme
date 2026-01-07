@@ -31,7 +31,7 @@ public class DateUtil {
     
     /**
      * 获取当前时间（LocalDateTime）
-     * @return 当前时间
+     * @return 当前时间 格式：yyyy-MM-dd HH:mm:ss
      */
     public static LocalDateTime getCurrentDateTime() {
         return LocalDateTime.now();

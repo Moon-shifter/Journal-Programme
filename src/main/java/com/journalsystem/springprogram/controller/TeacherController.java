@@ -41,7 +41,7 @@ public class TeacherController {
      * @param id 教师id
      * @return 统一响应结果：
      *       成功：
-     *       {code:200,msg:"教师信息查询成功",data:{id,name}}
+     *       {code:200,msg:"教师信息查询成功",data:{name}}
      *       失败：
      *       {code:404,msg:"教师不存在"}
      */
@@ -58,13 +58,13 @@ public class TeacherController {
 
         //3.将教师DTO转换为Map
         Map<String,String> data=new HashMap<>();
-        data.put("id",teacherDTO.getId().toString());
         data.put("name",teacherDTO.getName());
 
         //4.返回教师信息Map
         return Result.success(data,"教师信息查询成功");
 
     }
+
     /**
      * 获取教师借阅统计数据接口
      * @param teacherId 教师id
@@ -74,8 +74,6 @@ public class TeacherController {
      *       失败：
      *       {code:404,msg:"教师不存在"}
      */
-
-
     @GetMapping("/borrow/statistics")
     public Result<Map<String, String>> getStatistics(@RequestParam Integer teacherId) {
         //1.根据id查询教师信息
@@ -118,10 +116,6 @@ public class TeacherController {
         return Result.success(data,"获取借阅统计数据成功");
     }
 
-
-
-
-
    /**
      * 获取教师借阅记录接口
      * @param teacherId 教师id
@@ -131,9 +125,7 @@ public class TeacherController {
      *       失败：
      *       {code:404,msg:"教师不存在"}
      */
-
-
-    @GetMapping("/borrow/list")
+    @GetMapping("/borrow/teacher/list")
     public Result<Map<String, Object>> getBorrowList(@RequestParam Integer teacherId) {
         //1.根据id查询教师信息
         TeacherInfo teacherInfo=teacherService.findById(teacherId);
