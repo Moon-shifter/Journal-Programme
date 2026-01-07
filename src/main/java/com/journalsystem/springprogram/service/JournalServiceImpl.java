@@ -9,6 +9,8 @@ import com.journalsystem.springprogram.pojo.JournalInfo;
 import com.journalsystem.springprogram.repository.JournalRepository;
 import com.journalsystem.springprogram.util.DtoUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -115,7 +117,39 @@ public class JournalServiceImpl implements JournalService {
 
     @Override
     public PageResult<JournalInfo> getAvailableJournalsByPage(PageRequest pageRequest) {
-        return JournalService.super.getAvailableJournalsByPage(pageRequest);
+        // 1. 校验分页参数（修正页码、页大小、排序方向）
+        pageRequest.validate();
+    
+        // 2. 构建排序条件（支持自定义排序字段和方向）
+        Sort sort = Sort.unsorted();
+        if (pageRequest.getSortField() != null && !pageRequest.getSortField().isEmpty()) {
+            Sort.Direction direction = "desc".equalsIgnoreCase(pageRequest.getSortOrder())
+                    ? Sort.Direction.DESC
+                    : Sort.Direction.ASC;
+            sort = Sort.by(direction, pageRequest.getSortField());
+        } else {
+            // 默认按期刊可借数量降序排列
+            sort = Sort.by(Sort.Direction.DESC, "availableQuantity");
+        }
+    
+        // 3. 构建JPA分页对象（JPA页码从0开始，需转换）
+        org.springframework.data.domain.PageRequest jpaPageRequest =
+                org.springframework.data.domain.PageRequest.of(
+                        pageRequest.getPageNum() - 1,  // 自定义页码从1开始，JPA从0开始
+                        pageRequest.getPageSize(),
+                        sort
+                );
+    
+        // 4. 执行分页查询（查询可借阅状态的期刊）
+        Page<JournalInfo> journalPage = journalRepository.findByStatus(Constants.JOURNAL_STATUS_AVAILABLE, jpaPageRequest);
+    
+        // 5. 转换为自定义分页结果返回
+        return PageResult.build(
+                pageRequest.getPageNum(),
+                pageRequest.getPageSize(),
+                journalPage.getTotalElements(),
+                journalPage.getContent()
+        );
     }
 
     @Override
@@ -161,7 +195,39 @@ public class JournalServiceImpl implements JournalService {
 
     @Override
     public PageResult<JournalInfo> getJournalsByPage(PageRequest pageRequest) {
-        return JournalService.super.getJournalsByPage(pageRequest);
+        // 1. 校验分页参数（修正页码、页大小、排序方向）
+        pageRequest.validate();
+
+        // 2. 构建排序条件（支持自定义排序字段和方向）
+        Sort sort = Sort.unsorted();
+        if (pageRequest.getSortField() != null && !pageRequest.getSortField().isEmpty()) {
+            Sort.Direction direction = "desc".equalsIgnoreCase(pageRequest.getSortOrder())
+                    ? Sort.Direction.DESC
+                    : Sort.Direction.ASC;
+            sort = Sort.by(direction, pageRequest.getSortField());
+        } else {
+            // 默认按期刊ID降序排列
+            sort = Sort.by(Sort.Direction.DESC, "id");
+        }
+
+        // 3. 构建JPA分页对象（JPA页码从0开始，需转换）
+        org.springframework.data.domain.PageRequest jpaPageRequest =
+                org.springframework.data.domain.PageRequest.of(
+                        pageRequest.getPageNum() - 1,  // 自定义页码从1开始，JPA从0开始
+                        pageRequest.getPageSize(),
+                        sort
+                );
+
+        // 4. 执行分页查询
+        Page<JournalInfo> journalPage = journalRepository.findAll(jpaPageRequest);
+
+        // 5. 转换为自定义分页结果返回
+        return PageResult.build(
+                pageRequest.getPageNum(),
+                pageRequest.getPageSize(),
+                journalPage.getTotalElements(),
+                journalPage.getContent()
+        );
     }
 
     @Override
@@ -216,6 +282,48 @@ public class JournalServiceImpl implements JournalService {
 
         journalRepository.save(journalInfo);
         return true;
+    }
+
+    // 扩展：新增issn参数，支持按ISSN过滤分页
+    @Override
+    public PageResult<JournalInfo> getJournalsByPage(PageRequest pageRequest, String issn) {
+        // 1. 校验分页参数（修正非法页码/页大小，如page<1重置为1）
+        pageRequest.validate();
+
+        // 2. 构建排序条件：自定义排序优先，无则默认按ID降序
+        Sort sort = Sort.unsorted();
+        if (pageRequest.getSortField() != null && !pageRequest.getSortField().isEmpty()) {
+            Sort.Direction direction = "desc".equalsIgnoreCase(pageRequest.getSortOrder())
+                    ? Sort.Direction.DESC
+                    : Sort.Direction.ASC;
+            sort = Sort.by(direction, pageRequest.getSortField());
+        } else {
+            sort = Sort.by(Sort.Direction.DESC, "id"); // 默认排序
+        }
+
+        // 3. 构建JPA分页对象（页码转换：自定义1开始 → JPA 0开始）
+        org.springframework.data.domain.PageRequest jpaPageRequest =
+                org.springframework.data.domain.PageRequest.of(
+                        pageRequest.getPageNum() - 1, // 核心转换：避免分页错位
+                        pageRequest.getPageSize(),
+                        sort
+                );
+
+        // 4. 分场景查询：有ISSN则过滤，无则查全部
+        Page<JournalInfo> journalPage;
+        if (issn != null && !issn.trim().isEmpty()) {
+            journalPage = journalRepository.findByIssnContainingIgnoreCase(issn.trim(), jpaPageRequest);
+        } else {
+            journalPage = journalRepository.findAll(jpaPageRequest);
+        }
+
+        // 5. 转换为自定义分页结果（匹配接口返回格式）
+        return PageResult.build(
+                pageRequest.getPageNum(),
+                pageRequest.getPageSize(),
+                journalPage.getTotalElements(),
+                journalPage.getContent()
+        );
     }
 
 }

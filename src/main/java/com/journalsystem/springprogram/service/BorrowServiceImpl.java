@@ -151,12 +151,80 @@ public class BorrowServiceImpl implements BorrowService {
 
     @Override
     public PageResult<BorrowInfo> getBorrowsByPage(PageRequest pageRequest) {
-        return null;
+        // 1. 校验分页参数（修正页码、页大小、排序方向）
+        pageRequest.validate();
+    
+        // 2. 构建排序条件（支持自定义排序字段和方向）
+        Sort sort = Sort.unsorted();
+        if (pageRequest.getSortField() != null && !pageRequest.getSortField().isEmpty()) {
+            Sort.Direction direction = "desc".equalsIgnoreCase(pageRequest.getSortOrder())
+                    ? Sort.Direction.DESC
+                    : Sort.Direction.ASC;
+            sort = Sort.by(direction, pageRequest.getSortField());
+        } else {
+            // 添加默认排序：按借阅记录ID降序排列
+            sort = Sort.by(Sort.Direction.DESC, "id");
+        }
+    
+        // 3. 构建JPA分页对象（JPA页码从0开始，需转换）
+        org.springframework.data.domain.PageRequest jpaPageRequest =
+                org.springframework.data.domain.PageRequest.of(
+                        pageRequest.getPageNum() - 1,  // 自定义页码从1开始，JPA从0开始
+                        pageRequest.getPageSize(),
+                        sort
+                );
+    
+        // 4. 执行分页查询
+        Page<BorrowInfo> borrowPage = borrowInfoRepository.findAll(jpaPageRequest);
+    
+        // 5. 转换为自定义分页结果返回
+        return PageResult.build(
+                pageRequest.getPageNum(),
+                pageRequest.getPageSize(),
+                borrowPage.getTotalElements(),
+                borrowPage.getContent()
+        );
     }
 
     @Override
     public PageResult<BorrowInfo> getBorrowsByTeacherIdAndPage(Integer teacherId, PageRequest pageRequest) {
-        return null;
+        // 1. 校验教师是否存在
+        TeacherInfo teacher = teacherRepository.findById(teacherId)
+                .orElseThrow(() -> new BusinessException(400, "教师不存在"));
+    
+        // 2. 校验分页参数
+        pageRequest.validate();
+    
+        // 3. 构建排序条件
+        Sort sort = Sort.unsorted();
+        if (pageRequest.getSortField() != null && !pageRequest.getSortField().isEmpty()) {
+            Sort.Direction direction = "desc".equalsIgnoreCase(pageRequest.getSortOrder())
+                    ? Sort.Direction.DESC
+                    : Sort.Direction.ASC;
+            sort = Sort.by(direction, pageRequest.getSortField());
+        } else {
+            // 添加默认排序：按借阅记录ID降序排列
+            sort = Sort.by(Sort.Direction.DESC, "id");
+        }
+    
+        // 4. 构建JPA分页对象
+        org.springframework.data.domain.PageRequest jpaPageRequest =
+                org.springframework.data.domain.PageRequest.of(
+                        pageRequest.getPageNum() - 1,
+                        pageRequest.getPageSize(),
+                        sort
+                );
+    
+        // 5. 按教师ID分页查询
+        Page<BorrowInfo> borrowPage = borrowInfoRepository.findByBorrowerId(teacherId, jpaPageRequest);
+    
+        // 6. 转换为自定义分页结果返回
+        return PageResult.build(
+                pageRequest.getPageNum(),
+                pageRequest.getPageSize(),
+                borrowPage.getTotalElements(),
+                borrowPage.getContent()
+        );
     }
 
     @Override
@@ -231,7 +299,51 @@ public class BorrowServiceImpl implements BorrowService {
 
     @Override
     public PageResult<BorrowInfo> getOverdueBorrowsByPage(PageRequest pageRequest) {
-        return null;
+        // 1. 校验分页参数（修正页码、页大小、排序方向）
+        pageRequest.validate();
+    
+        // 2. 构建排序条件（支持自定义排序字段和方向）
+        Sort sort = Sort.unsorted();
+        if (pageRequest.getSortField() != null && !pageRequest.getSortField().isEmpty()) {
+            Sort.Direction direction = "desc".equalsIgnoreCase(pageRequest.getSortOrder())
+                    ? Sort.Direction.DESC
+                    : Sort.Direction.ASC;
+            sort = Sort.by(direction, pageRequest.getSortField());
+        } else {
+            // 默认按逾期时间降序排列
+            sort = Sort.by(Sort.Direction.DESC, "endDate");
+        }
+    
+        // 3. 构建JPA分页对象（JPA页码从0开始，需转换）
+        org.springframework.data.domain.PageRequest jpaPageRequest =
+                org.springframework.data.domain.PageRequest.of(
+                        pageRequest.getPageNum() - 1,  // 自定义页码从1开始，JPA从0开始
+                        pageRequest.getPageSize(),
+                        sort
+                );
+    
+        // 4. 执行分页查询（查询状态为逾期或已借出且实际已逾期的记录）
+        List<String> overdueStatuses = List.of(Constants.BORROW_STATUS_OVERDUE, Constants.BORROW_STATUS_BORROWED);
+        Page<BorrowInfo> borrowPage = borrowInfoRepository.findAllByStatusIn(overdueStatuses, jpaPageRequest);
+    
+        // 5. 筛选出真正逾期的记录（对于状态为已借出的记录，需要检查是否实际已逾期）
+        LocalDate now = LocalDate.now();
+        List<BorrowInfo> overdueBorrows = borrowPage.getContent().stream()
+                .filter(borrow -> {
+                    boolean isOverdueStatus = Constants.BORROW_STATUS_OVERDUE.equals(borrow.getStatus());
+                    boolean isBorrowedAndOverdue = Constants.BORROW_STATUS_BORROWED.equals(borrow.getStatus()) &&
+                            borrow.getEndDate().isBefore(now);
+                    return isOverdueStatus || isBorrowedAndOverdue;
+                })
+                .collect(Collectors.toList());
+    
+        // 6. 转换为自定义分页结果返回
+        return PageResult.build(
+                pageRequest.getPageNum(),
+                pageRequest.getPageSize(),
+                borrowPage.getTotalElements(), // 注意：这里返回的是符合状态条件的总数，不是实际逾期的总数
+                overdueBorrows
+        );
     }
 
     @Override

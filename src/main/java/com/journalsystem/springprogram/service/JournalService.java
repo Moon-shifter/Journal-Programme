@@ -70,4 +70,7 @@ public interface JournalService {
     default Boolean updateJournalQuantity(Integer journalId, Integer quantityChange) {
         return null;
     }
+
+    //15.分页查询按ISSN模糊查询期刊
+    PageResult<JournalInfo> getJournalsByPage(PageRequest pageRequest, String issn);
 }
