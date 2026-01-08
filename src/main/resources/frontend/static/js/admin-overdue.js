@@ -117,7 +117,7 @@ function bindEventListeners() {
     });
 }
 
-// ==================== 加载超期列表（核心修正：数据解析、选中状态清空） ====================
+// ==================== 加载超期列表 ====================
 async function loadOverdueList(page) {
     const tbody = document.getElementById('overdueTableBody');
     const paginationContainer = document.getElementById('paginationContainer');
@@ -126,22 +126,19 @@ async function loadOverdueList(page) {
     // 显示加载状态
     tbody.innerHTML = '<tr><td colspan="11" class="text-center py-4"><i class="fas fa-spinner fa-spin"></i> 正在加载数据...</td></tr>';
     paginationContainer.innerHTML = '';
-    // 修正：切换页码时清空选中记录，避免跨页选中导致数据不一致
     selectedRecords.clear();
     updateSelectAllCheckbox();
 
     try {
         const params = {
-            page: page,
+            pageNum: page,
             pageSize: pageSize
         };
 
-        // 调用后端API（后端返回PageResult<OverdueDTO>，api.get已处理Result.data）
         const pageResult = await api.get(OVERDUE_API_PATHS.LIST, params);
 
         if (pageResult) {
             currentPage = page;
-            // 修正：后端分页列表是pageResult.data，而非pageResult.list
             renderOverdueTable(pageResult.data);
 
             // 更新超期统计
@@ -170,7 +167,7 @@ async function loadOverdueList(page) {
     }
 }
 
-// ==================== 渲染表格（核心修正：日期解析兼容性、字段映射） ====================
+// ==================== 渲染表格 ====================
 function renderOverdueTable(data) {
     const tbody = document.getElementById('overdueTableBody');
 
@@ -180,33 +177,29 @@ function renderOverdueTable(data) {
     }
 
     tbody.innerHTML = data.map(item => {
-        // 字段兼容性处理：同时支持下划线命名和驼峰命名
-        const borrowId = item.borrow_id || item.borrowId;
-        const teacherId = item.teacher_id || item.teacherId;
-        const teacherName = item.teacher_name || item.teacherName;
-        const journalName = item.journal_name || item.journalName;
+        // 字段映射
+        const borrowId = item.id;
+        const teacherId = item.borrowerId;
+        const teacherName = item.borrowerName;
+        const department = item.borrowerDepartment;
+        const phone = item.borrowerPhone;
+        const journalName = item.journalName;
+        const startDate = item.startDate;
+        const endDate = item.endDate;
 
-        // 日期字段：优先使用end_date（借阅表），兼容due_date（旧版本）
-        const startDate = item.start_date || item.startDate || item.borrow_date || item.borrowDate;
-        const endDate = item.end_date || item.endDate || item.due_date || item.dueDate;
-
-        // 关联查询字段：后端应返回教师的系部和电话
-        const department = item.department || '';
-        const phone = item.phone || '';
-
-        // 修正：日期解析兼容IOS，避免yyyy-MM-dd格式解析失败
+        // 日期解析
         const parseDate = (dateStr) => {
             if (!dateStr) return new Date();
             const [year, month, day] = dateStr.split('-');
-            return new Date(year, month - 1, day); // 月份从0开始
+            return new Date(year, month - 1, day);
         };
         const dueDate = parseDate(endDate);
         const today = new Date();
-        today.setHours(0, 0, 0, 0); // 清空时分秒，只比较日期
+        today.setHours(0, 0, 0, 0);
         dueDate.setHours(0, 0, 0, 0);
         const overdueDays = Math.max(0, Math.ceil((today - dueDate) / (1000 * 60 * 60 * 24)));
 
-        // 状态标签：超期状态下固定显示"超期"
+        // 状态标签
         let statusClass = 'badge-overdue-critical';
         let statusText = '严重超期';
         if (overdueDays <= 7) {

@@ -117,7 +117,39 @@ public class TeacherServiceImpl implements TeacherService {
     //分页查询教师
     @Override
     public PageResult<TeacherInfo> getTeachersByPage(PageRequest pageRequest) {
-      return null;
+        // 1. 验证分页参数
+        pageRequest.validate();
+
+        // 2. 构建排序条件
+        Sort sort = Sort.unsorted();
+        if (pageRequest.getSortField() != null && !pageRequest.getSortField().isEmpty()) {
+            Sort.Direction direction = "desc".equalsIgnoreCase(pageRequest.getSortOrder())
+                    ? Sort.Direction.DESC
+                    : Sort.Direction.ASC;
+            sort = Sort.by(direction, pageRequest.getSortField());
+        } else {
+            // 默认按教师ID升序排序
+            sort = Sort.by(Sort.Direction.ASC, "id");
+        }
+
+        // 3. 构建JPA分页对象
+        org.springframework.data.domain.PageRequest jpaPageRequest =
+                org.springframework.data.domain.PageRequest.of(
+                        pageRequest.getPageNum() - 1,  // 自定义页码从1开始，JPA从0开始
+                        pageRequest.getPageSize(),
+                        sort
+                );
+
+        // 4. 执行分页查询
+        Page<TeacherInfo> teacherPage = teacherRepository.findAll(jpaPageRequest);
+
+        // 5. 转换为自定义分页结果返回
+        return PageResult.build(
+                pageRequest.getPageNum(),
+                pageRequest.getPageSize(),
+                teacherPage.getTotalElements(),
+                teacherPage.getContent()
+        );
     }
 
     //根据部门查询教师

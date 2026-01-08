@@ -1,6 +1,8 @@
 package com.journalsystem.springprogram.controller;
 
 import com.journalsystem.springprogram.common.Constants;
+import com.journalsystem.springprogram.common.PageRequest;
+import com.journalsystem.springprogram.common.PageResult;
 import com.journalsystem.springprogram.common.Result;
 import com.journalsystem.springprogram.dto.BorrowDTO;
 import com.journalsystem.springprogram.dto.TeacherDTO;
@@ -171,6 +173,8 @@ public class TeacherController {
 
     /**
      * 获取所有教师接口
+     * @param pageNum 页码
+     * @param pageSize 每页大小
      * @return 统一响应结果：
      *       成功：
      *       {code:200,msg:"获取所有教师成功",data:{teacherList}}
@@ -178,19 +182,29 @@ public class TeacherController {
      *       {code:404,msg:"教师不存在"}
      */
     @GetMapping("/admin/list")
-    public Result<List<TeacherDTO>> getALlTeacher(){
-        //1.查询所有教师信息
-        List<TeacherInfo> teacherInfoList=teacherService.getAllTeachers();
-        if(teacherInfoList.isEmpty()){
-            return Result.fail(404,"教师不存在");
-        }
-        //2.将教师信息转换为教师DTO
-        List<TeacherDTO> teacherDTOList=DtoUtil.convertList(teacherInfoList,TeacherDTO.class);
+    public Result<PageResult<TeacherDTO>> getAllTeacher(
+            @RequestParam(defaultValue = "1") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize) {
+        // 1. 构造分页请求
+        PageRequest pageRequest = new PageRequest();
+        pageRequest.setPageNum(pageNum);
+        pageRequest.setPageSize(pageSize);
 
-        //3.返回教师DTO列表
-        return Result.success(teacherDTOList,"获取所有教师成功");
+        // 2. 分页查询教师信息
+        PageResult<TeacherInfo> pageResult = teacherService.getTeachersByPage(pageRequest);
+
+        // 3. 转换为DTO
+        List<TeacherDTO> teacherDTOList = DtoUtil.convertList(pageResult.getData(), TeacherDTO.class);
+
+        // 4. 构造分页结果返回
+        PageResult<TeacherDTO> resultPage = PageResult.build(
+                pageResult.getPageNum(),
+                pageResult.getPageSize(),
+                pageResult.getTotal(),
+                teacherDTOList
+        );
+        return Result.success(resultPage, "获取所有教师成功");
     }
-
     /**
      * 获取教师接口
      * @param teacherId 教师id
@@ -269,17 +283,30 @@ public class TeacherController {
      *       {code:404,msg:"教师不存在"}
      */
     @GetMapping("/admin/search")
-    public Result<TeacherDTO> searchTeacherByPhone(@RequestParam String phone){
-        //1.根据手机号查询教师信息
-        TeacherInfo teacherInfo=teacherService.findByPhone(phone);
-        if(teacherInfo==null){
-            return Result.fail(404,"教师不存在");
+    public Result<PageResult<TeacherDTO>> searchTeacherByPhone(
+            @RequestParam String phone,
+            @RequestParam(defaultValue = "1") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize) {
+        // 1. 根据手机号查询教师信息
+        TeacherInfo teacherInfo = teacherService.findByPhone(phone);
+
+        List<TeacherDTO> teacherDTOList = new ArrayList<>();
+        if (teacherInfo != null) {
+            // 2. 将教师信息转换为教师DTO
+            TeacherDTO teacherDTO = new TeacherDTO();
+            DtoUtil.copyAllFields(teacherInfo, teacherDTO);
+            teacherDTOList.add(teacherDTO);
         }
-        //2.将教师信息转换为教师DTO
-        TeacherDTO teacherDTO=new TeacherDTO();
-        DtoUtil.copyAllFields(teacherInfo,teacherDTO);
-        //3.返回教师DTO
-        return Result.success(teacherDTO,"获取教师成功");
+
+        // 3. 构造分页结果返回
+        PageResult<TeacherDTO> resultPage = PageResult.build(
+                pageNum,
+                pageSize,
+                (long) teacherDTOList.size(),
+                teacherDTOList
+        );
+
+        return Result.success(resultPage, teacherInfo != null ? "获取教师成功" : "未找到匹配的教师");
     }
 
 

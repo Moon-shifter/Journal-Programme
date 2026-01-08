@@ -174,21 +174,18 @@ function bindDepartmentChart(departmentTeachers) {
 // ==================== 3. 超期借阅数据加载（核心校准） ====================
 async function loadOverdueData() {
     try {
-        // 校准：调用后端超期记录接口 + 传递分页参数（后端必填pageNum/pageSize）
+        // 修复：直接传递pageNum/pageSize作为顶级参数
         const overdueRes = await api.get('/borrow/admin/overdue/list', {
             params: {
-                pageNum: 1,    // 默认第一页
-                pageSize: 10   // 默认每页10条
+                pageNum: 1,  // 默认第一页
+                pageSize: 10 // 默认每页10条
             }
         });
 
-        // 后端返回结构：{ total: xxx, list: [...] }，需提取list
         const overdueRecords = overdueRes.list || [];
-
-        // 绑定到表格
         bindOverdueRecords(overdueRecords);
     } catch (error) {
-        console.error('超期借阅数据加载失败:', error);
+        console.error('超期借阅数据加载失败：', error);
         alert('加载超期借阅数据失败，请刷新页面重试！');
     }
 }

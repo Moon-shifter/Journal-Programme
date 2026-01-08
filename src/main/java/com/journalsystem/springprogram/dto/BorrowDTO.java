@@ -11,6 +11,7 @@ public class BorrowDTO {
     private Integer borrowerId;
     private String borrowerName;
     private String borrowerDepartment;
+    private String borrowerPhone; // 新增字段
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalDate returnDate;
@@ -20,7 +21,7 @@ public class BorrowDTO {
     }
 
     public BorrowDTO(Integer id, Integer journalId, String journalName, Integer borrowerId, 
-                   String borrowerName, String borrowerDepartment, LocalDate startDate, 
+                   String borrowerName, String borrowerDepartment, String borrowerPhone, LocalDate startDate, 
                    LocalDate endDate, LocalDate returnDate, String status) {
         this.id = id;
         this.journalId = journalId;
@@ -28,6 +29,7 @@ public class BorrowDTO {
         this.borrowerId = borrowerId;
         this.borrowerName = borrowerName;
         this.borrowerDepartment = borrowerDepartment;
+        this.borrowerPhone = borrowerPhone;
         this.startDate = startDate;
         this.endDate = endDate;
         this.returnDate = returnDate;
@@ -81,6 +83,14 @@ public class BorrowDTO {
 
     public void setBorrowerDepartment(String borrowerDepartment) {
         this.borrowerDepartment = borrowerDepartment;
+    }
+
+    public String getBorrowerPhone() {
+        return borrowerPhone;
+    }
+
+    public void setBorrowerPhone(String borrowerPhone) {
+        this.borrowerPhone = borrowerPhone;
     }
 
     public LocalDate getStartDate() {

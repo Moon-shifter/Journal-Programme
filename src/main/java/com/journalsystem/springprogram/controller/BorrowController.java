@@ -292,8 +292,8 @@ public class BorrowController {
      */
     @GetMapping("/admin/overdue/list")
     public Result<Map<String, Object>> checkOverdueBorrows(
-            @RequestParam(defaultValue = "1") Integer pageNum,
-            @RequestParam(defaultValue = "10") Integer pageSize
+            @RequestParam(name = "pageNum", defaultValue = "1") Integer pageNum, // 修复参数名称
+            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize
     ){
         // 1. 创建 PageRequest 对象
         PageRequest pageRequest = new PageRequest();
@@ -313,6 +313,7 @@ public class BorrowController {
                     borrowDTO.setBorrowerId(borrowInfo.getBorrower().getId());
                     borrowDTO.setBorrowerName(borrowInfo.getBorrower().getName());
                     borrowDTO.setBorrowerDepartment(borrowInfo.getBorrower().getDepartment());
+                    borrowDTO.setBorrowerPhone(borrowInfo.getBorrower().getPhone()); // 设置电话号码
                     borrowDTO.setJournalId(borrowInfo.getJournal().getId());
                     borrowDTO.setJournalName(borrowInfo.getJournal().getName());
                     borrowDTO.setStartDate(borrowInfo.getStartDate());
@@ -322,10 +323,10 @@ public class BorrowController {
                 })
                 .collect(Collectors.toList());
     
-        // 4. 创建符合要求的响应结构
+        // 4. 创建符合前端期望的响应结构
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("total", overdueBorrowsPage.getTotal());
-        responseData.put("list", borrowDTOList);
+        responseData.put("data", borrowDTOList); // 修复响应数据结构
     
         return Result.success(responseData, "success");
     }

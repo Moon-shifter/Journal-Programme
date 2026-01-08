@@ -176,8 +176,8 @@ function renderCurrentBorrows(borrows) {
         return `
             <tr class="${isOverdue ? 'overdue' : ''} ${isDueSoon ? 'due-soon' : ''}">
                 <td>${borrow.borrowId || borrow.id}</td>
-                <td>${borrow.teacherId || borrow.borrowerId}</td>
-                <td>${borrow.journalId}</td>
+                <td>${borrow.borrower.id || borrow.borrowerId}</td>
+                <td>${borrow.journal.id}</td>
                 <!-- 校准：映射后端borrowDate（借阅日期） -->
                 <td>${formatDate(borrow.borrowDate || borrow.startDate)}</td>
                 <td>${formatDate(borrow.dueDate || borrow.endDate)}</td>
