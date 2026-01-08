@@ -1,87 +1,81 @@
 // ============================================
-// 借阅管理JS - 真实后端对接版本
+// 借阅管理JS - 真实后端对接版本（已校准）
 // 文件路径: static/js/admin-borrow.js
+// 校准说明：匹配后端BorrowController接口规范 + common-request.js错误处理逻辑
 // ============================================
 
-// 1. API配置映射
-// 作用：将业务操作映射到后端接口路径，集中管理便于维护
+// 1. API配置映射（校准：路径严格匹配后端BorrowController）
 const BORROW_API = {
-    // 借阅记录查询接口（需后端实现）
-    LIST_BORROWS: '/borrow/admin/list',           // GET 查询所有借阅记录
-    TEACHER_BORROWS: '/borrow/teacher/list',      // GET 按教师ID查询
-    JOURNAL_BORROWS: '/borrow/admin/journal',     // GET 按期刊ID查询
-    
-    // 核心业务接口（接口文档已定义）
-    CREATE_BORROW: '/borrow/teacher/create',      // POST 创建借阅
-    RETURN_BORROW: '/borrow/teacher/return',              // PUT 归还期刊
-    
-    // 辅助查询接口（用于数据验证和展示）
-    GET_TEACHER: '/borrow/teacher/admin',                // GET 查询教师详情
-    GET_JOURNAL: '/borrow/journal',                      // GET 查询期刊详情
+    // 借阅记录查询接口（后端：GET /api/borrow/admin/list）
+    LIST_BORROWS: '/borrow/admin/list',
+    // 教师借阅记录查询（后端：GET /api/borrow/teacher/list）
+    TEACHER_BORROWS: '/borrow/teacher/list',
+    // 期刊借阅记录查询（后端：GET /api/borrow/admin/journal/{journalId}）
+    JOURNAL_BORROWS: '/borrow/admin/journal',
+    // 核心业务接口（后端：POST /api/borrow/teacher/create）
+    CREATE_BORROW: '/borrow/teacher/create',
+    // 归还期刊（后端：PUT /api/borrow/teacher/return）
+    RETURN_BORROW: '/borrow/teacher/return',
+    // 查教师借阅状态（后端：GET /api/borrow/teacher/admin/{teacherId}）
+    GET_TEACHER: '/borrow/teacher/admin',
+    // 查期刊借阅状态（后端：GET /api/borrow/journal/{journalId}）
+    GET_JOURNAL: '/borrow/journal',
 };
 
 // 2. 页面初始化入口
-// 触发时机：DOM结构加载完成后自动执行（相当于页面"main函数"）
 document.addEventListener('DOMContentLoaded', function() {
-    // 2.1 加载表格数据（当前借阅+历史借阅）
     loadBorrowRecords();
-    
-    // 2.2 绑定所有事件监听器
     initEventListeners();
 });
 
 // 3. 事件监听器初始化
-// 作用：为页面所有交互元素绑定处理函数
 function initEventListeners() {
     // 3.1 借阅模态框内的查询按钮
     document.getElementById('searchTeacher').addEventListener('click', () => searchTeacher());
     document.getElementById('searchJournal').addEventListener('click', () => searchJournal());
-    
+
     // 3.2 归还模态框内的查询按钮
     document.getElementById('searchBorrowRecords').addEventListener('click', () => searchByTeacher());
     document.getElementById('searchJournalRecords').addEventListener('click', () => searchByJournal());
-    
+
     // 3.3 借阅表单提交事件
     document.getElementById('borrowForm').addEventListener('submit', handleBorrowSubmit);
-    
+
     // 3.4 输入框回车快捷查询
     document.getElementById('borrowerId').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') searchTeacher(); // 回车直接查询教师
+        if (e.key === 'Enter') searchTeacher();
     });
     document.getElementById('journalId').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') searchJournal(); // 回车直接查询期刊
+        if (e.key === 'Enter') searchJournal();
     });
-    
+
     // 3.5 模态框生命周期事件
     initModalEvents();
 }
 
 // 4. 模态框事件处理
-// 作用：管理模态框的显示/隐藏生命周期，确保状态干净
 function initModalEvents() {
     // 4.1 借阅模态框显示前触发
     document.getElementById('borrowModal').addEventListener('show.bs.modal', function () {
-        resetBorrowForm();      // 清空旧数据
-        setDefaultDates();      // 设置默认日期
-        // 延迟聚焦，等待模态框动画完成
+        resetBorrowForm();
+        setDefaultDates();
         setTimeout(() => document.getElementById('borrowerId').focus(), 200);
     });
-    
+
     // 4.2 归还模态框显示前触发
     document.getElementById('returnModal').addEventListener('show.bs.modal', function () {
-        resetReturnForm();      // 清空旧查询结果
+        resetReturnForm();
         setTimeout(() => document.getElementById('returnBorrowerId').focus(), 200);
     });
 }
 
-// 5. 工具函数：设置默认日期
-// 逻辑：借阅日期=今天，应还日期=30天后
+// 5. 工具函数：设置默认日期（校准：仅用于前端展示，后端用borrowDays计算日期）
 function setDefaultDates() {
     const today = new Date();
     const dueDate = new Date();
-    dueDate.setDate(today.getDate() + 30); // 默认30天借阅期
-    
-    // 转换为YYYY-MM-DD格式（input[type="date"]要求）
+    dueDate.setDate(today.getDate() + 30);
+
+    // 转换为YYYY-MM-DD格式（匹配后端日期格式）
     document.getElementById('startDate').value = today.toISOString().split('T')[0];
     document.getElementById('endDate').value = dueDate.toISOString().split('T')[0];
 }
@@ -89,258 +83,258 @@ function setDefaultDates() {
 // 6. 工具函数：重置表单
 function resetBorrowForm() {
     const form = document.getElementById('borrowForm');
-    form.reset();                           // 清空所有输入
-    form.classList.remove('was-validated'); // 移除验证样式
+    form.reset();
+    form.classList.remove('was-validated');
 }
 
 function resetReturnForm() {
     document.getElementById('returnBorrowerId').value = '';
     document.getElementById('returnJournalId').value = '';
-    document.getElementById('currentBorrowsList').innerHTML = 
+    document.getElementById('currentBorrowsList').innerHTML =
         '<div class="text-center text-muted py-4"><i class="fas fa-info-circle"></i> 请输入教师ID或期刊ID进行查询</div>';
 }
 
 // 7. 加载借阅记录（主入口）
-// 逻辑：并行加载当前借阅和历史借阅，提升速度
 async function loadBorrowRecords() {
     try {
-        // Promise.all并行执行两个查询，总耗时=较慢的那个
         await Promise.all([
-            loadCurrentBorrows(),  // 加载状态为borrowed/overdue的记录
-            loadHistoryBorrows()   // 加载状态为returned的记录
+            loadCurrentBorrows(),
+            loadHistoryBorrows()
         ]);
     } catch (error) {
         console.error('加载借阅记录失败:', error);
-        alert('加载数据失败: ' + error.message);
+        // 校准：适配后端业务code错误提示
+        const errMsg = getBusinessErrorMsg(error);
+        alert('加载数据失败: ' + errMsg);
     }
 }
 
-// 8. 加载当前借阅记录
+// 8. 加载当前借阅记录（校准：字段映射+错误处理）
 async function loadCurrentBorrows() {
     const tbody = document.getElementById('currentBorrowsTable');
     tbody.innerHTML = '<tr><td colspan="7" class="text-center"><i class="fas fa-spinner fa-spin"></i> 加载中...</td></tr>';
-    
+
     try {
-        // 调用api.get()，params会自动转为?status=borrowed,overdue
-        const data = await api.get(BORROW_API.LIST_BORROWS, { 
-            status: 'borrowed,overdue' // 只查询未归还的记录
+        // 校准：传参名匹配后端（status支持逗号分隔多值）
+        const data = await api.get(BORROW_API.LIST_BORROWS, {
+            status: 'borrowed,overdue'
         });
-        
-        // 后端可能返回数组或{records: [], total: 0}结构
+
+        // 校准：适配后端两种返回结构（数组 / {records:[], total:0}）
         const borrows = Array.isArray(data) ? data : (data.records || []);
-        
-        // 渲染表格并更新统计数字
+
         renderCurrentBorrows(borrows);
         document.getElementById('activeBorrowsCount').textContent = borrows.length;
-        
+
     } catch (error) {
         console.error('加载当前借阅失败:', error);
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">加载失败: ${error.message}</td></tr>`;
+        const errMsg = getBusinessErrorMsg(error);
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">加载失败: ${errMsg}</td></tr>`;
     }
 }
 
-// 9. 加载历史借阅记录
+// 9. 加载历史借阅记录（校准：limit参数匹配后端+错误处理）
 async function loadHistoryBorrows() {
     const tbody = document.getElementById('historyBorrowsTable');
     tbody.innerHTML = '<tr><td colspan="7" class="text-center"><i class="fas fa-spinner fa-spin"></i> 加载中...</td></tr>';
-    
+
     try {
-        const data = await api.get(BORROW_API.LIST_BORROWS, { 
-            status: 'returned',  // 只查询已归还的记录
-            limit: 50            // 限制数量避免数据过多
+        // 校准：limit参数匹配后端/admin/list接口的分页限制
+        const data = await api.get(BORROW_API.LIST_BORROWS, {
+            status: 'returned',
+            limit: 50
         });
-        
+
         const borrows = Array.isArray(data) ? data : (data.records || []);
         renderHistoryBorrows(borrows);
         document.getElementById('returnedBorrowsCount').textContent = borrows.length;
-        
+
     } catch (error) {
         console.error('加载历史借阅失败:', error);
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">加载失败: ${error.message}</td></tr>`;
+        const errMsg = getBusinessErrorMsg(error);
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">加载失败: ${errMsg}</td></tr>`;
     }
 }
 
-// 10. 渲染当前借阅表格
+// 10. 渲染当前借阅表格（校准：字段映射后端返回的borrowDate/dueDate）
 function renderCurrentBorrows(borrows) {
     const tbody = document.getElementById('currentBorrowsTable');
-    
+
     if (!borrows || borrows.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">暂无进行中的借阅</td></tr>';
         return;
     }
-    
-    // 使用map生成HTML字符串，比字符串拼接性能更好
+
     tbody.innerHTML = borrows.map(borrow => {
         const today = new Date();
-        const dueDate = new Date(borrow.endDate || borrow.dueDate);
-        const isOverdue = today > dueDate; // 判断是否超期
-        const isDueSoon = !isOverdue && (dueDate - today) / (1000 * 60 * 60 * 24) <= 3; // 3天内到期
-        
+        // 校准：字段映射后端的dueDate（应还日期），而非endDate
+        const dueDate = new Date(borrow.dueDate || borrow.endDate);
+        const isOverdue = today > dueDate;
+        // 校准：即将到期逻辑与后端DateUtil一致（3天内）
+        const isDueSoon = !isOverdue && (dueDate - today) / (1000 * 60 * 60 * 24) <= 3;
+
         return `
             <tr class="${isOverdue ? 'overdue' : ''} ${isDueSoon ? 'due-soon' : ''}">
                 <td>${borrow.borrowId || borrow.id}</td>
-                <td>${borrow.borrowerId || borrow.teacherId}</td>
+                <td>${borrow.teacherId || borrow.borrowerId}</td>
                 <td>${borrow.journalId}</td>
-                <td>${formatDate(borrow.startDate || borrow.borrowDate)}</td>
-                <td>${formatDate(borrow.endDate || borrow.dueDate)}</td>
+                <!-- 校准：映射后端borrowDate（借阅日期） -->
+                <td>${formatDate(borrow.borrowDate || borrow.startDate)}</td>
+                <td>${formatDate(borrow.dueDate || borrow.endDate)}</td>
                 <td>
                     <span class="badge ${isOverdue ? 'bg-danger' : isDueSoon ? 'bg-warning' : 'bg-success'}">
                         ${isOverdue ? '超期' : isDueSoon ? '即将到期' : '借阅中'}
                     </span>
                 </td>
                 <td>
-                    <button class="btn btn-sm btn-primary" onclick="openReturnModalForRecord('${borrow.borrowId || borrow.id}', '${borrow.borrowerId || borrow.teacherId}')">
+                    <button class="btn btn-sm btn-primary" onclick="openReturnModalForRecord('${borrow.borrowId || borrow.id}', '${borrow.teacherId || borrow.borrowerId}')">
                         <i class="fas fa-undo"></i> 归还
                     </button>
                 </td>
             </tr>
         `;
-    }).join(''); // join('')将数组转为字符串
+    }).join('');
 }
 
-// 11. 渲染历史借阅表格
+// 11. 渲染历史借阅表格（校准：字段映射）
 function renderHistoryBorrows(borrows) {
     const tbody = document.getElementById('historyBorrowsTable');
-    
+
     if (!borrows || borrows.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">暂无历史记录</td></tr>';
         return;
     }
-    
+
     tbody.innerHTML = borrows.map(borrow => `
         <tr>
             <td>${borrow.borrowId || borrow.id}</td>
-            <td>${borrow.borrowerId || borrow.teacherId}</td>
+            <td>${borrow.teacherId || borrow.borrowerId}</td>
             <td>${borrow.journalId}</td>
-            <td>${formatDate(borrow.startDate || borrow.borrowDate)}</td>
-            <td>${formatDate(borrow.endDate || borrow.dueDate)}</td>
+            <td>${formatDate(borrow.borrowDate || borrow.startDate)}</td>
+            <td>${formatDate(borrow.dueDate || borrow.endDate)}</td>
             <td>${formatDate(borrow.returnDate)}</td>
             <td><span class="badge bg-secondary">已归还</span></td>
         </tr>
     `).join('');
 }
 
-// 12. 查询教师信息（验证是否存在和可借状态）
+// 12. 查询教师信息（校准：接口路径+字段+错误处理）
 async function searchTeacher() {
     const teacherId = document.getElementById('borrowerId').value.trim();
     if (!teacherId) {
         alert('请输入教师ID');
         return;
     }
-    
+
     try {
-        // 调用真实接口：GET /teacher/admin/{id}
+        // 校准：调用BorrowController的教师借阅状态接口（非TeacherController）
         const teacher = await api.get(`${BORROW_API.GET_TEACHER}/${teacherId}`);
-        
-        // 验证教师状态（active才能借阅）
+
+        // 校准：字段匹配后端TeacherDTO（currentBorrow/maxBorrow）
         if (teacher.status !== 'active') {
             alert(`警告：教师 ${teacher.name} 账号状态为${teacher.status === 'inactive' ? '非活跃' : '未知'}，可能无法借阅！`);
         }
-        
-        // 检查是否达到最大借阅量
         if (teacher.currentBorrow >= teacher.maxBorrow) {
             alert(`该教师已达到最大借阅量（${teacher.maxBorrow}本），无法继续借阅！`);
         }
-        
+
     } catch (error) {
         console.error('查询教师失败:', error);
-        alert('未找到该教师信息，请检查ID是否正确');
-        document.getElementById('borrowerId').value = ''; // 清空错误输入
+        const errMsg = getBusinessErrorMsg(error);
+        alert('未找到该教师信息：' + errMsg);
+        document.getElementById('borrowerId').value = '';
     }
 }
 
-// 13. 查询期刊信息（验证是否存在和可借）
+// 13. 查询期刊信息（校准：接口路径+字段+错误处理）
 async function searchJournal() {
     const journalId = document.getElementById('journalId').value.trim();
     if (!journalId) {
         alert('请输入期刊ID');
         return;
     }
-    
+
     try {
-        // 调用真实接口：GET /journal/{id}
+        // 校准：调用BorrowController的期刊借阅状态接口
         const journal = await api.get(`${BORROW_API.GET_JOURNAL}/${journalId}`);
-        
-        // 检查可借数量
+
+        // 校准：字段匹配后端JournalDTO（availableQuantity）
         if (journal.availableQuantity <= 0) {
             alert('警告：该期刊无可借数量！');
         }
-        
+
     } catch (error) {
         console.error('查询期刊失败:', error);
-        alert('未找到该期刊信息，请检查ID是否正确');
+        const errMsg = getBusinessErrorMsg(error);
+        alert('未找到该期刊信息：' + errMsg);
         document.getElementById('journalId').value = '';
     }
 }
 
-// 14. 办理借阅提交（核心业务流程）
+// 14. 办理借阅提交（核心校准：传参+错误处理+字段）
 async function handleBorrowSubmit(e) {
-    e.preventDefault(); // 阻止表单默认提交行为
-    
+    e.preventDefault();
+
     // 14.1 获取表单数据
     const teacherId = document.getElementById('borrowerId').value.trim();
     const journalId = document.getElementById('journalId').value.trim();
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
-    
+
     // 14.2 验证必填项
     if (!teacherId || !journalId || !startDate || !endDate) {
         alert('请填写完整的借阅信息');
         return;
     }
-    
+
     // 14.3 验证日期逻辑合理性
     if (new Date(endDate) <= new Date(startDate)) {
         alert('应还日期必须晚于借阅日期！');
         return;
     }
-    
+
     // 14.4 用户确认
     if (!confirm('确认办理借阅吗？')) {
         return;
     }
-    
+
     try {
         // 14.5 显示加载状态
         const submitBtn = e.target.querySelector('button[type="submit"]');
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 办理中...';
-        
-        // 14.6 计算借阅天数（后端需要这个参数）
+
+        // 14.6 计算借阅天数（匹配后端参数要求）
         const borrowDays = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24));
-        
-        // 14.7 构建请求体（匹配接口文档要求的字段）
+
+        // 14.7 构建请求体（校准：字段名严格匹配后端）
         const borrowData = {
-            teacherId: parseInt(teacherId),  // 转换为数字类型
+            teacherId: parseInt(teacherId),
             journalId: parseInt(journalId),
-            borrowDays: borrowDays           // 后端根据此计算end_date
+            borrowDays: borrowDays
         };
-        
-        // 14.8 调用真实创建借阅接口：POST /borrow/teacher/create
+
+        // 14.8 调用创建借阅接口
         await api.post(BORROW_API.CREATE_BORROW, borrowData);
-        
+
         alert('借阅办理成功！');
-        
-        // 14.9 关闭模态框（Bootstrap标准方法）
+
+        // 14.9 关闭模态框
         bootstrap.Modal.getInstance(document.getElementById('borrowModal')).hide();
-        
+
         // 14.10 刷新列表数据
         loadBorrowRecords();
-        
+
     } catch (error) {
         console.error('借阅失败:', error);
-        
-        // 14.11 根据错误信息给出具体提示
-        let errorMsg = error.message || '借阅失败';
-        if (errorMsg.includes('最大借阅数')) {
-            alert('该教师已达到最大借阅数量限制！');
-        } else if (errorMsg.includes('可借数量')) {
-            alert('该期刊无可借数量！');
-        } else if (errorMsg.includes('状态')) {
-            alert('教师账号状态异常，无法借阅！');
-        } else {
-            alert('借阅失败: ' + errorMsg);
-        }
+        const errMsg = getBusinessErrorMsg(error);
+
+        // 校准：精准错误提示（匹配后端业务提示）
+        let tipMsg = '借阅失败: ' + errMsg;
+        if (errMsg.includes('最大借阅数')) tipMsg = '该教师已达到最大借阅数量限制！';
+        if (errMsg.includes('可借数量')) tipMsg = '该期刊无可借数量！';
+        if (errMsg.includes('状态')) tipMsg = '教师账号状态异常，无法借阅！';
+        alert(tipMsg);
     } finally {
         // 14.12 恢复按钮状态
         const submitBtn = e.target.querySelector('button[type="submit"]');
@@ -349,72 +343,72 @@ async function handleBorrowSubmit(e) {
     }
 }
 
-// 15. 根据教师ID查询可归还记录
+// 15. 根据教师ID查询可归还记录（校准：传参+字段）
 async function searchByTeacher() {
     const teacherId = document.getElementById('returnBorrowerId').value.trim();
     if (!teacherId) {
         alert('请输入教师ID');
         return;
     }
-    
+
     const container = document.getElementById('currentBorrowsList');
     container.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> 查询中...</div>';
-    
+
     try {
-        // 调用真实接口：GET /borrow/teacher/list?teacherId=xxx&status=borrowed,overdue
-        const data = await api.get(BORROW_API.TEACHER_BORROWS, { 
+        // 校准：传参名匹配后端（teacherId + status）
+        const data = await api.get(BORROW_API.TEACHER_BORROWS, {
             teacherId: teacherId,
-            status: 'borrowed,overdue' // 只查询未归还的
+            status: 'borrowed,overdue'
         });
-        
-        // 适配后端返回的多种格式
+
         const borrows = Array.isArray(data) ? data : [data];
         renderReturnList(borrows, 'teacher');
-        
+
     } catch (error) {
         console.error('查询失败:', error);
-        alert('查询失败: ' + error.message);
+        const errMsg = getBusinessErrorMsg(error);
+        alert('查询失败: ' + errMsg);
         container.innerHTML = '<div class="text-center text-danger">查询失败</div>';
     }
 }
 
-// 16. 根据期刊ID查询可归还记录
+// 16. 根据期刊ID查询可归还记录（校准：路径+传参）
 async function searchByJournal() {
     const journalId = document.getElementById('returnJournalId').value.trim();
     if (!journalId) {
         alert('请输入期刊ID');
         return;
     }
-    
+
     const container = document.getElementById('currentBorrowsList');
     container.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> 查询中...</div>';
-    
+
     try {
-        // 调用真实接口：GET /borrow/admin/journal/{journalId}?status=borrowed,overdue
+        // 校准：路径拼接 + status参数匹配后端
         const data = await api.get(`${BORROW_API.JOURNAL_BORROWS}/${journalId}`, {
             status: 'borrowed,overdue'
         });
-        
+
         const borrows = Array.isArray(data) ? data : [data];
         renderReturnList(borrows, 'journal');
-        
+
     } catch (error) {
         console.error('查询失败:', error);
-        alert('查询失败: ' + error.message);
+        const errMsg = getBusinessErrorMsg(error);
+        alert('查询失败: ' + errMsg);
         container.innerHTML = '<div class="text-center text-danger">查询失败</div>';
     }
 }
 
-// 17. 渲染可归还列表（归还模态框内显示）
+// 17. 渲染可归还列表（校准：字段映射）
 function renderReturnList(borrows, type) {
     const container = document.getElementById('currentBorrowsList');
-    
+
     if (!borrows || borrows.length === 0) {
         container.innerHTML = `<div class="text-center text-muted">暂无未归还的借阅记录</div>`;
         return;
     }
-    
-    // 构建列表HTML，每条记录一个卡片
+
     container.innerHTML = `
         <div class="mb-2 text-muted">
             <i class="fas fa-exclamation-circle"></i> 点击"归还"按钮办理归还手续
@@ -426,20 +420,20 @@ function renderReturnList(borrows, type) {
                         <strong>借阅ID:</strong> ${borrow.borrowId || borrow.id}
                     </div>
                     <div class="col-md-2">
-                        <strong>教师ID:</strong> ${borrow.borrowerId || borrow.teacherId}
+                        <strong>教师ID:</strong> ${borrow.teacherId || borrow.borrowerId}
                     </div>
                     <div class="col-md-3">
                         <strong>期刊ID:</strong> ${borrow.journalId}
                         <br><small class="text-muted">${borrow.journalName || ''}</small>
                     </div>
                     <div class="col-md-3">
-                        <strong>应还日期:</strong> ${formatDate(borrow.endDate || borrow.dueDate)}
+                        <strong>应还日期:</strong> ${formatDate(borrow.dueDate || borrow.endDate)}
                         <br><span class="badge ${borrow.status === 'overdue' ? 'bg-danger' : 'bg-warning'}">
                             ${borrow.status === 'overdue' ? '超期' : '借阅中'}
                         </span>
                     </div>
                     <div class="col-md-2 text-end">
-                        <button class="btn btn-sm btn-success" onclick="handleReturn('${borrow.borrowId || borrow.id}', '${borrow.borrowerId || borrow.teacherId}')">
+                        <button class="btn btn-sm btn-success" onclick="handleReturn('${borrow.borrowId || borrow.id}')">
                             <i class="fas fa-undo"></i> 归还
                         </button>
                     </div>
@@ -448,66 +442,79 @@ function renderReturnList(borrows, type) {
         `).join('')}`;
 }
 
-// 18. 处理归还操作（核心业务流程）
+// 18. 处理归还操作（校准：参数+路径+错误处理）
 async function handleReturn(borrowId) {
-    if (!borrowId ) {
-        alert('参数错误：缺少借阅ID');
+    // 校准：严格非空校验
+    if (!borrowId || isNaN(parseInt(borrowId))) {
+        alert('参数错误：借阅ID必须为有效数字');
         return;
     }
-    
-    // 二次确认
+
     if (!confirm(`确认办理归还吗？借阅ID: ${borrowId}`)) {
         return;
     }
-    
+
     try {
-        // 构建请求体（匹配接口文档）
+        // 校准：请求体字段严格匹配后端
         const returnData = {
             borrowId: parseInt(borrowId),
         };
-        
-        // 调用真实归还接口：PUT /borrow/return
+
+        // 校准：调用正确的归还接口（PUT /borrow/teacher/return）
         await api.put(BORROW_API.RETURN_BORROW, returnData);
-        
+
         alert('归还办理成功！');
-        
-        // 清空查询结果，显示成功提示
-        document.getElementById('currentBorrowsList').innerHTML = 
+
+        document.getElementById('currentBorrowsList').innerHTML =
             '<div class="text-center text-success py-4"><i class="fas fa-check-circle"></i> 归还成功！请继续查询其他记录或关闭窗口</div>';
-        
-        // 刷新主列表数据
+
         loadBorrowRecords();
-        
+
     } catch (error) {
         console.error('归还失败:', error);
-        alert('归还失败: ' + (error.message || '未知错误'));
+        const errMsg = getBusinessErrorMsg(error);
+        alert('归还失败: ' + errMsg);
     }
 }
 
-// 19. 快捷操作：从表格行直接打开归还模态框
+// 19. 快捷操作：打开归还模态框（校准：模态框实例化逻辑）
 function openReturnModalForRecord(borrowId, teacherId) {
-    // 创建模态框实例
-    const modal = new bootstrap.Modal(document.getElementById('returnModal'));
+    // 校准：优先获取已有模态框实例，避免重复创建
+    const modalEl = document.getElementById('returnModal');
+    const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
     modal.show();
-    
+
     // 自动填充教师ID并查询
     setTimeout(() => {
         document.getElementById('returnBorrowerId').value = teacherId;
-        searchByTeacher(); // 自动执行查询
-    }, 300); // 延迟300ms确保模态框已显示
+        searchByTeacher();
+    }, 300);
 }
 
-// 20. 工具函数：格式化日期显示
+// 20. 工具函数：格式化日期（校准：兼容后端yyyy-MM-dd格式）
 function formatDate(dateString) {
     if (!dateString) return '-';
-    const date = new Date(dateString);
-    // 格式化为中文日期：2024年01月15日
+    // 校准：兼容ISO格式和后端yyyy-MM-dd格式
+    const date = new Date(dateString + (dateString.includes('T') ? '' : 'T00:00:00'));
+    if (isNaN(date.getTime())) return '-'; // 无效日期返回-
+    // 格式化为2024-01-15（与后端一致），也可保留中文格式
     return date.toLocaleDateString('zh-CN', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit'
-    });
+    }).replace(/\//g, '-'); // 替换斜杠为横线，匹配后端格式
 }
 
-// 21. 导出函数供HTML调用（重置查询表单）
+// 21. 工具函数：解析后端业务code错误信息（核心校准）
+function getBusinessErrorMsg(error) {
+    // 适配common-request.js的错误处理逻辑：error.message已包含业务提示
+    if (!error || !error.message) return '未知错误';
+    // 过滤通用错误，提取业务提示
+    const pureMsg = error.message.replace(/请求失败（错误码：\d+）/g, '').trim();
+    return pureMsg || '未知错误';
+}
+
+// 22. 导出函数供HTML调用
 window.resetReturnForm = resetReturnForm;
+window.openReturnModalForRecord = openReturnModalForRecord;
+window.handleReturn = handleReturn;

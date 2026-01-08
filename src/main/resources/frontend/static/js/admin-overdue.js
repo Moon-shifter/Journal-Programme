@@ -36,7 +36,7 @@ function bindEventListeners() {
     const toggleBtn = document.getElementById('toggleSidebar');
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('mainContent');
-    
+
     toggleBtn.addEventListener('click', function() {
         sidebar.classList.toggle('sidebar-collapsed');
         mainContent.classList.toggle('main-content-expanded');
@@ -95,7 +95,7 @@ function bindEventListeners() {
 
         const button = e.target.closest('button');
         if (!button) return;
-        
+
         const recordId = button.getAttribute('data-id');
         if (!recordId) return;
 
@@ -103,13 +103,13 @@ function bindEventListeners() {
         if (button.classList.contains('view-detail-btn')) {
             viewDetail(recordId);
         }
-        
+
         // 生成催还单
         if (button.classList.contains('generate-notice-btn')) {
             const rowData = getRecordDataById(recordId);
             printNotice([rowData]);
         }
-        
+
         // 发送通知
         if (button.classList.contains('send-notice-btn')) {
             sendNotice(recordId);
@@ -117,47 +117,51 @@ function bindEventListeners() {
     });
 }
 
-// ==================== 加载超期列表 ====================
+// ==================== 加载超期列表（核心修正：数据解析、选中状态清空） ====================
 async function loadOverdueList(page) {
     const tbody = document.getElementById('overdueTableBody');
     const paginationContainer = document.getElementById('paginationContainer');
     const warningBox = document.getElementById('overdueWarning');
-    
+
     // 显示加载状态
     tbody.innerHTML = '<tr><td colspan="11" class="text-center py-4"><i class="fas fa-spinner fa-spin"></i> 正在加载数据...</td></tr>';
     paginationContainer.innerHTML = '';
+    // 修正：切换页码时清空选中记录，避免跨页选中导致数据不一致
+    selectedRecords.clear();
+    updateSelectAllCheckbox();
 
     try {
         const params = {
             page: page,
             pageSize: pageSize
         };
-        
-        // 调用后端API（后端应返回关联查询后的完整数据）
-        const response = await api.get(OVERDUE_API_PATHS.LIST, params);
-        
-        if (response && response.list) {
+
+        // 调用后端API（后端返回PageResult<OverdueDTO>，api.get已处理Result.data）
+        const pageResult = await api.get(OVERDUE_API_PATHS.LIST, params);
+
+        if (pageResult) {
             currentPage = page;
-            renderOverdueTable(response.list);
-            
+            // 修正：后端分页列表是pageResult.data，而非pageResult.list
+            renderOverdueTable(pageResult.data);
+
             // 更新超期统计
-            document.getElementById('totalOverdueCount').textContent = response.total || 0;
-            
+            document.getElementById('totalOverdueCount').textContent = pageResult.total || 0;
+
             // 如果超期数量为0，隐藏警告框
-            if (response.total === 0) {
+            if (pageResult.total === 0) {
                 warningBox.style.display = 'none';
             } else {
                 warningBox.style.display = 'block';
             }
-            
+
             // 计算总页数并渲染分页
-            const total = response.total || 0;
+            const total = pageResult.total || 0;
             totalPages = Math.ceil(total / pageSize);
             renderPagination(totalPages, page);
         } else {
-            throw new Error('后端返回数据格式错误（缺少list字段）');
+            throw new Error('后端返回数据格式错误（缺少分页数据）');
         }
-        
+
     } catch (error) {
         console.error('加载失败:', error);
         tbody.innerHTML = '<tr><td colspan="11" class="text-center py-4 text-danger">数据加载失败，请重试</td></tr>';
@@ -166,35 +170,42 @@ async function loadOverdueList(page) {
     }
 }
 
-// ==================== 渲染表格 ====================
+// ==================== 渲染表格（核心修正：日期解析兼容性、字段映射） ====================
 function renderOverdueTable(data) {
     const tbody = document.getElementById('overdueTableBody');
-    
+
     if (!data || data.length === 0) {
         tbody.innerHTML = '<tr><td colspan="11" class="text-center py-4">暂无超期记录</td></tr>';
         return;
     }
-    
+
     tbody.innerHTML = data.map(item => {
         // 字段兼容性处理：同时支持下划线命名和驼峰命名
         const borrowId = item.borrow_id || item.borrowId;
         const teacherId = item.teacher_id || item.teacherId;
         const teacherName = item.teacher_name || item.teacherName;
         const journalName = item.journal_name || item.journalName;
-        
+
         // 日期字段：优先使用end_date（借阅表），兼容due_date（旧版本）
         const startDate = item.start_date || item.startDate || item.borrow_date || item.borrowDate;
         const endDate = item.end_date || item.endDate || item.due_date || item.dueDate;
-        
+
         // 关联查询字段：后端应返回教师的系部和电话
         const department = item.department || '';
         const phone = item.phone || '';
-        
-        // 超期天数计算：基于end_date
-        const dueDate = new Date(endDate);
+
+        // 修正：日期解析兼容IOS，避免yyyy-MM-dd格式解析失败
+        const parseDate = (dateStr) => {
+            if (!dateStr) return new Date();
+            const [year, month, day] = dateStr.split('-');
+            return new Date(year, month - 1, day); // 月份从0开始
+        };
+        const dueDate = parseDate(endDate);
         const today = new Date();
-        const overdueDays = Math.ceil((today - dueDate) / (1000 * 60 * 60 * 24));
-        
+        today.setHours(0, 0, 0, 0); // 清空时分秒，只比较日期
+        dueDate.setHours(0, 0, 0, 0);
+        const overdueDays = Math.max(0, Math.ceil((today - dueDate) / (1000 * 60 * 60 * 24)));
+
         // 状态标签：超期状态下固定显示"超期"
         let statusClass = 'badge-overdue-critical';
         let statusText = '严重超期';
@@ -202,7 +213,7 @@ function renderOverdueTable(data) {
             statusClass = 'badge-overdue-warning';
             statusText = '一般超期';
         }
-        
+
         return `
             <tr>
                 <td>
@@ -244,7 +255,7 @@ function getSelectedRecordsData() {
     const tbody = document.getElementById('overdueTableBody');
     const rows = tbody.querySelectorAll('tr');
     const selectedData = [];
-    
+
     rows.forEach(row => {
         const checkbox = row.querySelector('.record-checkbox');
         if (checkbox && checkbox.checked) {
@@ -257,20 +268,24 @@ function getSelectedRecordsData() {
                 journalName: cells[5].textContent,
                 borrowDate: cells[6].textContent,
                 dueDate: cells[7].textContent,
-                overdueDays: cells[8].textContent
+                overdueDays: cells[8].textContent.replace(/[^\d]/g, '') // 仅保留数字
             });
         }
     });
-    
+
     return selectedData;
 }
 
-// ==================== 根据ID获取记录数据 ====================
+// ==================== 根据ID获取记录数据（核心修正：DOM查询逻辑） ====================
 function getRecordDataById(borrowId) {
     const tbody = document.getElementById('overdueTableBody');
-    const row = tbody.querySelector(`[data-id="${borrowId}"]`).closest('tr');
+    // 修正：先找checkbox，再找父行，避免data-id匹配错误
+    const checkbox = tbody.querySelector(`.record-checkbox[data-id="${borrowId}"]`);
+    if (!checkbox) return null;
+
+    const row = checkbox.closest('tr');
     const cells = row.querySelectorAll('td');
-    
+
     return {
         teacherId: cells[1].textContent,
         teacherName: cells[2].textContent,
@@ -279,7 +294,7 @@ function getRecordDataById(borrowId) {
         journalName: cells[5].textContent,
         borrowDate: cells[6].textContent,
         dueDate: cells[7].textContent,
-        overdueDays: cells[8].textContent
+        overdueDays: cells[8].textContent.replace(/[^\d]/g, '') // 仅保留数字
     };
 }
 
@@ -289,11 +304,11 @@ function printNotice(records) {
         alert('没有可打印的数据！');
         return;
     }
-    
+
     const printWindow = window.open('', '_blank');
     const printContent = `
         <!DOCTYPE html>
-        <html>
+        <html lang="zh-CN">
         <head>
             <meta charset="UTF-8">
             <title>催还通知单</title>
@@ -319,7 +334,7 @@ function printNotice(records) {
                     </div>
                     <div class="info">
                         <p><strong>尊敬的 ${record.teacherName}（${record.department}）：</strong></p>
-                        <p>您于 ${record.borrowDate} 借阅的期刊已超期，请尽快归还。</p>
+                        <p>您于 ${record.borrowDate} 借阅的期刊已超期${record.overdueDays}天，请尽快归还。</p>
                     </div>
                     <table>
                         <thead>
@@ -335,7 +350,7 @@ function printNotice(records) {
                                 <td>${record.journalName}</td>
                                 <td>${record.borrowDate}</td>
                                 <td>${record.dueDate}</td>
-                                <td>${record.overdueDays}</td>
+                                <td>${record.overdueDays}天</td>
                             </tr>
                         </tbody>
                     </table>
@@ -352,17 +367,17 @@ function printNotice(records) {
         </body>
         </html>
     `;
-    
+
     printWindow.document.write(printContent);
     printWindow.document.close();
-    
+
     // 延迟打印，等待内容加载完成
     setTimeout(() => {
         printWindow.print();
     }, 500);
 }
 
-// ==================== 批量发送催还通知（新增核心功能） ====================
+// ==================== 批量发送催还通知（核心修正：响应处理逻辑） ====================
 async function batchSendNotice() {
     if (selectedRecords.size === 0) {
         alert('请先选择要发送的记录！');
@@ -382,43 +397,39 @@ async function batchSendNotice() {
     try {
         // 将Set集合转换为数组
         const borrowIds = Array.from(selectedRecords);
-        
-        // 调用后端批量发送接口
-        const response = await api.post(OVERDUE_API_PATHS.BATCH_SEND_NOTICE, {
+
+        // 调用后端批量发送接口（api.post已通过handleAPIResponse处理响应，直接返回Result.data）
+        const result = await api.post(OVERDUE_API_PATHS.BATCH_SEND_NOTICE, {
             borrowIds: borrowIds
         });
 
-        // 处理响应结果
-        if (response.code === 200) {
-            const { success, failed, failList } = response.data || {};
-            let msg = `批量发送完成！\n成功：${success || 0}条`;
-            
-            if (failed && failed > 0) {
-                msg += `\n失败：${failed}条`;
-                console.error('失败详情：', failList);
-                
-                // 显示前3条失败原因
-                if (failList && failList.length > 0) {
-                    const showFails = failList.slice(0, 3).map(f => 
-                        `${f.borrowId}: ${f.reason}`
-                    ).join('\n');
-                    msg += `\n\n${showFails}`;
-                    if (failList.length > 3) {
-                        msg += `\n...等${failList.length}条失败`;
-                    }
+        // 处理响应结果（无需判断code，非200会被handleAPIResponse抛出异常）
+        const { success, failed, failList } = result || {};
+        let msg = `批量发送完成！\n成功：${success || 0}条`;
+
+        if (failed && failed > 0) {
+            msg += `\n失败：${failed}条`;
+            console.error('失败详情：', failList);
+
+            // 显示前3条失败原因
+            if (failList && failList.length > 0) {
+                const showFails = failList.slice(0, 3).map(f =>
+                    `${f.borrowId}: ${f.reason}`
+                ).join('\n');
+                msg += `\n\n${showFails}`;
+                if (failList.length > 3) {
+                    msg += `\n...等${failList.length}条失败`;
                 }
             }
-            
-            alert(msg);
-            
-            // 清空选择并刷新列表
-            selectedRecords.clear();
-            updateSelectAllCheckbox();
-            loadOverdueList(currentPage);
-        } else {
-            throw new Error(response.message || '批量发送失败');
         }
-        
+
+        alert(msg);
+
+        // 清空选择并刷新列表
+        selectedRecords.clear();
+        updateSelectAllCheckbox();
+        loadOverdueList(currentPage);
+
     } catch (error) {
         console.error('批量发送失败:', error);
         alert('批量发送失败：' + (error.message || '未知错误'));
@@ -434,7 +445,7 @@ async function sendNotice(borrowId) {
     if (!confirm('确定要发送催还通知吗？')) {
         return;
     }
-    
+
     try {
         // 调用后端发送通知接口（邮件/短信）
         await api.post(OVERDUE_API_PATHS.SEND_NOTICE, { borrowId });
@@ -447,16 +458,22 @@ async function sendNotice(borrowId) {
     }
 }
 
-// ==================== 导出Excel ====================
+// ==================== 导出Excel（核心修正：XLSX依赖检查） ====================
 function exportToExcel() {
+    // 修正：检查XLSX库是否加载
+    if (typeof XLSX === 'undefined') {
+        alert('Excel导出功能依赖的XLSX库未加载，请检查！');
+        return;
+    }
+
     const tbody = document.getElementById('overdueTableBody');
     const rows = tbody.querySelectorAll('tr');
-    
+
     if (rows.length === 0 || rows[0].querySelector('td').colSpan > 1) {
         alert('暂无数据可导出！');
         return;
     }
-    
+
     // 收集所有数据（包括未选中的）
     const allData = [];
     rows.forEach(row => {
@@ -469,16 +486,16 @@ function exportToExcel() {
             '期刊名称': cells[5].textContent,
             '借阅日期': cells[6].textContent,
             '应还日期': cells[7].textContent,
-            '超期天数': cells[8].textContent,
+            '超期天数': cells[8].textContent.replace(/[^\d]/g, ''), // 仅保留数字
             '状态': cells[9].textContent
         });
     });
-    
+
     // 创建工作簿
     const ws = XLSX.utils.json_to_sheet(allData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, '超期记录');
-    
+
     // 设置列宽
     const colWidths = [
         { wch: 10 }, // 教师ID
@@ -492,11 +509,11 @@ function exportToExcel() {
         { wch: 10 }  // 状态
     ];
     ws['!cols'] = colWidths;
-    
-    // 导出文件
-    const fileName = `超期催还记录_${new Date().toLocaleDateString('zh-CN')}.xlsx`;
+
+    // 修正：文件名兼容（替换日期中的特殊字符）
+    const fileName = `超期催还记录_${new Date().toLocaleDateString('zh-CN').replace(/\//g, '-')}.xlsx`;
     XLSX.writeFile(wb, fileName);
-    
+
     alert('Excel导出成功！');
 }
 
@@ -506,32 +523,32 @@ async function viewDetail(borrowId) {
     alert('查看详情功能待实现\n借阅记录ID: ' + borrowId);
 }
 
-// ==================== 分页渲染 ====================
+// ==================== 分页渲染（修正：页码有效性检查） ====================
 function renderPagination(totalPages, currentPage) {
     const container = document.getElementById('paginationContainer');
-    
+
     if (totalPages <= 1) {
         container.innerHTML = '';
         return;
     }
-    
+
     let html = '<nav aria-label="Page navigation"><ul class="pagination justify-content-center">';
-    
+
     // 上一页
     const prevClass = currentPage === 1 ? 'disabled' : '';
     html += `<li class="page-item ${prevClass}">
                 <a class="page-link" href="#" data-page="${currentPage - 1}">上一页</a>
              </li>`;
-    
+
     // 页码计算
     const maxButtons = 7;
     let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
     let endPage = Math.min(totalPages, startPage + maxButtons - 1);
-    
+
     if (endPage - startPage + 1 < maxButtons) {
         startPage = Math.max(1, endPage - maxButtons + 1);
     }
-    
+
     // 第一页
     if (startPage > 1) {
         html += `<li class="page-item ${currentPage === 1 ? 'active' : ''}">
@@ -541,7 +558,7 @@ function renderPagination(totalPages, currentPage) {
             html += '<li class="page-item disabled"><span class="page-link">...</span></li>';
         }
     }
-    
+
     // 中间页码
     for (let i = startPage; i <= endPage; i++) {
         const active = i === currentPage ? 'active' : '';
@@ -549,7 +566,7 @@ function renderPagination(totalPages, currentPage) {
                     <a class="page-link" href="#" data-page="${i}">${i}</a>
                 </li>`;
     }
-    
+
     // 最后一页
     if (endPage < totalPages) {
         if (endPage < totalPages - 1) {
@@ -559,24 +576,25 @@ function renderPagination(totalPages, currentPage) {
                     <a class="page-link" href="#" data-page="${totalPages}">${totalPages}</a>
                  </li>`;
     }
-    
+
     // 下一页
     const nextClass = currentPage === totalPages ? 'disabled' : '';
     html += `<li class="page-item ${nextClass}">
                 <a class="page-link" href="#" data-page="${currentPage + 1}">下一页</a>
              </li>`;
-    
+
     html += '</ul></nav>';
     container.innerHTML = html;
-    
+
     // 绑定页码点击事件
     container.querySelectorAll('.page-link').forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
             if (this.parentElement.classList.contains('disabled')) return;
-            
+
             const page = parseInt(this.getAttribute('data-page'));
-            if (page && page !== currentPage) {
+            // 修正：增加页码有效性检查
+            if (page && page !== currentPage && page >= 1 && page <= totalPages) {
                 loadOverdueList(page);
             }
         });
@@ -589,6 +607,6 @@ function updateSelectAllCheckbox() {
     const selectAllCheckbox = document.getElementById('selectAll');
     const total = checkboxes.length;
     const checked = document.querySelectorAll('.record-checkbox:checked').length;
-    
+
     selectAllCheckbox.checked = total > 0 && total === checked;
 }

@@ -1,7 +1,7 @@
-// ==================== API路径配置（根据接口文档） ====================
+// ==================== API路径配置（根据接口文档，已修正关键路径） ====================
 const JOURNAL_API_PATHS = {
     LIST: '/journal/journals',
-    DETAIL: (id) => `/journal/${id}`,
+    DETAIL: (id) => `/journal/id/${id}`, // 修正：补充/id前缀，匹配后端/journal/id/{id}接口
     ADD: '/journal/admin/add',
     UPDATE: '/journal/admin/update',
     DELETE: (id) => `/journal/admin/delete/${id}`
@@ -50,7 +50,7 @@ function bindEventListeners() {
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('mainContent');
     const toggleBtn = document.getElementById('toggleSidebar');
-    
+
     toggleBtn.addEventListener('click', function() {
         sidebar.classList.toggle('collapsed');
         mainContent.classList.toggle('expanded');
@@ -59,13 +59,13 @@ function bindEventListeners() {
     // 搜索功能
     const searchInput = document.getElementById('searchInput');
     const searchBtn = document.getElementById('searchBtn');
-    
+
     searchBtn.addEventListener('click', function() {
         const ssbnValue = searchInput.value.trim();
         lastSearchValue = ssbnValue;
         performSearch(ssbnValue, 1);
     });
-    
+
     searchInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             searchBtn.click();
@@ -77,10 +77,10 @@ function bindEventListeners() {
     tbody.addEventListener('click', function(e) {
         const button = e.target.closest('button');
         if (!button) return;
-        
+
         const id = button.getAttribute('data-id');
         if (!id) return;
-        
+
         if (button.classList.contains('edit-btn')) {
             handleEdit(id);
         }
@@ -105,11 +105,11 @@ function bindEventListeners() {
     });
 }
 
-// ==================== 查询功能 ====================
+// ==================== 查询功能（核心修正：数据解析逻辑） ====================
 async function performSearch(ssbn, page) {
     const tbody = document.getElementById('journalTableBody');
     const paginationContainer = document.getElementById('paginationContainer');
-    
+
     tbody.innerHTML = '<tr><td colspan="10" class="text-center py-4"><i class="fas fa-spinner fa-spin"></i> 正在加载数据...</td></tr>';
     paginationContainer.innerHTML = '';
 
@@ -118,25 +118,26 @@ async function performSearch(ssbn, page) {
             page: page,
             pageSize: pageSize
         };
-        
+
         if (ssbn) {
             params.ssbn = ssbn;
         }
-        
+
         // 使用配置路径
-        const response = await api.get(JOURNAL_API_PATHS.LIST, params);
-        
-        if (response && response.list) {
+        const pageResult = await api.get(JOURNAL_API_PATHS.LIST, params);
+
+        if (pageResult) {
             currentPage = page;
-            renderTable(response.list);
-            
-            const total = response.total || 0;
+            // 修正：后端返回列表是pageResult.data，而非pageResult.list
+            renderTable(pageResult.data);
+
+            const total = pageResult.total || 0;
             totalPages = Math.ceil(total / pageSize);
             renderPagination(totalPages, page);
         } else {
             throw new Error('后端返回数据格式错误');
         }
-        
+
     } catch (error) {
         console.error('查询失败:', error);
         tbody.innerHTML = '<tr><td colspan="10" class="text-center py-4 text-danger">数据加载失败，请重试</td></tr>';
@@ -147,12 +148,12 @@ async function performSearch(ssbn, page) {
 // ==================== 表格渲染 ====================
 function renderTable(data) {
     const tbody = document.getElementById('journalTableBody');
-    
+
     if (!data || data.length === 0) {
         tbody.innerHTML = '<tr><td colspan="10" class="text-center py-4">暂无数据</td></tr>';
         return;
     }
-    
+
     // 兼容后端驼峰命名和代码下划线命名
     tbody.innerHTML = data.map(item => `
         <tr>
@@ -181,11 +182,11 @@ function renderTable(data) {
     `).join('');
 }
 
-// ==================== 表单提交（核心修改） ====================
+// ==================== 表单提交（核心修正：类型转换、格式验证、冗余赋值） ====================
 async function handleFormSubmit() {
     const form = document.getElementById('journalForm');
     const editId = form.dataset.editId;
-    
+
     // 收集表单数据（内部字段名）
     const internalData = {
         id: document.getElementById('id').value.trim(),
@@ -200,7 +201,7 @@ async function handleFormSubmit() {
         available_quantity: document.getElementById('available_quantity').value.trim(),
         description: document.getElementById('description').value.trim()
     };
-    
+
     // 字段名转换：下划线 → 驼峰
     const data = {};
     for (let key in internalData) {
@@ -209,17 +210,17 @@ async function handleFormSubmit() {
             data[mappedKey] = internalData[key];
         }
     }
-    
-    // 类型转换
+
+    // 类型转换（修正：处理空值，避免转成NaN）
     data.id = parseInt(data.id);
-    data.totalQuantity = parseInt(data.totalQuantity);
-    data.availableQuantity = parseInt(data.availableQuantity);
-    
-    // 字段中文名映射（用于提示）
+    data.totalQuantity = internalData.total_quantity ? parseInt(internalData.total_quantity) : 0;
+    data.availableQuantity = internalData.available_quantity ? parseInt(internalData.available_quantity) : 0;
+
+    // 字段中文名映射（用于提示，修正：ISSN注释错误）
     const fieldNames = {
         'id': '期刊ID',
         'name': '期刊名称',
-        'issn': 'SSBN号',
+        'issn': 'ISSN号', // 修正：去掉SSBN错误标注
         'category': '学科分类',
         'publisher': '出版社',
         'publishDate': '出版日期',
@@ -227,11 +228,11 @@ async function handleFormSubmit() {
         'totalQuantity': '馆藏数量',
         'availableQuantity': '可借数量'
     };
-    
+
     // 必填验证（使用转换后的字段名）
-    const requiredFields = ['id', 'name', 'issn', 'category', 'publisher', 
-                           'publishDate', 'status', 'totalQuantity', 'availableQuantity'];
-    
+    const requiredFields = ['id', 'name', 'issn', 'category', 'publisher',
+        'publishDate', 'status', 'totalQuantity', 'availableQuantity'];
+
     for (let field of requiredFields) {
         if (!data[field] && data[field] !== 0) {
             alert(`请填写${fieldNames[field]}`);
@@ -241,28 +242,43 @@ async function handleFormSubmit() {
             return;
         }
     }
-    
+
     // ID格式验证
     if (!Number.isInteger(data.id) || data.id <= 0) {
         alert('期刊ID必须为大于0的数字！');
         document.getElementById('id').focus();
         return;
     }
-    
+
     // 数量逻辑验证
     if (data.availableQuantity > data.totalQuantity) {
         alert('可借数量不能大于馆藏数量！');
         document.getElementById('available_quantity').focus();
         return;
     }
-    
+
+    // 新增：出版日期格式验证（匹配后端DateUtil的yyyy-MM-dd格式）
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(data.publishDate)) {
+        alert('出版日期格式错误，请填写yyyy-MM-dd格式（如2024-01-01）');
+        document.getElementById('publish_date').focus();
+        return;
+    }
+
+    // 新增：状态值合法性验证（仅支持available/unavailable）
+    const validStatus = ['available', 'unavailable'];
+    if (!validStatus.includes(data.status)) {
+        alert('状态值非法，仅支持“available（可用）”或“unavailable（停用）”');
+        document.getElementById('STATUS').focus();
+        return;
+    }
+
     // 提交数据
     try {
         let response;
-        
+
         if (editId) {
-            // 编辑模式：文档要求id在请求体
-            data.id = parseInt(editId);
+            // 修正：删除冗余的data.id赋值（表单已收集，且id只读）
             response = await api.put(JOURNAL_API_PATHS.UPDATE, data);
             alert('修改成功！');
         } else {
@@ -270,14 +286,14 @@ async function handleFormSubmit() {
             response = await api.post(JOURNAL_API_PATHS.ADD, data);
             alert('添加成功！');
         }
-        
+
         // 关闭模态框
         const modal = bootstrap.Modal.getInstance(document.getElementById('addJournalModal'));
         modal.hide();
-        
+
         // 刷新列表
         await performSearch(lastSearchValue, 1);
-        
+
     } catch (error) {
         console.error('保存失败:', error);
         alert('保存失败：' + (error.message || '未知错误'));
@@ -288,12 +304,12 @@ async function handleFormSubmit() {
 async function handleEdit(id) {
     const modal = new bootstrap.Modal(document.getElementById('addJournalModal'));
     const form = document.getElementById('journalForm');
-    
+
     try {
-        // 使用配置路径
+        // 使用修正后的详情接口路径
         const response = await api.get(JOURNAL_API_PATHS.DETAIL(id));
         const journal = response;
-        
+
         // 填充表单（兼容驼峰和下划线）
         document.getElementById('id').value = journal.id || '';
         document.getElementById('NAME').value = journal.name || journal.NAME || '';
@@ -306,38 +322,38 @@ async function handleEdit(id) {
         document.getElementById('total_quantity').value = journal.totalQuantity || journal.total_quantity || '';
         document.getElementById('available_quantity').value = journal.availableQuantity || journal.available_quantity || '';
         document.getElementById('description').value = journal.description || '';
-        
+
         // 设置编辑ID标识
         form.dataset.editId = id;
         document.getElementById('addJournalModalLabel').textContent = '编辑期刊';
-        
+
         // ** 编辑时ID设为只读 **
         document.getElementById('id').readOnly = true;
         document.getElementById('id').style.backgroundColor = '#e9ecef';
-        
+
         modal.show();
-        
+
     } catch (error) {
         console.error('获取期刊详情失败:', error);
         alert('获取数据失败，请重试');
     }
 }
 
-// ==================== 删除功能 ====================
+// ==================== 删除功能（备注：需确保common-request.js封装了del方法） ====================
 async function handleDelete(id) {
     if (!confirm('确定要删除该期刊吗？此操作不可恢复。')) {
         return;
     }
-    
+
     try {
         // 使用配置路径
         await api.del(JOURNAL_API_PATHS.DELETE(id));
-        
+
         alert('删除成功！');
-        
+
         // 刷新列表
         await performSearch(lastSearchValue, currentPage);
-        
+
     } catch (error) {
         console.error('删除失败:', error);
         alert('删除失败：' + (error.message || '未知错误'));
@@ -347,29 +363,29 @@ async function handleDelete(id) {
 // ==================== 分页渲染 ====================
 function renderPagination(totalPages, currentPage) {
     const container = document.getElementById('paginationContainer');
-    
+
     if (totalPages <= 1) {
         container.innerHTML = '';
         return;
     }
-    
+
     let html = '<nav aria-label="Page navigation"><ul class="pagination justify-content-center">';
-    
+
     // 上一页
     const prevClass = currentPage === 1 ? 'disabled' : '';
     html += `<li class="page-item ${prevClass}">
                 <a class="page-link" href="#" data-page="${currentPage - 1}">上一页</a>
              </li>`;
-    
+
     // 页码计算
     const maxButtons = 7;
     let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
     let endPage = Math.min(totalPages, startPage + maxButtons - 1);
-    
+
     if (endPage - startPage + 1 < maxButtons) {
         startPage = Math.max(1, endPage - maxButtons + 1);
     }
-    
+
     // 第一页
     if (startPage > 1) {
         html += `<li class="page-item ${currentPage === 1 ? 'active' : ''}">
@@ -379,7 +395,7 @@ function renderPagination(totalPages, currentPage) {
             html += '<li class="page-item disabled"><span class="page-link">...</span></li>';
         }
     }
-    
+
     // 中间页码
     for (let i = startPage; i <= endPage; i++) {
         const active = i === currentPage ? 'active' : '';
@@ -387,7 +403,7 @@ function renderPagination(totalPages, currentPage) {
                     <a class="page-link" href="#" data-page="${i}">${i}</a>
                 </li>`;
     }
-    
+
     // 最后一页
     if (endPage < totalPages) {
         if (endPage < totalPages - 1) {
@@ -397,22 +413,22 @@ function renderPagination(totalPages, currentPage) {
                     <a class="page-link" href="#" data-page="${totalPages}">${totalPages}</a>
                  </li>`;
     }
-    
+
     // 下一页
     const nextClass = currentPage === totalPages ? 'disabled' : '';
     html += `<li class="page-item ${nextClass}">
                 <a class="page-link" href="#" data-page="${currentPage + 1}">下一页</a>
              </li>`;
-    
+
     html += '</ul></nav>';
     container.innerHTML = html;
-    
+
     // 绑定页码点击事件
     container.querySelectorAll('.page-link').forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
             if (this.parentElement.classList.contains('disabled')) return;
-            
+
             const page = parseInt(this.getAttribute('data-page'));
             if (page && page !== currentPage) {
                 performSearch(lastSearchValue, page);
