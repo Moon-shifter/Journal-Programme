@@ -1,7 +1,9 @@
 package com.journalsystem.springprogram.dto;
 
 import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
+@JsonInclude(JsonInclude.Include.NON_NULL) // 序列化时忽略值为null的字段
 public class BorrowDTO {
     private Integer id;
     private Integer journalId;

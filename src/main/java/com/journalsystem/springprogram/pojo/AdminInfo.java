@@ -7,7 +7,7 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.Instant;
 
-@Entity
+@Entity //告诉Hibernate这是一个实体类，需要映射到数据库中的表
 @DynamicInsert
 @DynamicUpdate
 @Table(name = "admin_info")

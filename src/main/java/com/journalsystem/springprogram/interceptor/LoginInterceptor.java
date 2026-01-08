@@ -46,7 +46,7 @@ public class LoginInterceptor implements HandlerInterceptor {
         }
 
         // 3. 拦截管理员接口：仅未登录时才写响应流
-        if (requestURI.contains("/api/admin/")) {
+        if (requestURI.contains("/admin")) {
             Object loginAdmin = request.getSession().getAttribute("loginAdmin");
             if (loginAdmin == null) {
                 // 仅拦截时才获取Writer，写完立即释放
@@ -61,7 +61,7 @@ public class LoginInterceptor implements HandlerInterceptor {
         }
 
         // 4. 拦截教师接口：仅未登录时才写响应流
-        if (requestURI.contains("/api/teacher/")) {
+        if (requestURI.contains("/teacher")) {
             Object loginTeacher = request.getSession().getAttribute("loginTeacher");
             if (loginTeacher == null) {
                 // 仅拦截时才获取Writer，写完立即释放

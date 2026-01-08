@@ -1,8 +1,13 @@
 package com.journalsystem.springprogram.service;
 
+import com.journalsystem.springprogram.common.Constants;
+import com.journalsystem.springprogram.common.PageRequest;
+import com.journalsystem.springprogram.common.PageResult;
 import com.journalsystem.springprogram.dto.TeacherDTO;
 import com.journalsystem.springprogram.exception.BusinessException;
 import com.journalsystem.springprogram.util.DtoUtil;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.journalsystem.springprogram.pojo.TeacherInfo;
@@ -10,6 +15,7 @@ import com.journalsystem.springprogram.repository.TeacherRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -95,4 +101,127 @@ public class TeacherServiceImpl implements TeacherService {
     public TeacherInfo findById(Integer id) {
         return teacherRepository.findById(id).orElse(null);
     }
+
+    @Override
+    public TeacherInfo findByPhone(String phone) {
+        return teacherRepository.findByPhone(phone);
+    }
+
+
+    //查询所有教师
+    @Override
+    public List<TeacherInfo> getAllTeachers() {
+        return teacherRepository.findAll();
+    }
+
+    //分页查询教师
+    @Override
+    public PageResult<TeacherInfo> getTeachersByPage(PageRequest pageRequest) {
+      return null;
+    }
+
+    //根据部门查询教师
+    @Override
+    public List<TeacherInfo> getTeachersByDepartment(String department) {
+        if (department == null || department.isEmpty()) {
+            throw new BusinessException(400, "部门名称不能为空");
+        }
+
+        // 使用Stream API过滤部门
+        return teacherRepository.findAll().stream()
+                .filter(teacher -> department.equals(teacher.getDepartment()))
+                .collect(Collectors.toList());
+    }
+
+    //更新教师借阅限额
+    @Override
+    public boolean updateMaxBorrow(Integer teacherId, Integer maxBorrow) {
+        // 1. 检查教师是否存在
+        TeacherInfo teacher = teacherRepository.findById(teacherId)
+                .orElseThrow(() -> new BusinessException(404, "教师不存在"));
+
+        // 2. 检查借阅限额是否合理
+        if (maxBorrow == null || maxBorrow < 0) {
+            throw new BusinessException(400, "借阅限额必须大于等于0");
+        }
+
+        // 3. 更新借阅限额
+        teacher.setMaxBorrow(maxBorrow);
+        teacherRepository.save(teacher);
+
+        return true;
+    }
+
+    //获取教师当前借阅数量
+    @Override
+    public Integer getCurrentBorrowCount(Integer teacherId) {
+        // 1. 检查教师是否存在
+        TeacherInfo teacher = teacherRepository.findById(teacherId)
+                .orElseThrow(() -> new BusinessException(404, "教师不存在"));
+
+        return teacher.getCurrentBorrow();
+    }
+
+
+    //检查教师是否可借阅更多期刊
+    @Override
+    public boolean canBorrowMore(Integer teacherId) {
+        // 1. 检查教师是否存在
+        TeacherInfo teacher = teacherRepository.findById(teacherId)
+                .orElseThrow(() -> new BusinessException(404, "教师不存在"));
+
+        // 2. 检查教师状态是否激活
+        if (!Constants.STATUS_ACTIVE.equals(teacher.getStatus())) {
+            return false;
+        }
+
+        // 3. 检查当前借阅数量是否小于最大借阅限额
+        return teacher.getCurrentBorrow() < teacher.getMaxBorrow();
+    }
+
+    //更新教师状态
+    @Override
+    public boolean updateTeacherStatus(Integer teacherId, String status) {
+        // 1. 检查教师是否存在
+        TeacherInfo teacher = teacherRepository.findById(teacherId)
+                .orElseThrow(() -> new BusinessException(404, "教师不存在"));
+
+        // 2. 检查状态是否有效
+        if (!Constants.STATUS_ACTIVE.equals(status) && !Constants.STATUS_INACTIVE.equals(status)) {
+            throw new BusinessException(400, "无效的教师状态");
+        }
+
+        // 3. 更新教师状态
+        teacher.setStatus(status);
+        teacherRepository.save(teacher);
+
+        return true;
+    }
+
+
+    //批量导入教师信息
+    @Override
+    public boolean batchImportTeachers(List<TeacherDTO> teacherDTOs) {
+        if (teacherDTOs == null || teacherDTOs.isEmpty()) {
+            throw new BusinessException(400, "导入的教师信息不能为空");
+        }
+
+        // 转换为TeacherInfo列表
+        List<TeacherInfo> teacherInfos = teacherDTOs.stream()
+                .map(dto -> {
+                    TeacherInfo teacher = new TeacherInfo();
+                    DtoUtil.copyNonNullFields(dto, teacher);
+                    return teacher;
+                })
+                .collect(Collectors.toList());
+
+        // 批量保存
+        teacherRepository.saveAll(teacherInfos);
+
+        return true;
+    }
+
+
+
+
 }

@@ -47,8 +47,6 @@ public class AuthController {
         String username=loginRequest.get("username");
         String password=loginRequest.get("password");
 
-        System.out.println("ok");
-
         //2.调用service层验证账号密码是否正确
         AdminInfo adminInfo=adminService.getAdminByUsernameAndPwd(username,password);
 
@@ -91,7 +89,7 @@ public class AuthController {
         Map<String, Object> data = new HashMap<>();
         data.put("teacherId", id);
         data.put("name", name);
-        data.put("phone", email);
+        data.put("email", email);
 
         //存储session
         request.getSession().setAttribute("loginTeacher", data);
@@ -113,8 +111,6 @@ public class AuthController {
 
     @PostMapping("/teacher/register")
     public Result<Map<String, Object>> register(@RequestBody TeacherDTO regDTO) {
-
-        System.out.println("ok");
 
         //调用教师服务层的注册方法
         teacherService.register(regDTO);

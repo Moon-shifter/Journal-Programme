@@ -1,15 +1,22 @@
 package com.journalsystem.springprogram.controller;
 
 
+import com.journalsystem.springprogram.common.Constants;
+import com.journalsystem.springprogram.common.PageRequest;
+import com.journalsystem.springprogram.common.PageResult;
 import com.journalsystem.springprogram.common.Result;
 import com.journalsystem.springprogram.dto.JournalDTO;
 import com.journalsystem.springprogram.exception.BusinessException;
 import com.journalsystem.springprogram.pojo.JournalInfo;
+import com.journalsystem.springprogram.service.BorrowService;
 import com.journalsystem.springprogram.service.JournalService;
+import com.journalsystem.springprogram.service.TeacherService;
+import com.journalsystem.springprogram.util.DtoUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 /**
  * 期刊相关接口
@@ -26,102 +33,215 @@ public class JournalController {
         this.journalService = journalService;
     }
 
-     /**
-     * 根据期刊ID查询期刊信息
-     * @param id 期刊ID
-     * @return 统一响应结果：
-     *     成功：
-     *     {"code": 200,"msg": "期刊查询成功","data": {"journalInfo": {...}}}
-     *     失败：
-     *     {"code": 400,"msg": "查询失败","data": null}
+    /**
+     * 查询所有期刊（分页+可选ISSN搜索）
+     * @param page 当前页码（默认第1页）
+     * @param pageSize 每页显示数量（默认10条）
+     * @param ssbn ISSN搜索字符串（可选）
+     * @return 分页结果（包含期刊列表和分页信息）
+     *        成功：{
+     *            "code": 200,
+     *            "msg": "查询期刊列表成功",
+     *            "data": {
+     *                "total": 100, // 总记录数
+     *                "list": [ // 期刊列表
+     *                    {
+     *                        "id": 1,
+     *                        "name": "期刊A",
+     *                        "issn": "1234-5678",
+     *                        "category": "科技",
+     *                        "status": "可借阅"
+     *                    },
+     *                    // ... 其他期刊
+     *                ]
+     *            }
+     *        }
+     *        失败：{
+     *            "code": 500,
+     *            "msg": "查询期刊列表失败：[异常信息]"
+     *        }
+     */
+    @GetMapping("/journals")
+    public Result<PageResult<JournalInfo>> getAllJournals(// 必选参数+默认值
+                                                      @RequestParam(required = true, defaultValue = "1") Integer page,
+                                                      @RequestParam(required = true, defaultValue = "10") Integer pageSize,
+                                                        // 可选参数：ISSN搜索
+                                                            @RequestParam(required = false) String ssbn
+    ) {
+        try {
+            // 1. 封装分页请求对象（排序字段/方向默认空，用Service默认排序）
+            PageRequest pageRequest = new PageRequest();
+            pageRequest.setPageNum(page);
+            pageRequest.setPageSize(pageSize);
+            pageRequest.setSortField(null);
+            pageRequest.setSortOrder(null);
+
+            // 2. 调用Service查询（传入分页参数+ISSN参数）
+            PageResult<JournalInfo> pageResult = journalService.getJournalsByPage(pageRequest, ssbn);
+
+            // 3. 封装通用Result返回（符合接口文档格式）
+            return Result.success(pageResult, "查询期刊列表成功");
+        } catch (Exception e) {
+            // 统一异常处理：返回标准化错误信息
+            return Result.fail(500, "查询期刊列表失败：" + e.getMessage() );
+        }
+
+
+    }
+
+
+    /**
+     * 根据ID查询期刊详情
+     * @param id 期刊ID（路径参数）
+     * @return 期刊详情（包含ID、名称、ISSN、分类、状态等字段）
+     *        成功：{
+     *            "code": 200,
+     *            "msg": "查询期刊成功",
+     *            "data": {
+     *                "id": 1,
+     *                "name": "期刊A",
+     *                "issn": "1234-5678",
+     *                "category": "科技",
+     *                "status": "可借阅"
+     *                ..其他字段
+     *            }
+     *        }
+     *        失败：{
+     *            "code": 500,
+     *            "msg": "查询期刊失败：[异常信息]"
+     *        }
      */
     @GetMapping("/{id}")
-    public Result<Map<String, Object>> getJournal(@PathVariable Integer id) {
-        //根据id查询期刊
-        JournalInfo journalInfo = journalService.getJournal(id);
-        //如果查询成功，返回期刊信息
-
-        if(journalInfo != null){
-            Map<String, Object> data = new HashMap<>();
-            data.put("journalInfo", journalInfo);
-            return Result.success(data,"期刊查询成功");
+    public Result<JournalDTO> getJournalById(@PathVariable Integer id) {
+        try {
+            JournalInfo journal = journalService.getJournal(id);
+            JournalDTO journalDTO = new JournalDTO();
+            DtoUtil.copyAllFields(journal, journalDTO);
+            return Result.success(journalDTO, "查询期刊成功");
+        } catch (Exception e) {
+            return Result.fail(500, "查询期刊失败：" + e.getMessage() );
         }
-        //如果查询失败，返回失败信息
-        throw new BusinessException(400,"查询失败");
     }
 
-     /**
-     * 修改期刊信息
-     * @param updateDTO 包含期刊修改信息的DTO对象
-     * @return 统一响应结果：
-     *     成功：
-     *     {"code": 200,"msg": "期刊修改成功","data": {"journalInfo": {...}}}
-     *     失败：
-     *     {"code": 400,"msg": "修改失败","data": null}
-     */
-    @PostMapping("/admin/update")
-    public Result<Map<String, Object>> updateJournal(@RequestBody JournalDTO updateDTO) {
-        //根据id修改期刊
-        boolean isSuccess = journalService.updateJournal(updateDTO);
-
-        //调用方法查询修改后的期刊信息
-        JournalInfo journalInfo = journalService.getJournal(updateDTO.getId());
-
-        //返回修改后的期刊信息
-        Map<String, Object> data = new HashMap<>();
-        data.put("journalInfo", journalInfo);
-        return Result.success(data,"期刊修改成功");
-
-    }
-
-     /**
-     * 删除期刊（管理员）
-     * @param id 期刊ID
-     * @return 统一响应结果：
-     *     成功：
-     *     {"code": 200,"msg": "期刊删除成功","data": {"journalId": 123}}
-     *     失败：
-     *     {"code": 400,"msg": "期刊ID不存在","data": null}
-     */
-    @DeleteMapping("/admin/{id}")
-    public Result<Map<String, Object>> deleteJournal(@PathVariable Integer id) {
-
-        //根据id删除期刊,这个方法在Service自带抛出异常
-        journalService.deleteJournal(id);
-
-        //返回被删除的期刊id
-        Map<String, Object> data = new HashMap<>();
-        data.put("journalId", id);
-        return Result.success(data,"期刊删除成功");
-    }
-
-
-     /**
-     * 新增期刊（管理员）
-     * @param addDTO 包含期刊新增信息的DTO对象
-     * @return 统一响应结果：
-     *     成功：
-     *     {"code": 200,"msg": "期刊添加成功","data": {"journalInfo": {...}}}
-     *     失败：
-     *     {"code": 400,"msg": "期刊ID/ISSN已存在","data": null}
+    /**
+     * 添加期刊（管理员操作）
+     * @param journalDTO 期刊DTO（请求体）
+     * @return 操作结果（成功/失败）
+     *        成功：{
+     *            "code": 200,
+     *            "msg": "添加期刊成功",
+     *            "data": null
+     *        }
+     *        失败：{
+     *            "code": 500,
+     *            "msg": "添加期刊失败：[异常信息]"
+     *        }
      */
     @PostMapping("/admin/add")
-    public Result<Map<String, Object>> adminAddJournal(@RequestBody JournalDTO addDTO) {
+    public Result<String>  addJournal(@RequestBody JournalDTO journalDTO) {
+        try {
+            journalService.addJournal(journalDTO);
+            return Result.success(null,"添加期刊成功");
+        } catch (Exception e) {
+            return Result.fail(500, "添加期刊失败：" + e.getMessage() );
+        }
+    }
 
-        //根据id添加期刊
-        journalService.addJournal(addDTO);
+    /**
+     * 更新期刊（管理员操作）
+     * @param journalDTO 期刊DTO（请求体）
+     * @return 操作结果（成功/失败）
+     *        成功：{
+     *            "code": 200,
+     *            "msg": "更新期刊成功",
+     *            "data": null
+     *        }
+     *        失败：{
+     *            "code": 500,
+     *            "msg": "更新期刊失败：[异常信息]"
+     *        }
+     */
+    @PutMapping("/admin/update")
+    public Result<String> updateJournal(@RequestBody JournalDTO journalDTO) {
+        try {
+            journalService.updateJournal(journalDTO);
+            return Result.success(null,"更新期刊成功");
+        } catch (Exception e) {
+            return Result.fail(500, "更新期刊失败：" + e.getMessage() );
+        }
+    }
 
-        //返回被添加的期刊信息
-        JournalInfo journalInfo = journalService.getJournal(addDTO.getId());
-
-        Map<String, Object> data = new HashMap<>();
-        data.put("journalInfo", journalInfo);
-        return Result.success(data,"期刊添加成功");
-
+    /**
+     * 删除期刊（管理员操作）
+     * @param id 期刊ID（路径参数）
+     * @return 操作结果（成功/失败）
+     *        成功：{
+     *            "code": 200,
+     *            "msg": "删除期刊成功",
+     *            "data": null
+     *        }
+     *        失败：{
+     *            "code": 500,
+     *            "msg": "删除期刊失败：[异常信息]"
+     *        }
+     */
+    @DeleteMapping("/admin/delete/{id}")
+    public Result<String> deleteJournal(@PathVariable Integer id) {
+        try {
+            journalService.deleteJournal(id);
+            return Result.success(null,"删除期刊成功");
+        } catch (Exception e) {
+            return Result.fail(500, "删除期刊失败：" + e.getMessage() );
+        }
     }
 
 
-
+    /**
+     * 多条件搜索期刊（分页）
+     * @param keyword 期刊名称模糊查询
+     * @param category 期刊类别精确匹配
+     * @param issn ISSN号精确匹配
+     * @param status 状态枚举精确匹配
+     * @param page 当前页码（从1开始）
+     * @param pageSize 每页条数（固定10）
+     * @return 分页结果（包含期刊列表和分页信息）
+     */
+    @GetMapping("/journals/multi-search")
+    public Result<PageResult<JournalDTO>> getAllJournalsByMultiSearch(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String issn,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = true, defaultValue = "1") Integer page,
+            @RequestParam(required = true, defaultValue = "10") Integer pageSize) {
+        try {
+            // 1. 封装分页请求对象
+            PageRequest pageRequest = new PageRequest();
+            pageRequest.setPageNum(page);
+            pageRequest.setPageSize(pageSize);
+            pageRequest.validate(); // 校验分页参数
+    
+            // 2. 调用Service查询
+            PageResult<JournalInfo> pageResult = journalService.getJournalsByPage(pageRequest, keyword, category, issn, status);
+    
+            // 3. 将JournalInfo转换为JournalDTO
+            List<JournalDTO> journalDTOs = DtoUtil.convertList(pageResult.getData(), JournalDTO.class);
+    
+            // 4. 构建新的PageResult<JournalDTO>
+            PageResult<JournalDTO> result = PageResult.build(
+                    pageResult.getPageNum(),
+                    pageResult.getPageSize(),
+                    pageResult.getTotal(),
+                    journalDTOs
+            );
+    
+            // 5. 封装通用Result返回
+            return Result.success(result, "查询成功");
+        } catch (Exception e) {
+            // 统一异常处理
+            return Result.fail(500, "查询失败：" + e.getMessage());
+        }
+    }
 
 
 

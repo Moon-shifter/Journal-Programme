@@ -31,7 +31,7 @@ public class DateUtil {
     
     /**
      * 获取当前时间（LocalDateTime）
-     * @return 当前时间
+     * @return 当前时间 格式：yyyy-MM-dd HH:mm:ss
      */
     public static LocalDateTime getCurrentDateTime() {
         return LocalDateTime.now();
@@ -223,5 +223,33 @@ public class DateUtil {
             return false;
         }
         return !date.isBefore(startDate) && !date.isAfter(endDate);
+    }
+    
+    /**
+     * 判断是否即将到期（默认提前1天）
+     * @param dueDate 应还日期
+     * @return true：即将到期，false：未即将到期
+     */
+    public static boolean isSoonExpire(LocalDate dueDate) {
+        if (dueDate == null) {
+            return false;
+        }
+        LocalDate now = LocalDate.now();
+        return dueDate.isEqual(now) || dueDate.isEqual(now.plusDays(1));
+    }
+    
+    /**
+     * 判断是否在指定天数内到期
+     * @param dueDate 应还日期
+     * @param days 指定天数
+     * @return true：在指定天数内到期，false：不在指定天数内到期
+     */
+    public static boolean isSoonExpire(LocalDate dueDate, int days) {
+        if (dueDate == null || days < 0) {
+            return false;
+        }
+        LocalDate now = LocalDate.now();
+        LocalDate threshold = now.plusDays(days);
+        return !dueDate.isBefore(now) && !dueDate.isAfter(threshold);
     }
 }
