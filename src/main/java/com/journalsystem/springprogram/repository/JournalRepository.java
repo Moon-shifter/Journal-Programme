@@ -4,6 +4,8 @@ import com.journalsystem.springprogram.pojo.JournalInfo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -36,4 +38,17 @@ public interface JournalRepository extends JpaRepository<JournalInfo, Integer> {
 
     // 新增：按ISSN模糊查询（忽略大小写）+ 分页
     Page<JournalInfo> findByIssnContainingIgnoreCase(String issn, Pageable pageable);
+
+    // 新增：多条件搜索期刊（支持部分条件为null）+ 分页
+    @Query("SELECT j FROM JournalInfo j WHERE " +
+           "(:#{#keyword} IS NULL OR j.name LIKE %:#{#keyword}%) AND " +
+           "(:#{#category} IS NULL OR j.category = :#{#category}) AND " +
+           "(:#{#issn} IS NULL OR j.issn = :#{#issn}) AND " +
+           "(:#{#status} IS NULL OR j.status = :#{#status})")
+    Page<JournalInfo> findByMultiConditions(
+        @Param("keyword") String keyword,
+        @Param("category") String category,
+        @Param("issn") String issn,
+        @Param("status") String status,
+        Pageable pageable);
 }

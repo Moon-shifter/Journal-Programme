@@ -73,4 +73,8 @@ public interface JournalService {
 
     //15.分页查询按ISSN模糊查询期刊
     PageResult<JournalInfo> getJournalsByPage(PageRequest pageRequest, String issn);
+
+    // 16. 多条件搜索期刊（分页）
+    PageResult<JournalInfo> getJournalsByPage(PageRequest pageRequest, String keyword, String category, String issn, String status);
+
 }

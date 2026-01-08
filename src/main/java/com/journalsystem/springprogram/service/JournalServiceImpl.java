@@ -325,5 +325,45 @@ public class JournalServiceImpl implements JournalService {
                 journalPage.getContent()
         );
     }
+    // 新增：多条件搜索期刊（分页）
+    @Override
+    public PageResult<JournalInfo> getJournalsByPage(PageRequest pageRequest, String keyword, String category, String issn, String status) {
+        // 1. 校验分页参数
+        pageRequest.validate();
 
+        // 2. 构建排序条件
+        Sort sort = Sort.unsorted();
+        if (pageRequest.getSortField() != null && !pageRequest.getSortField().isEmpty()) {
+            Sort.Direction direction = "desc".equalsIgnoreCase(pageRequest.getSortOrder())
+                    ? Sort.Direction.DESC
+                    : Sort.Direction.ASC;
+            sort = Sort.by(direction, pageRequest.getSortField());
+        } else {
+            sort = Sort.by(Sort.Direction.DESC, "id"); // 默认排序
+        }
+
+        // 3. 构建JPA分页对象
+        org.springframework.data.domain.PageRequest jpaPageRequest =
+                org.springframework.data.domain.PageRequest.of(
+                        pageRequest.getPageNum() - 1,
+                        pageRequest.getPageSize(),
+                        sort
+                );
+
+        // 4. 执行多条件查询 - 使用统一的findByMultiConditions方法
+        Page<JournalInfo> journalPage = journalRepository.findByMultiConditions(
+                keyword != null ? keyword.trim() : null,
+                category,
+                issn,
+                status,
+                jpaPageRequest);
+
+        // 5. 转换为自定义分页结果
+        return PageResult.build(
+                pageRequest.getPageNum(),
+                pageRequest.getPageSize(),
+                journalPage.getTotalElements(),
+                journalPage.getContent()
+        );
+    }
 }

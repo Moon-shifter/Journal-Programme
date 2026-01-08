@@ -196,5 +196,62 @@ public class JournalController {
     }
 
 
+    /**
+     * 多条件搜索期刊（分页）
+     * @param keyword 期刊名称模糊查询
+     * @param category 期刊类别精确匹配
+     * @param issn ISSN号精确匹配
+     * @param status 状态枚举精确匹配
+     * @param page 当前页码（从1开始）
+     * @param pageSize 每页条数（固定10）
+     * @return 分页结果（包含期刊列表和分页信息）
+     */
+    @GetMapping("/journals/multi-search")
+    public Result<PageResult<JournalDTO>> getAllJournalsByMultiSearch(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String issn,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = true, defaultValue = "1") Integer page,
+            @RequestParam(required = true, defaultValue = "10") Integer pageSize) {
+        try {
+            // 1. 封装分页请求对象
+            PageRequest pageRequest = new PageRequest();
+            pageRequest.setPageNum(page);
+            pageRequest.setPageSize(pageSize);
+            pageRequest.validate(); // 校验分页参数
+    
+            // 2. 调用Service查询
+            PageResult<JournalInfo> pageResult = journalService.getJournalsByPage(pageRequest, keyword, category, issn, status);
+    
+            // 3. 将JournalInfo转换为JournalDTO
+            List<JournalDTO> journalDTOs = DtoUtil.convertList(pageResult.getData(), JournalDTO.class);
+    
+            // 4. 构建新的PageResult<JournalDTO>
+            PageResult<JournalDTO> result = PageResult.build(
+                    pageResult.getPageNum(),
+                    pageResult.getPageSize(),
+                    pageResult.getTotal(),
+                    journalDTOs
+            );
+    
+            // 5. 封装通用Result返回
+            return Result.success(result, "查询成功");
+        } catch (Exception e) {
+            // 统一异常处理
+            return Result.fail(500, "查询失败：" + e.getMessage());
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
 
 }
