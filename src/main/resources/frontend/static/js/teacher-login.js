@@ -94,11 +94,11 @@ document.addEventListener('DOMContentLoaded', function() {
             showLoading();
 
             // 调用登录API
-            const response = await api.post('auth/teacher/login', loginData);
+            const response = await api.post('/auth/teacher/login', loginData);
 
             // 登录成功，保存用户信息到Cookie
             setCookies({
-                id: loginData.teacherId,
+                id: loginData.id,
                 name: loginData.name,
                 email: loginData.email,
                 // 如果后端返回token，也需要保存

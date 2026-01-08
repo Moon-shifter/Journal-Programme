@@ -13,7 +13,7 @@ const BORROW_API = {
     
     // 核心业务接口（接口文档已定义）
     CREATE_BORROW: '/borrow/teacher/create',      // POST 创建借阅
-    RETURN_BORROW: '/borrow/return',              // PUT 归还期刊
+    RETURN_BORROW: '/borrow/teacher/return',              // PUT 归还期刊
     
     // 辅助查询接口（用于数据验证和展示）
     GET_TEACHER: '/borrow/teacher/admin',                // GET 查询教师详情
@@ -449,9 +449,9 @@ function renderReturnList(borrows, type) {
 }
 
 // 18. 处理归还操作（核心业务流程）
-async function handleReturn(borrowId, teacherId) {
-    if (!borrowId || !teacherId) {
-        alert('参数错误：缺少借阅ID或教师ID');
+async function handleReturn(borrowId) {
+    if (!borrowId ) {
+        alert('参数错误：缺少借阅ID');
         return;
     }
     
@@ -464,7 +464,6 @@ async function handleReturn(borrowId, teacherId) {
         // 构建请求体（匹配接口文档）
         const returnData = {
             borrowId: parseInt(borrowId),
-            teacherId: parseInt(teacherId)
         };
         
         // 调用真实归还接口：PUT /borrow/return

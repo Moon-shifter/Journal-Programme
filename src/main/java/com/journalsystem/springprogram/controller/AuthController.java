@@ -1,5 +1,6 @@
 package com.journalsystem.springprogram.controller;
 
+import com.journalsystem.springprogram.common.Constants;
 import com.journalsystem.springprogram.common.Result;
 import com.journalsystem.springprogram.dto.TeacherDTO;
 import com.journalsystem.springprogram.exception.BusinessException;
@@ -50,8 +51,10 @@ public class AuthController {
         //2.调用service层验证账号密码是否正确
         AdminInfo adminInfo=adminService.getAdminByUsernameAndPwd(username,password);
 
-        //存储session
+        //存储session,修改登陆状态
         request.getSession().setAttribute("loginAdmin", adminInfo);
+        adminInfo.setStatus(Constants.STATUS_ACTIVE);
+
 
         //3.登陆成功，组装响应数据
         Map<String, Object> data = new HashMap<>();
@@ -91,8 +94,12 @@ public class AuthController {
         data.put("name", name);
         data.put("email", email);
 
-        //存储session
+        //存储session,修改登陆状态
         request.getSession().setAttribute("loginTeacher", data);
+        //修改教师状态为已登录
+        teacherService.findById(Integer.valueOf(id)).setStatus(Constants.STATUS_ACTIVE);
+
+
 
         return Result.success(data, "登录成功");
 

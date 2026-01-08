@@ -6,7 +6,7 @@ const TEACHER_API = {
     GET: '/teacher/admin',            // 获取单个教师
     ADD: '/teacher/admin/add',        // 新增教师
     UPDATE: '/teacher/admin/update',  // 更新教师
-    DELETE: '/teacher/admin',         // 删除教师
+    DELETE: '/teacher/admin/delete',         // 删除教师
     SEARCH: '/teacher/admin/search'   // 按手机号查询
 };
 
