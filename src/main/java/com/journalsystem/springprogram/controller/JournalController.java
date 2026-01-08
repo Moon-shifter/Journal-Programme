@@ -111,7 +111,7 @@ public class JournalController {
      *            "msg": "查询期刊失败：[异常信息]"
      *        }
      */
-    @GetMapping("/{id}")
+    @GetMapping("/id/{id}")
     public Result<JournalDTO> getJournalById(@PathVariable Integer id) {
         try {
             JournalInfo journal = journalService.getJournal(id);

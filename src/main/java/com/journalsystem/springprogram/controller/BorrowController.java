@@ -76,27 +76,29 @@ public class BorrowController {
      */
     @GetMapping("/teacher/list")
     public Result<List<BorrowDTO>> teacherBorrowList(@RequestParam Integer teacherId, @RequestParam(required = false) String status) {
-        //前端传参status:固定为 borrowed和overdue（未归还）
+        // 前端传参status: 'borrowed,overdue'（逗号分隔）
         if (status == null) {
-            status = "borrowed";
+            status = "borrowed,overdue"; // 默认包含两种状态
         }
-
-        //1.根据教师id查询教师信息
+    
+        // 1. 根据教师id查询教师信息
         TeacherInfo teacherInfo = teacherService.findById(teacherId);
         if (teacherInfo == null) {
             return Result.fail(404, "该教师不存在");
         }
-
-        //2.根据教师id查询所有借阅记录
+    
+        // 2. 根据教师id查询所有借阅记录
         List<BorrowInfo> borrowInfoList = borrowService.getBorrowsByTeacherId(teacherId);
         if (borrowInfoList.isEmpty()) {
             return Result.fail(404, "该教师暂无借阅记录");
         }
-
-        //3.根据借阅状态筛选记录，只返回未归还的记录
-        String finalStatus = status;
+    
+        // 3. 将status按逗号分割成状态列表
+        List<String> statusList = Arrays.asList(status.split(","));
+    
+        // 4. 根据借阅状态列表筛选记录，只返回未归还的记录
         List<BorrowDTO> filteredList = borrowInfoList.stream()
-                .filter(borrow -> borrow.getStatus().equals(finalStatus) || ("borrowed".equals(finalStatus) && borrow.getStatus().equals("overdue")))
+                .filter(borrow -> statusList.contains(borrow.getStatus()))
                 .map(borrow -> {
                     BorrowDTO dto = new BorrowDTO();
                     dto.setId(borrow.getId()); // borrowId
@@ -108,10 +110,9 @@ public class BorrowController {
                     return dto;
                 })
                 .collect(Collectors.toList());
-
-        //4.返回筛选后的记录
+    
+        // 5. 返回筛选后的记录
         return Result.success(filteredList, "查询成功");
-
     }
 
     /**
@@ -127,25 +128,23 @@ public class BorrowController {
      */
     @GetMapping("/admin/journal/{journalId}")
     public Result<List<BorrowDTO>> getBorrowByJournalId(@RequestParam(required = false) String status, @PathVariable String journalId) {
-
-        //设置status默认值为borrowed
+        // 前端传参status: 'borrowed,overdue'（逗号分隔）
         if (status == null) {
-            status = "borrowed";
+            status = "borrowed,overdue"; // 默认包含两种状态
         }
-
-
-
-        //1.根据期刊ID查阅借阅信息
-        List<BorrowInfo>borrowInfos=borrowService.getBorrowsByJournalId(Integer.parseInt(journalId));
+    
+        // 1. 根据期刊ID查阅借阅信息
+        List<BorrowInfo> borrowInfos = borrowService.getBorrowsByJournalId(Integer.parseInt(journalId));
         if (borrowInfos.isEmpty()) {
             return Result.fail(404, "该期刊暂无借阅记录");
         }
-
-
-        //2.根据借阅状态筛选，组成BorrowDTO
-        String finalStatus = status;
-        List<BorrowDTO>borrowDTOList=borrowInfos.stream()
-                .filter(borrow -> borrow.getStatus().equals(finalStatus)|| ("borrowed".equals(finalStatus) && borrow.getStatus().equals("overdue")))
+    
+        // 2. 将status按逗号分割成状态列表
+        List<String> statusList = Arrays.asList(status.split(","));
+    
+        // 3. 根据借阅状态列表筛选，组成BorrowDTO
+        List<BorrowDTO> borrowDTOList = borrowInfos.stream()
+                .filter(borrow -> statusList.contains(borrow.getStatus()))
                 .map(borrow -> {
                     BorrowDTO dto = new BorrowDTO();
                     dto.setId(borrow.getId()); // borrowId
@@ -156,8 +155,8 @@ public class BorrowController {
                     return dto;
                 })
                 .collect(Collectors.toList());
-
-        //3.返回筛选后的记录
+    
+        // 4. 返回筛选后的记录
         return Result.success(borrowDTOList, "查询成功");
     }
 
@@ -319,6 +318,7 @@ public class BorrowController {
                     borrowDTO.setStartDate(borrowInfo.getStartDate());
                     borrowDTO.setEndDate(borrowInfo.getEndDate());
                     borrowDTO.setStatus(borrowInfo.getStatus());
+                    borrowDTO.setDaysOverdue((int) DateUtil.calculateOverdueDays(borrowInfo.getEndDate())); // 设置超期天数
                     return borrowDTO;
                 })
                 .collect(Collectors.toList());
@@ -448,6 +448,25 @@ public class BorrowController {
         return Result.success(responseData, "批量发送完成");
     }
 
+    /**
+     * 管理员获取单个借阅记录详情接口
+     *
+     * @param borrowId 借阅记录ID
+     * @return 统一响应结果：
+     * 成功：{code:200,msg:"查询成功",data:{borrowInfo}}
+     * 失败：{code:404,msg:"借阅记录不存在"} 或 {code:400,msg:"参数错误"}
+     */
+    @GetMapping("/admin/detail/{borrowId}")
+    public Result<BorrowInfo> getBorrowDetail(@PathVariable Integer borrowId) {
+        if (borrowId == null) {
+            throw new BusinessException(400, "borrowId不能为空");
+        }
+        BorrowInfo borrowInfo = borrowService.getBorrowById(borrowId);
+        if (borrowInfo == null) {
+            throw new BusinessException(404, "借阅记录不存在");
+        }
+        return Result.success(borrowInfo, "查询成功");
+    }
 
 
 }

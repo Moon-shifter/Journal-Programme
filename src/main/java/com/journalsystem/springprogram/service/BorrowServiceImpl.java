@@ -341,7 +341,7 @@ public class BorrowServiceImpl implements BorrowService {
         return PageResult.build(
                 pageRequest.getPageNum(),
                 pageRequest.getPageSize(),
-                borrowPage.getTotalElements(), // 注意：这里返回的是符合状态条件的总数，不是实际逾期的总数
+                (long) overdueBorrows.size(), // 修复：使用实际筛选后的逾期记录数作为总数
                 overdueBorrows
         );
     }

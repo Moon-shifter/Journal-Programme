@@ -298,11 +298,15 @@ async function handleBorrowSubmit(e) {
         return;
     }
 
+    // 查找提交按钮
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    
     try {
         // 14.5 显示加载状态
-        const submitBtn = e.target.querySelector('button[type="submit"]');
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 办理中...';
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 办理中...';
+        }
 
         // 14.6 计算借阅天数（匹配后端参数要求）
         const borrowDays = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24));
@@ -337,9 +341,10 @@ async function handleBorrowSubmit(e) {
         alert(tipMsg);
     } finally {
         // 14.12 恢复按钮状态
-        const submitBtn = e.target.querySelector('button[type="submit"]');
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-check"></i> 确认借阅';
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-check"></i> 确认借阅';
+        }
     }
 }
 

@@ -174,15 +174,13 @@ function bindDepartmentChart(departmentTeachers) {
 // ==================== 3. 超期借阅数据加载（核心校准） ====================
 async function loadOverdueData() {
     try {
-        // 修复：直接传递pageNum/pageSize作为顶级参数
+        // 修复：直接传递pageNum/pageSize参数，不嵌套在params对象中
         const overdueRes = await api.get('/borrow/admin/overdue/list', {
-            params: {
-                pageNum: 1,  // 默认第一页
-                pageSize: 10 // 默认每页10条
-            }
+            pageNum: 1,  // 默认第一页
+            pageSize: 10 // 默认每页10条
         });
 
-        const overdueRecords = overdueRes.list || [];
+        const overdueRecords = overdueRes.data || [];
         bindOverdueRecords(overdueRecords);
     } catch (error) {
         console.error('超期借阅数据加载失败：', error);
@@ -199,13 +197,14 @@ function bindOverdueRecords(overdueRecords) {
         return;
     }
 
+
     // 生成表格行（字段校准：匹配后端BorrowDTO）
     overdueRecords.forEach(record => {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${record.teacherId || '-'}</td>
-            <td>${record.teacherName || '-'}</td>
-            <td>${record.department || '-'}</td>
+            <td>${record.borrowerId || '-'}</td>
+            <td>${record.borrowerName || '-'}</td>
+            <td>${record.borrowerDepartment || '-'}</td>
             <td>${record.journalName || '-'}</td>
             <td>${record.daysOverdue || 0}天</td>
             <td><span class="badge-status badge-overdue">超期</span></td>
@@ -249,6 +248,8 @@ function bindUserInfo(currentUser) {
     const avatarEl = document.querySelector('.user-avatar');
     if (avatarEl) avatarEl.textContent = initial;
 }
+
+
 
 // ==================== 退出登录处理 ====================
 document.addEventListener('DOMContentLoaded', function() {

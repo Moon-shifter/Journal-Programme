@@ -150,13 +150,14 @@ function renderTable(data) {
     const tbody = document.getElementById('journalTableBody');
 
     if (!data || data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10" class="text-center py-4">暂无数据</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="11" class="text-center py-4">暂无数据</td></tr>';
         return;
     }
 
     // 兼容后端驼峰命名和代码下划线命名
     tbody.innerHTML = data.map(item => `
         <tr>
+            <td>${item.id}</td> <!-- 新增ID列 -->
             <td><strong>${item.name || item.NAME}</strong></td>
             <td>${item.issn || item.ISSN}</td>
             <td>${item.category}</td>

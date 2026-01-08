@@ -15,6 +15,16 @@ public class BorrowDTO {
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalDate returnDate;
+    private Integer daysOverdue; // 新增字段：超期天数
+
+    public Integer getDaysOverdue() {
+        return daysOverdue;
+    }
+
+    public void setDaysOverdue(Integer daysOverdue) {
+        this.daysOverdue = daysOverdue;
+    }
+
     private String status;
 
     public BorrowDTO() {
@@ -22,7 +32,7 @@ public class BorrowDTO {
 
     public BorrowDTO(Integer id, Integer journalId, String journalName, Integer borrowerId, 
                    String borrowerName, String borrowerDepartment, String borrowerPhone, LocalDate startDate, 
-                   LocalDate endDate, LocalDate returnDate, String status) {
+                   LocalDate endDate, LocalDate returnDate, Integer daysOverdue, String status) {
         this.id = id;
         this.journalId = journalId;
         this.journalName = journalName;
@@ -33,6 +43,7 @@ public class BorrowDTO {
         this.startDate = startDate;
         this.endDate = endDate;
         this.returnDate = returnDate;
+        this.daysOverdue = daysOverdue; // 新增字段：超期天数
         this.status = status;
     }
 

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学院期刊管理系统 - 系统设置</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome CSS -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="../../static/css/admin-index.css">
+    <link rel="stylesheet" href="../../static/css/admin-settings.css">
+</head>
+
+<body>
+    <!-- 侧边栏 -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <i class="fas fa-book-journal-whills logo-icon"></i>
+            <h3>期刊管理系统</h3>
+        </div>
+        <ul class="nav-menu p-0">
+            <li class="nav-item">
+                <a href="admin-index.html" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>仪表盘</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-journals.html" class="nav-link">
+                    <i class="fas fa-book"></i>
+                    <span>期刊信息管理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-teachers.html" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    <span>教师信息管理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-borrow.html" class="nav-link">
+                    <i class="fas fa-handshake"></i>
+                    <span>图书借阅办理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-overdue.html" class="nav-link">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>超期催还管理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-reports.html" class="nav-link">
+                    <i class="fas fa-file-excel"></i>
+                    <span>报表导出</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-settings.html" class="nav-link active">
+                    <i class="fas fa-cog"></i>
+                    <span>系统设置</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-login.html" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>退出登录</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="main-content" id="mainContent">
+        <!-- 顶部导航 -->
+        <div class="top-nav">
+            <button class="toggle-btn" id="toggleSidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="user-info">
+                <span class="me-2"></span>
+                <div class="user-avatar"></div>
+            </div>
+        </div>
+
+        <!-- 内容容器 -->
+        <div class="content-container">
+            <!-- 页面标题 -->
+            <div class="mb-4">
+                <h2 class="mb-1">系统设置</h2>
+                <p class="text-muted">配置系统参数和管理选项</p>
+            </div>
+
+            <!-- 设置选项卡 -->
+            <ul class="nav nav-tabs" id="settingsTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic" type="button" role="tab" aria-controls="basic" aria-selected="true">基础设置</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="borrow-tab" data-bs-toggle="tab" data-bs-target="#borrow" type="button" role="tab" aria-controls="borrow" aria-selected="false">借阅设置</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="notification-tab" data-bs-toggle="tab" data-bs-target="#notification" type="button" role="tab" aria-controls="notification" aria-selected="false">通知设置</button>
+                </li>
+            </ul>
+
+            <!-- 设置内容 -->
+            <div class="tab-content" id="settingsTabsContent">
+                <!-- 基础设置 -->
+                <div class="tab-pane fade show active" id="basic" role="tabpanel" aria-labelledby="basic-tab">
+                    <div class="card shadow-sm mt-4">
+                        <div class="card-header bg-white border-bottom">
+                            <h5 class="mb-0">系统基本信息</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="basicSettingsForm">
+                                <div class="mb-3">
+                                    <label for="systemName" class="form-label">系统名称</label>
+                                    <input type="text" class="form-control" id="systemName" name="systemName" placeholder="学院期刊管理系统">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="systemVersion" class="form-label">系统版本</label>
+                                    <input type="text" class="form-control" id="systemVersion" name="systemVersion" placeholder="1.0.0" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="contactEmail" class="form-label">联系邮箱</label>
+                                    <input type="email" class="form-control" id="contactEmail" name="contactEmail" placeholder="admin@example.com">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="contactPhone" class="form-label">联系电话</label>
+                                    <input type="tel" class="form-control" id="contactPhone" name="contactPhone" placeholder="010-12345678">
+                                </div>
+                                <button type="submit" class="btn btn-primary">保存设置</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 借阅设置 -->
+                <div class="tab-pane fade" id="borrow" role="tabpanel" aria-labelledby="borrow-tab">
+                    <div class="card shadow-sm mt-4">
+                        <div class="card-header bg-white border-bottom">
+                            <h5 class="mb-0">借阅参数设置</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="borrowSettingsForm">
+                                <div class="mb-3">
+                                    <label for="borrowDuration" class="form-label">默认借阅期限（天）</label>
+                                    <input type="number" class="form-control" id="borrowDuration" name="borrowDuration" min="1" max="365" value="30">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="maxBorrowCount" class="form-label">教师最大借阅数量</label>
+                                    <input type="number" class="form-control" id="maxBorrowCount" name="maxBorrowCount" min="1" max="20" value="5">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="overdueFine" class="form-label">超期罚款（元/天）</label>
+                                    <input type="number" class="form-control" id="overdueFine" name="overdueFine" min="0" step="0.1" value="0.5">
+                                </div>
+                                <button type="submit" class="btn btn-primary">保存设置</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 通知设置 -->
+                <div class="tab-pane fade" id="notification" role="tabpanel" aria-labelledby="notification-tab">
+                    <div class="card shadow-sm mt-4">
+                        <div class="card-header bg-white border-bottom">
+                            <h5 class="mb-0">通知配置</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="notificationSettingsForm">
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="enableOverdueNotice" name="enableOverdueNotice" checked>
+                                    <label class="form-check-label" for="enableOverdueNotice">启用超期自动通知</label>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="noticeBeforeDays" class="form-label">提前通知天数</label>
+                                    <input type="number" class="form-control" id="noticeBeforeDays" name="noticeBeforeDays" min="1" max="10" value="3">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="noticeTime" class="form-label">通知发送时间</label>
+                                    <input type="time" class="form-control" id="noticeTime" name="noticeTime" value="09:00">
+                                </div>
+                                <button type="submit" class="btn btn-primary">保存设置</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  
+    <script src="https://cdn.bootcdn.net/ajax/libs/axios/1.6.8/axios.min.js"></script>
+    <script src="../../static/js/common-cookie.js"></script>
+    <script src="../../static/js/common-request.js"></script>
+    <script src="../../static/js/admin-settings.js"></script>
+</body>
+
+</html>

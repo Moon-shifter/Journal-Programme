@@ -63,7 +63,8 @@ public class LoginInterceptor implements HandlerInterceptor {
         // 4. 拦截教师接口：仅未登录时才写响应流
         if (requestURI.contains("/teacher")) {
             Object loginTeacher = request.getSession().getAttribute("loginTeacher");
-            if (loginTeacher == null) {
+            Object loginAdmin = request.getSession().getAttribute("loginAdmin");
+            if (loginTeacher == null&& loginAdmin == null) {
                 // 仅拦截时才获取Writer，写完立即释放
                 try (PrintWriter out = response.getWriter()) { // 自动关闭流，避免内存泄漏
                     Result<?> failResult = Result.fail(401, "教师未登录，请先登录");

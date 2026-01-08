@@ -5,7 +5,9 @@ const OVERDUE_API_PATHS = {
     // 发送催还通知（管理员专用接口）
     SEND_NOTICE: '/borrow/admin/overdue/notice',
     // 批量发送催还通知（新增接口）
-    BATCH_SEND_NOTICE: '/borrow/admin/overdue/batch-notice'
+    BATCH_SEND_NOTICE: '/borrow/admin/overdue/batch-notice',
+    // 获取单个借阅记录详情（新增接口）
+    DETAIL: (borrowId) => `/borrow/admin/detail/${borrowId}`
 };
 
 // ==================== 全局变量 ====================
@@ -59,7 +61,7 @@ function bindEventListeners() {
 
     // 批量打印
     const batchPrintBtn = document.getElementById('batchPrintBtn');
-    batchPrintBtn.addEventListener('click', function() {
+batchPrintBtn.addEventListener('click', function() {
         if (selectedRecords.size === 0) {
             alert('请先选择要打印的记录！');
             return;
@@ -228,7 +230,7 @@ function renderOverdueTable(data) {
                                 data-id="${borrowId}" title="查看详情">
                             <i class="fas fa-eye"></i>
                         </button>
-                        <button class="btn btn-sm btn-primary btn-icon-sm generate-notice-btn" 
+<button class="btn btn-sm btn-primary btn-icon-sm generate-notice-btn" 
                                 data-id="${borrowId}" title="生成催还单">
                             <i class="fas fa-file-alt"></i>
                         </button>
@@ -236,7 +238,7 @@ function renderOverdueTable(data) {
                                 data-id="${borrowId}" title="发送通知">
                             <i class="fas fa-envelope"></i>
                         </button>
-                    </div>
+</div>
                 </td>
             </tr>
         `;
@@ -256,8 +258,8 @@ function getSelectedRecordsData() {
             selectedData.push({
                 teacherId: cells[1].textContent,
                 teacherName: cells[2].textContent,
-                department: cells[3].textContent,
-                phone: cells[4].textContent,
+department: cells[3].textContent,
+phone: cells[4].textContent,
                 journalName: cells[5].textContent,
                 borrowDate: cells[6].textContent,
                 dueDate: cells[7].textContent,
@@ -512,8 +514,91 @@ function exportToExcel() {
 
 // ==================== 查看详情 ====================
 async function viewDetail(borrowId) {
-    // 实现查看详情逻辑，可以打开模态框显示更多信息
-    alert('查看详情功能待实现\n借阅记录ID: ' + borrowId);
+    try {
+        // 调用后端API获取借阅记录详情,传递参数
+        const response = await api.get(OVERDUE_API_PATHS.DETAIL(borrowId));
+        
+        // 解析响应数据
+        const borrowInfo = response.data || response;
+        
+        // 创建原生JavaScript模态框
+        const modalHTML = `
+            <div class="custom-modal-backdrop" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1040; display: flex; align-items: center; justify-content: center;">
+                <div class="custom-modal" style="background-color: white; border-radius: 0.3rem; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);">
+                    <div class="custom-modal-header" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid #dee2e6;">
+                        <h5 class="custom-modal-title" style="margin: 0; font-size: 1.25rem; font-weight: 500;">借阅记录详情</h5>
+                        <button type="button" class="custom-modal-close" style="background: none; border: none; font-size: 1.5rem; line-height: 1; color: #000; opacity: 0.5; cursor: pointer;">&times;</button>
+                    </div>
+                    <div class="custom-modal-body" style="padding: 1rem;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div>
+                                <p><strong>借阅记录ID：</strong>${borrowInfo.id || '-'}</p>
+                                <p><strong>教师ID：</strong>${borrowInfo.borrower?.id || '-'}</p>
+                                <p><strong>教师姓名：</strong>${borrowInfo.borrower?.name || '-'}</p>
+                                <p><strong>部门：</strong>${borrowInfo.borrower?.department || '-'}</p>
+                                <p><strong>联系电话：</strong>${borrowInfo.borrower?.phone || '-'}</p>
+                            </div>
+                            <div>
+                                <p><strong>期刊ID：</strong>${borrowInfo.journal?.id || '-'}</p>
+                                <p><strong>期刊名称：</strong>${borrowInfo.journal?.name || '-'}</p>
+                                <p><strong>借阅日期：</strong>${borrowInfo.startDate || '-'}</p>
+                                <p><strong>应还日期：</strong>${borrowInfo.endDate || '-'}</p>
+                                <p><strong>实际归还日期：</strong>${borrowInfo.returnDate || '未归还'}</p>
+                                <p><strong>状态：</strong>${borrowInfo.status || '-'}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="custom-modal-footer" style="display: flex; justify-content: flex-end; padding: 1rem; border-top: 1px solid #dee2e6;">
+                        <button type="button" class="custom-modal-close-btn" style="background-color: #6c757d; color: white; border: none; padding: 0.375rem 0.75rem; border-radius: 0.25rem; cursor: pointer; font-size: 0.875rem;">关闭</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // 移除已存在的模态框
+        const existingModal = document.querySelector('.custom-modal-backdrop');
+        if (existingModal) {
+            existingModal.remove();
+        }
+        
+        // 添加新模态框到页面
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        
+        // 获取模态框元素
+        const modalBackdrop = document.querySelector('.custom-modal-backdrop');
+        const modal = document.querySelector('.custom-modal');
+        const closeBtn = document.querySelector('.custom-modal-close');
+        const closeBtn2 = document.querySelector('.custom-modal-close-btn');
+        
+        // 关闭模态框的函数
+        function closeModal() {
+            if (modalBackdrop) {
+                modalBackdrop.remove();
+            }
+        }
+        
+        // 添加关闭事件监听器
+        closeBtn.addEventListener('click', closeModal);
+        closeBtn2.addEventListener('click', closeModal);
+        
+        // 点击模态框外部关闭
+        modalBackdrop.addEventListener('click', (e) => {
+            if (e.target === modalBackdrop) {
+                closeModal();
+            }
+        });
+        
+        // ESC键关闭
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+        
+    } catch (error) {
+        console.error('获取借阅记录详情失败:', error);
+        alert('获取借阅记录详情失败，请重试');
+    }
 }
 
 // ==================== 分页渲染（修正：页码有效性检查） ====================
