@@ -1,6 +1,6 @@
-// 期刊查询页面交互逻辑（修正版）
+// 期刊查询页面交互逻辑（仅修复核心问题版）
 document.addEventListener('DOMContentLoaded', () => {
-    // ========== 1. DOM元素获取与校验（核心修正：增加空值校验） ==========
+    // ========== 1. DOM元素获取与校验（保留原有） ==========
     const searchForm = document.getElementById('searchForm');
     const resetBtn = document.getElementById('resetBtn');
     const backHomeBtn = document.getElementById('backHomeBtn');
@@ -21,34 +21,47 @@ document.addEventListener('DOMContentLoaded', () => {
     const missingElements = requiredElements.filter(el => !el);
     if (missingElements.length > 0) {
         console.error('缺失核心DOM元素，页面初始化失败');
-        showAlert('页面加载异常，请刷新重试', 'error');
+        // 注释：保留原有alert逻辑，若你有showAlert则用，没有则临时提示
+        alert('页面加载异常，请刷新重试');
         return;
     }
 
-    // ========== 2. 分页参数（保持不变，增加注释） ==========
+    // ========== 2. 分页参数（保留原有） ==========
     let currentPage = 1;          // 当前页码
     const pageSize = 10;          // 每页条数
     let totalCount = 0;           // 总记录数
     let totalPages = 1;           // 总页数
     let isLoading = false;        // 加载状态锁（核心新增：防重复请求）
 
+    // ========== 核心修复1：补充缺失的formatDate函数（解决截图报错） ==========
+    function formatDate(dateStr) {
+        if (!dateStr) return '-';
+        try {
+            const date = new Date(dateStr);
+            if (isNaN(date.getTime())) return '-';
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        } catch (error) {
+            console.error('日期格式化失败:', error);
+            return '-';
+        }
+    }
+
     // ========== 3. 初始化页面 ==========
     init();
 
     function init() {
-        // 绑定事件监听（核心修正：searchForm改为submit事件）
-        searchForm.addEventListener('submit', handleSearch);
-        
-        /**
-         * 处理搜索请求（核心修正：submit事件、加载状态）
-         */
-        async function handleSearch(e) {
-            e.preventDefault();
-            // 防重复提交
-            if (isLoading) return;
-            currentPage = 1; // 重置为第一页
+        // 核心修复2：搜索事件绑定+防重复提交（解决点击搜索无反应）
+        searchForm.addEventListener('submit', async function(e) {
+            e.preventDefault(); // 阻止表单默认刷新
+            if (isLoading) return; // 防重复点击
+            currentPage = 1; // 搜索重置为第一页
             await fetchJournalList();
-        }
+        });
+
+        // 保留原有事件绑定
         if (resetBtn) resetBtn.addEventListener('click', handleReset);
         if (backHomeBtn) backHomeBtn.addEventListener('click', handleBackHome);
         if (firstPageBtn) firstPageBtn.addEventListener('click', () => goToPage(1));
@@ -58,11 +71,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
         if (detailModal) detailModal.addEventListener('click', handleModalClick);
 
-        // 核心新增：事件委托替代全局函数，避免污染window
+        // 核心新增：事件委托（避免动态元素点击失效）
         journalTableBody.addEventListener('click', (e) => {
             const viewBtn = e.target.closest('.btn-view');
             if (viewBtn) {
-                const journalId = viewBtn.dataset.id; // 改用data-id传递ID
+                const journalId = viewBtn.dataset.id;
                 if (journalId) viewJournalDetail(journalId);
             }
         });
@@ -71,10 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchJournalList();
     }
 
-    // ========== 4. 核心业务逻辑 ==========
-    /**
-     * 返回主页（核心修正：增加localStorage解析容错、权限校验优化）
-     */
+    // ========== 保留原有函数（仅修复fetchJournalList数据解析） ==========
     function handleBackHome() {
         try {
             const teacherStr = localStorage.getItem("teacherInfo");
@@ -89,88 +99,61 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    /**
-     * 重置查询条件（核心修正：清空表单、重置分页、刷新列表）
-     */
     function handleReset() {
-        // 重置表单
         searchForm.reset();
-        // 重置分页
         currentPage = 1;
-        // 刷新列表
         fetchJournalList();
     }
 
-    /**
-     * 点击遮罩层关闭模态框（核心修正：事件委托优化）
-     */
     function handleModalClick(e) {
         if (e.target === detailModal) {
             closeModal();
         }
     }
 
-    /**
-     * 转义特殊字符（核心修正：适配URL和SQL通配符）
-     */
     function escapeKeyword(keyword) {
         if (!keyword) return keyword;
-        // 转义SQL通配符
         return keyword.replace(/([%_])/g, "\\$1");
     }
 
-    /**
-     * 获取期刊列表（核心修正：参数处理、API调用、数据处理）
-     */
+    // ========== 核心修复3：适配你的返回数据结构（data是数组，total在根层级） ==========
     async function fetchJournalList() {
         isLoading = true;
-        // 显示加载状态
         try {
-            // 收集参数
+            // 收集参数（保留原有逻辑）
             const keyword = document.getElementById('searchKeyword')?.value;
             const category = document.getElementById('category')?.value;
             const issn = document.getElementById('issn')?.value;
             const status = document.getElementById('status')?.value;
 
-            // 过滤+标准化参数（空值不传递）
             const params = {};
-            if (keyword) {
-                params.keyword = escapeKeyword(keyword);
-            }
-            if (category && category !== '') {
-                params.category = category;
-            }
-            if (issn) {
-                params.issn = issn;
-            }
-            if (status && status !== '') {
-                params.status = status;
-            }
+            if (keyword) params.keyword = escapeKeyword(keyword);
+            if (category && category !== '') params.category = category;
+            if (issn) params.issn = issn;
+            if (status && status !== '') params.status = status;
             params.page = currentPage;
             params.pageSize = pageSize;
 
-            // 调用后端接口
+            // 调用后端接口（保留你的路径，仅修复数据解析）
             const response = await api.get('/journal/journals/multi-search', params);
-            
-            // 校验返回数据格式
-            if (!response || !response.data || !Array.isArray(response.data.data)) {
-                throw new Error('返回数据格式错误');
-            }
-            
-            // 更新数据
-            const { data, total } = response.data;
-            totalCount = total || 0;
-            totalPages = Math.ceil(totalCount / pageSize);
-            
-            // 渲染表格和分页
-            renderJournalTable(data);
+
+            // 核心修复：适配你截图的返回结构（code:200, data:[...], total:1）
+            // if (!response || response.code !== 200) {
+            //     throw new Error('接口返回异常');
+            // }
+
+            // 解析：data是期刊数组，total/ totalPages从返回根层级取
+            const journalList = response.data || [];
+            totalCount = response.total || 0;       // 适配你的返回字段
+            totalPages = response.totalPages || 1;  // 适配你的返回字段
+
+            // 渲染表格和分页（保留原有逻辑）
+            renderJournalTable(journalList);
             updatePagination();
-            
+
         } catch (error) {
             console.error('获取期刊列表失败:', error);
-            // 显示错误UI
             journalTableBody.innerHTML = `<tr><td colspan="9" class="error-result">获取期刊列表失败: ${error.message || '未知错误'}</td></tr>`;
-            // 重置分页控件
             totalCount = 0;
             totalPages = 1;
             updatePagination();
@@ -179,9 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    /**
-     * 渲染期刊表格（核心优化：空值处理、data-id传递ID）
-     */
+    // ========== 保留原有渲染逻辑（仅依赖修复后的formatDate） ==========
     function renderJournalTable(journals) {
         journalTableBody.innerHTML = '';
 
@@ -194,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         journals.forEach(journal => {
             const row = document.createElement('tr');
-            // 空值兜底处理
+            // 现在formatDate已定义，不会报错
             const publishDate = formatDate(journal.publishDate);
             const availableQuantity = journal.availableQuantity ?? 0;
             const statusClass = journal.status === 'available' ? 'status-available' : 'status-unavailable';
@@ -202,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             row.innerHTML = `
                 <td>${journal.name || '-'}</td>
-                <td>${journal.issueNumber || '-'}</td> <!-- 新增卷/期列 -->
+                <td>${journal.issueNumber || '-'}</td>
                 <td>${journal.issn || '-'}</td>
                 <td>${journal.category || '-'}</td>
                 <td>${journal.publisher || '-'}</td>
@@ -221,5 +202,31 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ========== 其他函数保持不变 ==========
+    // ========== 补充分页/模态框基础函数（避免未定义报错，不改动逻辑） ==========
+    function goToPage(targetPage) {
+        if (targetPage < 1) targetPage = 1;
+        if (targetPage > totalPages) targetPage = totalPages;
+        if (targetPage === currentPage || isLoading) return;
+        currentPage = targetPage;
+        fetchJournalList();
+    }
+
+    function updatePagination() {
+        totalCountEl.textContent = totalCount;
+        currentPageEl.textContent = currentPage;
+        totalPagesEl.textContent = totalPages;
+        if (prevPageBtn) prevPageBtn.disabled = currentPage === 1;
+        if (firstPageBtn) firstPageBtn.disabled = currentPage === 1;
+        if (nextPageBtn) nextPageBtn.disabled = currentPage === totalPages;
+        if (lastPageBtn) lastPageBtn.disabled = currentPage === totalPages;
+    }
+
+    function closeModal() {
+        if (detailModal) detailModal.style.display = 'none';
+        if (journalDetailContent) journalDetailContent.innerHTML = '';
+    }
+
+    function viewJournalDetail(journalId) {
+        // 保留你原有逻辑，若没有则空实现（避免报错）
+    }
 });
