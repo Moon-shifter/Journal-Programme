@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学院期刊管理系统 - 教师主页</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome CSS -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="../../static/css/teacher-index.css">
+</head>
+
+<body>
+    <!-- 侧边栏 -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <i class="fas fa-book-journal-whills logo-icon"></i>
+            <h3>期刊管理系统</h3>
+        </div>
+        <ul class="nav-menu p-0">
+            <li class="nav-item">
+                <a href="#" class="nav-link active">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>个人中心</span>
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a href="teacher-journals.html" class="nav-link">
+                    <i class="fas fa-search"></i>
+                    <span>期刊查询</span>
+                </a>
+            </li>
+           
+            <li class="nav-item">
+                <a href="teacher-settings.html" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>个人设置</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="teacher-login.html" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>退出登录</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="main-content" id="mainContent">
+        <!-- 顶部导航 -->
+        <div class="top-nav">
+            <button class="toggle-btn" id="toggleSidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="user-info">
+                <span class="me-2">教师：李教授</span>
+                <div class="user-avatar">李</div>
+            </div>
+        </div>
+
+        <!-- 内容容器 -->
+        <div class="content-container">
+            <!-- 页面标题 -->
+            <div class="mb-4">
+                <h2 class="mb-1">个人借阅中心</h2>
+                <p class="text-muted">欢迎回来，您的借阅情况概览</p>
+            </div>
+
+            <!-- 数据统计卡片 -->
+            <div class="row mb-5">
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="stat-card">
+                        <div class="card-icon primary">
+                            <i class="fas fa-book-reader fa-lg"></i>
+                        </div>
+                        <div class="card-value">5</div>
+                        <div class="card-label">当前借阅</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="stat-card">
+                        <div class="card-icon danger">
+                            <i class="fas fa-exclamation-circle fa-lg"></i>
+                        </div>
+                        <div class="card-value">1</div>
+                        <div class="card-label">已超期</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="stat-card">
+                        <div class="card-icon success">
+                            <i class="fas fa-calendar-check fa-lg"></i>
+                        </div>
+                        <div class="card-value">3</div>
+                        <div class="card-label">即将到期</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="stat-card">
+                        <div class="card-icon warning">
+                            <i class="fas fa-clock fa-lg"></i>
+                        </div>
+                        <div class="card-value">2</div>
+                        <div class="card-label">可再借阅</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 当前借阅列表 -->
+            <div class="row mb-5">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div
+                            class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">当前借阅期刊</h5>
+                            <button class="btn btn-sm btn-primary" data-action="search-more-journal"
+                                onclick="window.location.href='teacher-journals.html'">
+                                <i class="fas fa-search"></i> 查找更多期刊
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="data-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>期刊名称</th>
+                                        <th>逾期天数</th>
+                                        <th>借阅日期</th>
+                                        <th>应还日期</th>
+                                        <th>状态</th>
+                                        <!-- 删除操作列标题 -->
+                                    </tr>
+                                </thead>
+                                <tbody id="borrowListTbody">
+                                    <!-- 动态渲染区域，初始静态数据仅作占位，会被JS替换 -->
+                                    <tr>
+                                        <td>《计算机学报》</td>
+                                        <td>2025年第3期</td>
+                                        <td>2025-04-15</td>
+                                        <td>2025-05-15</td>
+                                        <td><span class="badge-status badge-overdue">已超期</span></td>
+                                        <!-- 删除操作列内容 -->
+                                    </tr>
+                                    <tr>
+                                        <td>《人工智能进展》</td>
+                                        <td>2025年第2期</td>
+                                        <td>2025-05-02</td>
+                                        <td>2025-06-02</td>
+                                        <td><span class="badge-status badge-warning">即将到期</span></td>
+                                        <!-- 删除操作列内容 -->
+                                    </tr>
+                                    <tr>
+                                        <td>《软件学报》</td>
+                                        <td>2025年第1期</td>
+                                        <td>2025-05-10</td>
+                                        <td>2025-06-10</td>
+                                        <td><span class="badge-status badge-success">正常</span></td>
+                                        <!-- 删除操作列内容 -->
+                                    </tr>
+                                    <tr>
+                                        <td>《计算机应用》</td>
+                                        <td>2025年第4期</td>
+                                        <td>2025-05-12</td>
+                                        <td>2025-06-12</td>
+                                        <td><span class="badge-status badge-success">正常</span></td>
+                                        <!-- 删除操作列内容 -->
+                                    </tr>
+                                    <tr>
+                                        <td>《计算机科学》</td>
+                                        <td>2025年第2期</td>
+                                        <td>2025-05-18</td>
+                                        <td>2025-06-18</td>
+                                        <td><span class="badge-status badge-warning">即将到期</span></td>
+                                        <!-- 删除操作列内容 -->
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- 引入封装的JS文件（按项目目录结构适配路径） -->
+    <script src="../../static/js/common-cookie.js"></script>
+    <script src="../../static/js/common-request.js"></script>
+    <script src="../../static/js/teacher-index.js"> </script>
+<!-- 引入假数据JS文件
+   <script src="../../static/js/pretend-js/pretendTeacher-index.js"></script>  
+    -->
+</body>
+
+</html>

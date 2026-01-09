@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学院期刊管理系统 - 报表导出</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome CSS -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="../../static/css/admin-index.css">
+</head>
+
+<body>
+    <!-- 侧边栏 -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <i class="fas fa-book-journal-whills logo-icon"></i>
+            <h3>期刊管理系统</h3>
+        </div>
+        <ul class="nav-menu p-0">
+            <li class="nav-item">
+                <a href="admin-index.html" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>仪表盘</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-journals.html" class="nav-link">
+                    <i class="fas fa-book"></i>
+                    <span>期刊信息管理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-teachers.html" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    <span>教师信息管理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-borrow.html" class="nav-link">
+                    <i class="fas fa-handshake"></i>
+                    <span>图书借阅办理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-overdue.html" class="nav-link">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>超期催还管理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-reports.html" class="nav-link active">
+                    <i class="fas fa-file-excel"></i>
+                    <span>报表导出</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>系统设置</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-login.html" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>退出登录</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="main-content" id="mainContent">
+        <!-- 顶部导航 -->
+        <div class="top-nav">
+            <button class="toggle-btn" id="toggleSidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="user-info">
+                <span class="me-2"></span>
+                <div class="user-avatar"></div>
+            </div>
+        </div>
+
+        <!-- 内容容器 -->
+        <div class="content-container">
+            <!-- 页面标题 -->
+            <div class="mb-4">
+                <h2 class="mb-1">报表导出</h2>
+                <p class="text-muted">导出各类期刊管理报表</p>
+            </div>
+
+            <!-- 报表导出卡片 -->
+            <div class="row">
+                <!-- 逾期催还单 -->
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-white border-bottom">
+                            <h5 class="mb-0">逾期催还单</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-4">导出所有逾期未还的期刊记录</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <small class="text-muted">包含教师信息、期刊信息和逾期天数</small>
+                                </div>
+                                <button class="btn btn-primary" id="exportOverdueBtn">
+                                    <i class="fas fa-file-excel me-1"></i>导出Excel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 借阅信息表 -->
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-white border-bottom">
+                            <h5 class="mb-0">借阅信息表</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-4">导出所有借阅记录的详细信息</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <small class="text-muted">包含借阅、归还日期和当前状态</small>
+                                </div>
+                                <button class="btn btn-primary" id="exportBorrowBtn">
+                                    <i class="fas fa-file-excel me-1"></i>导出Excel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  
+   <script src="https://cdn.bootcdn.net/ajax/libs/axios/1.6.8/axios.min.js"></script>
+   <script src="../../static/js/common-cookie.js"></script>
+   <script src="../../static/js/common-request.js"></script>
+   <script src="../../static/js/admin-reports.js"></script>
+</body>
+
+</html>

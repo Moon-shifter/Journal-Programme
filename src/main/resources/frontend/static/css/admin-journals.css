@@ -1,0 +1,91 @@
+  /* 期刊管理页面特有样式 */
+        .action-bar {
+            background: #fff;
+            padding: 1.25rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            margin-bottom: 1.5rem;
+        }
+
+        .search-box {
+            max-width: 400px;
+        }
+
+        .data-table {
+            background: #fff;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+
+        .data-table th {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            white-space: nowrap;
+            font-size: 0.875rem;
+        }
+
+        .data-table td {
+            vertical-align: middle;
+            font-size: 0.875rem;
+        }
+
+        .btn-icon-sm {
+            padding: 0.15rem 0.35rem;
+            font-size: 0.75rem;
+        }
+
+        /* 模态框样式优化 */
+        .modal-header {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .form-label {
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .required::after {
+            content: " *";
+            color: #dc3545;
+        }
+
+        .form-control,
+        .form-select {
+            font-size: 0.875rem;
+        }
+
+        /* 侧边栏折叠样式 */
+        .sidebar.collapsed {
+            width: 70px;
+        }
+
+        .sidebar.collapsed .logo h3,
+        .sidebar.collapsed .nav-menu span {
+            display: none;
+        }
+
+        .sidebar.collapsed .logo-icon {
+            margin: 0;
+        }
+
+        .main-content.expanded {
+            margin-left: 70px;
+        }
+
+        .logo-icon {
+            transition: margin 0.3s ease;
+        }
+
+        /* 操作按钮横排样式 */
+        .action-buttons {
+            white-space: nowrap;
+        }
+
+        /* ID输入框只读样式 */
+        #id[readonly] {
+            background-color: #f8f9fa;
+            cursor: not-allowed;
+        }

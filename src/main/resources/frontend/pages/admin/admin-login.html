@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统登录</title>
+    <!-- 1. 引入全局公共CSS -->
+     <link rel="stylesheet" href="../../static/css/common.css">
+    <!-- 2. 引入管理员登录页专属CSS -->
+    <link rel="stylesheet" href="../../static/css/admin-login.css">
+    <style>
+        /* 新增错误提示样式（替代alert弹窗） */
+        .error-message {
+            color: #dc3545;
+            font-size: 0.9em;
+            height: 20px;
+            margin: 8px 0;
+            text-align: center;
+        }
+        /* 加载状态样式 */
+        .loading {
+            cursor: wait;
+            opacity: 0.7;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="../../static/js/common-request.js"></script>
+    <script src="../../static/js/admin-login.js"></script>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h2>系统登录</h2>
+        </div>
+
+      
+        <form id="userForm">
+            <!-- 新增错误提示容器 -->
+            <div class="error-message" id="errorMsg"></div>
+            
+            <div class="form-group">
+                <label for="userName">用户名</label>
+                <input type="text" name="userName" id="userName" 
+                       placeholder="请输入用户名" required 
+                       maxlength="20" autocomplete="username">
+            </div>
+
+            <div class="form-group">
+                <label for="passWord">密码</label>
+                <input type="password" id="passWord" name="passWord" 
+                       placeholder="请输入密码" required 
+                       minlength="6" maxlength="20" autocomplete="current-password">
+            </div>
+
+            <div class="button-group">
+                <button type="button" id="loginBtn" class="btn-primary">登录</button>
+                <button type="button" id="resetBtn" class="btn-secondary">清空</button>
+            </div>
+        </form>
+    </div>
+
+         
+
+</body>
+</html>

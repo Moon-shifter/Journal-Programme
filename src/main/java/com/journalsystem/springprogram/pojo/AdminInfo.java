@@ -2,14 +2,19 @@ package com.journalsystem.springprogram.pojo;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.Instant;
 
-@Entity
+@Entity //告诉Hibernate这是一个实体类，需要映射到数据库中的表
+@DynamicInsert
+@DynamicUpdate
 @Table(name = "admin_info")
 public class AdminInfo {
     @Id
-    @Column(name = "admin_id", nullable = false)
+    @Column(name = "admin_id", nullable = false,unique = true, updatable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)//自动生成主键，策略为数据库自动增长
     private Integer id;
 
     @Column(name = "username", nullable = false, length = 50)
@@ -22,17 +27,16 @@ public class AdminInfo {
     private String realName;
 
     @ColumnDefault("'normal'")
-    @Lob
-    @Column(name = "role")
-    private String role;
+    @Column(name = "role",insertable = false)
+    private String role;//super,normal.
 
-    @Column(name = "last_login")
-    private Instant lastLogin;
+    @ColumnDefault("'1970-01-01T00:00:00Z'")
+    @Column(name = "last_login",insertable = false)
+    private Instant lastLogin;//最后登录时间
 
     @ColumnDefault("'inactive'")
-    @Lob
-    @Column(name = "STATUS")
-    private String status;
+    @Column(name = "STATUS",insertable = false)
+    private String status;//active,inactive.
 
     public Integer getId() {
         return id;

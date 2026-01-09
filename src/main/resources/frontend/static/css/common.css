@@ -1,0 +1,188 @@
+/* ================== 全局通用基础样式 ================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    /* 统一字体，兼容中英文显示 */
+    font-family: 'Segoe UI', 'Microsoft YaHei', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f5f7fa;
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+}
+
+/* 全局表单通用样式 */
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+    font-weight: 500;
+}
+
+input,
+select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+    background-color: #f9fafb;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: #4a6fa5; /* 全局主色调，统一聚焦样式 */
+    box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.2);
+}
+
+/* 全局按钮通用样式 */
+button {
+    padding: 12px 14px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+/* 主按钮样式（登录/提交按钮） */
+.btn-primary {
+    background-color: #4a6fa5;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #3a5a80;
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+/* 次要按钮样式（重置/取消按钮） */
+.btn-secondary {
+    background-color: #f8f8f8;
+    color: #555;
+    border: 1px solid #ddd;
+}
+
+.btn-secondary:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+/* 全局提示信息样式 */
+.message {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+}
+
+.error {
+    background-color: #ffebee;
+    color: #c62828;
+    border: 1px solid #ffcdd2;
+}
+
+.warning {
+    background-color: #fff3e0;
+    color: #ef6c00;
+    border: 1px solid #ffcc80;
+}
+
+/* 全局底部样式 */
+.footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #eaeaea;
+    padding: 15px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    font-size: 14px;
+    color: #666;
+}
+
+.footer-left {
+    display: flex;
+    align-items: center;
+}
+
+.footer-center {
+    text-align: center;
+    flex: 1;
+}
+
+.footer-right {
+    display: flex;
+    align-items: center;
+}
+
+.footer-item {
+    margin: 0 10px;
+    display: flex;
+    align-items: center;
+}
+
+.footer-item i {
+    margin-right: 5px;
+}
+
+.team-name {
+    font-weight: 600;
+    color: #4a6fa5;
+}
+
+/* 全局响应式基础样式 */
+@media (max-width: 768px) {
+    input, select {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+
+    button {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+
+    .footer {
+        flex-direction: column;
+        text-align: center;
+        padding: 15px 20px;
+    }
+
+    .footer-left,
+    .footer-center,
+    .footer-right {
+        margin-bottom: 10px;
+        width: 100%;
+    }
+}
+
+/* 全局动画样式 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

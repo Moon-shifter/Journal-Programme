@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学院期刊管理系统 - 管理员主页</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome CSS -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="../../static/css/admin-index.css">
+</head>
+
+<body>
+    <!-- 侧边栏 -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <i class="fas fa-book-journal-whills logo-icon"></i>
+            <h3>期刊管理系统</h3>
+        </div>
+        <ul class="nav-menu p-0">
+            <li class="nav-item">
+                <a href="#" class="nav-link active">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>仪表盘</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-journals.html" class="nav-link">
+                    <i class="fas fa-book"></i>
+                    <span>期刊信息管理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-teachers.html" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    <span>教师信息管理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-borrow.html" class="nav-link">
+                    <i class="fas fa-handshake"></i>
+                    <span>图书借阅办理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-overdue.html" class="nav-link">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>超期催还管理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-reports.html" class="nav-link">
+                    <i class="fas fa-file-excel"></i>
+                    <span>报表导出</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-settings.html" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>系统设置</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-login.html" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>退出登录</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="main-content" id="mainContent">
+        <!-- 顶部导航 -->
+        <div class="top-nav">
+            <button class="toggle-btn" id="toggleSidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="user-info">
+                <span class="me-2"></span>
+                <div class="user-avatar"></div>
+            </div>
+        </div>
+
+        <!-- 内容容器 -->
+        <div class="content-container">
+            <!-- 页面标题 -->
+            <div class="mb-4">
+                <h2 class="mb-1">管理员仪表盘</h2>
+                <p class="text-muted">欢迎回来，今日数据概览</p>
+            </div>
+
+            <!-- 数据统计卡片 -->
+            <div class="row mb-5" id="statsContainer">
+                <!-- 统计卡片将通过JS动态生成 -->
+            </div>
+
+
+            <!-- 数据可视化 -->
+            <div class="row mb-5">
+                <!-- 系部教师数量图表 -->
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-white border-bottom">
+                            <h5 class="mb-0">各系部教师数量统计</h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- 纯CSS柱状图容器 -->
+                            <div class="css-chart" id="departmentChart">
+                                <!-- 图表将通过JS动态生成 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 超期借阅提醒 -->
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">超期借阅提醒</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="data-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>教师ID</th>
+                                        <th>姓名</th>
+                                        <th>系部</th>
+                                        <th>借阅期刊</th>
+                                        <th>超期天数</th>
+                                        <th>状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="overdueRecordsTable">
+                                    <!-- 表格内容将通过JS动态生成 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  
+   <script src="https://cdn.bootcdn.net/ajax/libs/axios/1.6.8/axios.min.js"></script>
+   <script src="../../static/js/common-cookie.js"></script>
+   <script src="../../static/js/common-request.js"></script>
+   <script src="../../static/js/admin-index.js"></script>
+   <!-- <script src="../../static/js/pretend-js/pretendAdmin-index.js"></script> -->
+</body>
+
+</html>

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>期刊信息管理 - 学院期刊管理系统</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome CSS -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Axios -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/axios/1.6.0/axios.min.js"></script>
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="../../static/css/admin-index.css">
+    <link rel="stylesheet" href="../../static/css/admin-journals.css">
+</head>
+
+<body>
+    <!-- 侧边栏 -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <i class="fas fa-book-journal-whills logo-icon"></i>
+            <h3>期刊管理系统</h3>
+        </div>
+        <ul class="nav-menu p-0">
+            <li class="nav-item">
+                <a href="admin-index.html" class="nav-link" data-page="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>仪表盘</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link active" data-page="journals">
+                    <i class="fas fa-book"></i>
+                    <span>期刊信息管理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-teachers.html" class="nav-link" data-page="teachers">
+                    <i class="fas fa-users"></i>
+                    <span>教师信息管理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-borrow.html" class="nav-link" data-page="borrow">
+                    <i class="fas fa-handshake"></i>
+                    <span>图书借阅办理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-overdue.html" class="nav-link" data-page="overdue">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>超期催还管理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-reports.html" class="nav-link" data-page="reports">
+                    <i class="fas fa-file-excel"></i>
+                    <span>报表导出</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-page="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>系统设置</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin-login.html" class="nav-link logout-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>退出登录</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="main-content" id="mainContent">
+        <!-- 顶部导航 -->
+        <div class="top-nav">
+            <button class="toggle-btn" id="toggleSidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="user-info">
+                <span class="me-2">管理员</span>
+                <div class="user-avatar"></div>
+            </div>
+        </div>
+
+        <!-- 内容容器 -->
+        <div class="content-container">
+            <!-- 页面标题和面包屑 -->
+            <div class="mb-4">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item active" aria-current="page">期刊信息管理</li>
+                    </ol>
+                </nav>
+                <h2 class="mb-1">期刊信息管理</h2>
+                <p class="text-muted">管理系统内所有期刊的基本信息</p>
+            </div>
+
+            <!-- 操作栏 -->
+            <div class="action-bar">
+                <div class="row align-items-center">
+                    <div class="col-lg-4 col-md-6 mb-2 mb-md-0">
+                        <div class="search-box">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="searchInput" 
+                                       placeholder="搜索期刊SSBN号...">
+                                <button class="btn btn-outline-primary" type="button" id="searchBtn">
+                                    <i class="fas fa-search"></i> 查询
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-8 col-md-6 text-lg-end">
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addJournalModal">
+                            <i class="fas fa-plus me-1"></i>添加期刊
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 数据表格 -->
+            <div class="data-table">
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%;">ID</th>  <!-- 新增ID列 -->
+                                <th style="width: 15%;">期刊名称</th>
+                                <th style="width: 12%;">SSBN号</th>
+                                <th style="width: 12%;">学科分类</th>
+                                <th style="width: 13%;">出版社</th>
+                                <th style="width: 10%;">出版日期</th>
+                                <th style="width: 10%;">期号</th>
+                                <th style="width: 8%;">馆藏数</th>
+                                <th style="width: 8%;">可借数</th>
+                                <th style="width: 7%;">状态</th>
+                                <th style="width: 12%;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="journalTableBody">
+                            <!-- 数据由JS动态加载 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 动态分页容器 -->
+            <div id="paginationContainer" class="mt-4"></div>
+        </div>
+    </div>
+
+    <!-- 添加/编辑期刊模态框 -->
+    <div class="modal fade" id="addJournalModal" tabindex="-1" aria-labelledby="addJournalModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addJournalModalLabel">添加期刊</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="journalForm">
+                    <div class="modal-body">
+                        <div class="row">
+                            <!-- 新增ID输入框（添加时必填，编辑时只读） -->
+                            <div class="col-md-4 mb-3">
+                                <label for="id" class="form-label required">期刊ID</label>
+                                <input type="number" class="form-control" id="id" name="id" 
+                                       placeholder="请输入唯一ID" required>
+                                <small class="form-text text-muted">请输入数字，如：1001</small>
+                            </div>
+                            <div class="col-md-8 mb-3">
+                                <label for="NAME" class="form-label required">期刊名称</label>
+                                <input type="text" class="form-control" id="NAME" name="NAME" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="ISSN" class="form-label required">SSBN号</label>
+                                <input type="text" class="form-control" id="ISSN" name="ISSN"
+                                    placeholder="例如: 1234-5678" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="category" class="form-label required">学科分类</label>
+                                <select class="form-select" id="category" name="category" required>
+                                    <option value="">请选择</option>
+                                    <option value="计算机科学">计算机科学</option>
+                                    <option value="电子工程">电子工程</option>
+                                    <option value="机械工程">机械工程</option>
+                                    <option value="经济管理">经济管理</option>
+                                    <option value="人文社科">人文社科</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="publisher" class="form-label required">出版社</label>
+                                <input type="text" class="form-control" id="publisher" name="publisher" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="publish_date" class="form-label required">出版日期</label>
+                                <input type="date" class="form-control" id="publish_date" name="publish_date" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="issue_number" class="form-label">期号</label>
+                                <input type="text" class="form-control" id="issue_number" name="issue_number"
+                                    placeholder="例如: 2024年第12期">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="STATUS" class="form-label required">状态</label>
+                                <select class="form-select" id="STATUS" name="STATUS" required>
+                                    <option value="">请选择</option>
+                                    <option value="available">可用</option>
+                                    <option value="unavailable">停用</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="total_quantity" class="form-label required">馆藏数量</label>
+                                <input type="number" min="1" class="form-control" id="total_quantity"
+                                    name="total_quantity" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="available_quantity" class="form-label required">可借数量</label>
+                                <input type="number" min="0" class="form-control" id="available_quantity"
+                                    name="available_quantity" required>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label for="description" class="form-label">期刊简介</label>
+                                <textarea class="form-control" id="description" name="description" rows="3"
+                                    placeholder="可选：输入期刊简介..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary btn-sm" id="saveBtn">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <!-- Axios -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/axios/1.6.0/axios.min.js"></script>
+    <!-- Cookie工具 -->
+    <script src="../../static/js/common-cookie.js"></script>
+    <!-- 请求工具（注意：已移除token依赖） -->
+    <script src="../../static/js/common-request.js"></script>
+    <script src="../../static/js/admin-journals.js"></script>
+
+   
+</body>
+</html>
