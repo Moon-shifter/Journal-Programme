@@ -1,24 +1,19 @@
 package com.journalsystem.springprogram.controller;
 
 
-import com.journalsystem.springprogram.common.Constants;
 import com.journalsystem.springprogram.common.PageRequest;
 import com.journalsystem.springprogram.common.PageResult;
 import com.journalsystem.springprogram.common.Result;
 import com.journalsystem.springprogram.dto.JournalDTO;
-import com.journalsystem.springprogram.exception.BusinessException;
 import com.journalsystem.springprogram.pojo.JournalInfo;
-import com.journalsystem.springprogram.service.BorrowService;
 import com.journalsystem.springprogram.service.JournalService;
-import com.journalsystem.springprogram.service.TeacherService;
 import com.journalsystem.springprogram.util.DtoUtil;
 import com.journalsystem.springprogram.util.SqlInjectionFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 /**
  * 期刊相关接口
  * 提供管理员对期刊的操作，以及管理员和教师对期刊的不同查询
@@ -38,7 +33,7 @@ public class JournalController {
      * 查询所有期刊（分页+可选ISSN搜索）
      * @param page 当前页码（默认第1页）
      * @param pageSize 每页显示数量（默认10条）
-     * @param ssbn ISSN搜索字符串（可选）
+     * @param issn ISSN搜索字符串（可选）
      * @return 分页结果（包含期刊列表和分页信息）
      *        成功：{
      *            "code": 200,
@@ -67,7 +62,7 @@ public class JournalController {
                                                       @RequestParam(required = true, defaultValue = "1") Integer page,
                                                       @RequestParam(required = true, defaultValue = "10") Integer pageSize,
                                                         // 可选参数：ISSN搜索
-                                                            @RequestParam(required = false) String ssbn
+                                                            @RequestParam(required = false) String issn
     ) {
         try {
             // 1. 封装分页请求对象（排序字段/方向默认空，用Service默认排序）
@@ -78,7 +73,7 @@ public class JournalController {
             pageRequest.setSortOrder(null);
 
             // 2. 调用Service查询（传入分页参数+ISSN参数）
-            PageResult<JournalInfo> pageResult = journalService.getJournalsByPage(pageRequest, ssbn);
+            PageResult<JournalInfo> pageResult = journalService.getJournalsByPage(pageRequest, issn);
 
             // 3. 封装通用Result返回（符合接口文档格式）
             return Result.success(pageResult, "查询期刊列表成功");
@@ -234,16 +229,16 @@ public class JournalController {
             // 3. 将JournalInfo转换为JournalDTO
             List<JournalDTO> journalDTOs = DtoUtil.convertList(pageResult.getData(), JournalDTO.class);
     
-            // 4. 构建新的PageResult<JournalDTO>
-            PageResult<JournalDTO> result = PageResult.build(
-                    pageResult.getPageNum(),
-                    pageResult.getPageSize(),
-                    pageResult.getTotal(),
-                    journalDTOs
-            );
+            // 4. 构建返回的分页结果
+            PageResult<JournalDTO> result = new PageResult<>();
+            result.setData(journalDTOs);
+            result.setTotal(pageResult.getTotal());
+            result.setPageNum(page);
+            result.setPageSize(pageSize);
+            result.setTotalPages((int) Math.ceil((double) pageResult.getTotal() / pageSize));
     
-            // 5. 封装通用Result返回
-            return Result.success(result, "查询成功");
+            return Result.success(result, "查询期刊列表成功");
+    
         } catch (Exception e) {
             // 统一异常处理
             return Result.fail(500, "查询失败：" + e.getMessage());

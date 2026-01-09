@@ -226,50 +226,20 @@ async function loadBorrowList() {
                 return;
             }
 
-            // 调用借阅列表接口
-            const pageResult = await api.get('/teacher/borrow/teacher/list', {
-                teacherId: userId
-            });
-            
-            // 处理返回数据
-            const borrows = Array.isArray(pageResult.borrowList) ? pageResult.borrowList : [];
-            
             // 渲染借阅记录
             currentBorrows.forEach(borrow => {
                 const { statusClass, statusText } = getBorrowStatusInfo(borrow);
-            
+
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${borrow.journalName || '-'}</td>
-                    <td>${borrow.daysOverdue || '-'}</td>
-                    <td>${formatDate(borrow.borrowDate)}</td>
-                    <td>${formatDate(borrow.dueDate)}</td>
+                    <td>${borrow.daysOverdue|| '-'}</td>
+                    <td>${formatDate(borrow.startDate)}</td>
+                    <td>${formatDate(borrow.endDate)}</td>
                     <td><span class="badge-status ${statusClass}">${statusText}</span></td>
                 `;
                 tbody.appendChild(row);
             });
-            
-            // 修复后的状态判断逻辑
-            function getBorrowStatusInfo(borrow) {
-                let statusClass = 'badge-secondary';
-                let statusText = '未知';
-            
-                // 优先使用接口返回的状态
-                switch (borrow.status) {
-                    case 'overdue':
-                        statusClass = 'badge-overdue';
-                        statusText = '已超期';
-                        break;
-                    case 'borrowed':
-                        statusClass = 'badge-success';
-                        statusText = '借阅中';
-                        break;
-                    default:
-                        statusText = borrow.status ? borrow.status : '未知';
-                }
-            
-                return { statusClass, statusText };
-            }
         }
 
         // 渲染分页控件
@@ -302,7 +272,7 @@ function getBorrowStatusInfo(borrow) {
             const today = new Date();
             today.setHours(0, 0, 0, 0); // 清空时分秒
 
-            const dueDate = parseDateSafely(borrow.dueDate);
+            const dueDate = parseDateSafely(borrow.endDate);
             if (!dueDate) {
                 statusClass = 'badge-secondary';
                 statusText = '日期异常';

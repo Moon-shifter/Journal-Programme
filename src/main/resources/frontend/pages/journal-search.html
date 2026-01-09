@@ -89,7 +89,7 @@
             max-width: 150px;
         }
         
-        /* 结果区域样式 */
+/* 结果区域样式 */
         .results-section {
             background-color: white;
             border-radius: 8px;
@@ -130,7 +130,7 @@
             text-align: left;
             font-weight: 600;
             color: #555;
-            border-bottom: 2px solid #eaeaea;
+border-bottom: 2px solid #eaeaea;
             white-space: nowrap;
         }
         
@@ -491,8 +491,8 @@
                 
                 <div class="form-row">
                     <div class="form-col">
-                        <label for="isbn"><i class="fas fa-barcode"></i> ISBN</label>
-                        <input type="text" id="isbn" placeholder="输入ISBN号">
+                        <label for="issn"><i class="fas fa-barcode"></i> ISBN</label>
+                        <input type="text" id="issn" placeholder="输入ISBN号">
                     </div>
                     <div class="form-col">
                         <label for="status"><i class="fas fa-circle-check"></i> 状态</label>
@@ -524,10 +524,12 @@
             
             <div class="table-container">
                 <table class="journal-table">
+                    <!-- 修复后的表格表头 -->
                     <thead>
                         <tr>
                             <th>期刊名称</th>
-                            <th>ISBN</th>
+                            <th>卷/期</th> <!-- 新增卷/期列 -->
+                            <th>ISSN</th> <!-- 修正为ISSN -->
                             <th>类别</th>
                             <th>出版社</th>
                             <th>出版日期</th>
@@ -536,6 +538,8 @@
                             <th>操作</th>
                         </tr>
                     </thead>
+                    
+                    <!-- 表格体将由JavaScript动态填充 -->
                     <tbody id="journalTableBody">
                         <!-- 数据将通过JavaScript动态填充 -->
                     </tbody>
