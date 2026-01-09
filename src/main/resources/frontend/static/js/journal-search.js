@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
             params.pageSize = rawParams.pageSize;
 
             // 调用后端接口
-            const response = await api.get('/journals', params);
+            const response = await api.get('/journal/journals', params);
 
             // 校验返回数据格式
             if (!response || !Array.isArray(response.list)) {
@@ -291,7 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isLoading = true;
 
         try {
-            const journal = await api.get(`/journal/${id}`);
+            const journal = await api.get(`/journal/id/${id}`);
             if (!journal) {
                 throw new Error('未查询到该期刊信息');
             }

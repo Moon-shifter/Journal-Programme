@@ -75,7 +75,11 @@ public class BorrowController {
      * {code:404,msg:"该教师暂无借阅记录"}
      */
     @GetMapping("/teacher/list")
-    public Result<List<BorrowDTO>> teacherBorrowList(@RequestParam Integer teacherId, @RequestParam(required = false) String status) {
+    public Result<Map<String, Object>> teacherBorrowList(
+            @RequestParam Integer teacherId, 
+            @RequestParam(required = false) String status,
+            @RequestParam(name = "pageNum", defaultValue = "1") Integer pageNum,
+            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
         // 前端传参status: 'borrowed,overdue'（逗号分隔）
         if (status == null) {
             status = "borrowed,overdue"; // 默认包含两种状态
@@ -87,32 +91,47 @@ public class BorrowController {
             return Result.fail(404, "该教师不存在");
         }
     
-        // 2. 根据教师id查询所有借阅记录
-        List<BorrowInfo> borrowInfoList = borrowService.getBorrowsByTeacherId(teacherId);
-        if (borrowInfoList.isEmpty()) {
-            return Result.fail(404, "该教师暂无借阅记录");
-        }
+        // 2. 创建PageRequest对象
+        PageRequest pageRequest = new PageRequest();
+        pageRequest.setPageNum(pageNum);
+        pageRequest.setPageSize(pageSize);
+        pageRequest.setSortField("endDate"); // 默认按结束日期排序
+        pageRequest.setSortOrder("desc"); // 默认降序
     
-        // 3. 将status按逗号分割成状态列表
+        // 3. 根据教师id和分页参数查询借阅记录
+        PageResult<BorrowInfo> borrowsPage = borrowService.getBorrowsByTeacherIdAndPage(teacherId, pageRequest);
+    
+        // 4. 将status按逗号分割成状态列表
         List<String> statusList = Arrays.asList(status.split(","));
     
-        // 4. 根据借阅状态列表筛选记录，只返回未归还的记录
-        List<BorrowDTO> filteredList = borrowInfoList.stream()
+        // 5. 根据借阅状态列表筛选记录并转换为BorrowDTO
+        List<BorrowDTO> filteredList = borrowsPage.getData().stream()
                 .filter(borrow -> statusList.contains(borrow.getStatus()))
                 .map(borrow -> {
                     BorrowDTO dto = new BorrowDTO();
                     dto.setId(borrow.getId()); // borrowId
                     dto.setBorrowerId(borrow.getBorrower().getId());
+                    dto.setBorrowerName(borrow.getBorrower().getName());
+                    dto.setBorrowerPhone(borrow.getBorrower().getPhone()); // 设置电话号码
                     dto.setJournalId(borrow.getJournal().getId());
                     dto.setJournalName(borrow.getJournal().getName());
+                    dto.setStartDate(borrow.getStartDate());
                     dto.setEndDate(borrow.getEndDate());
                     dto.setStatus(borrow.getStatus());
+                    if ("overdue".equals(borrow.getStatus())) {
+                        dto.setDaysOverdue((int) DateUtil.calculateOverdueDays(borrow.getEndDate())); // 设置超期天数
+                    }
                     return dto;
                 })
                 .collect(Collectors.toList());
     
-        // 5. 返回筛选后的记录
-        return Result.success(filteredList, "查询成功");
+        // 6. 创建符合前端期望的响应结构
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("total", borrowsPage.getTotal());
+        responseData.put("data", filteredList);
+    
+        // 7. 返回筛选后的记录
+        return Result.success(responseData, "查询成功");
     }
 
     /**

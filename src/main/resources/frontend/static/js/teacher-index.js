@@ -90,7 +90,9 @@ function handleNotLogin() {
 async function loadUserInfo() {
     const userId = getCurrentUserId();
     if (!userId) return;
-
+    
+    // 从Cookie获取用户姓名
+    const userInfo = getCurrentUserInfo();
     const userInfoElem = document.querySelector('.user-info span');
     const userAvatarElem = document.querySelector('.user-avatar');
 
@@ -99,23 +101,32 @@ async function loadUserInfo() {
     if (userAvatarElem) userAvatarElem.textContent = '?';
 
     try {
-        // 调用用户信息接口（使用localStorage中的userId）
-        const data = await api.get('/teacher/info', { id: userId });
-        // 严格校验返回数据
-        if (!data || !data.name) {
-            throw new Error('用户信息获取失败');
-        }
-        // 更新UI
+        // 更新UI（使用Cookie中的用户信息）
         if (userInfoElem) {
-            userInfoElem.textContent = `教师：${data.name}`;
+            userInfoElem.textContent = `教师：${userInfo.name || '未知'}`;
         }
         if (userAvatarElem) {
-            userAvatarElem.textContent = data.name.charAt(0) || '师';
+            userAvatarElem.textContent = userInfo.name.charAt(0) || '师';
         }
+        
+        // 可选：如果需要从服务器获取最新用户信息，可以保留下面的代码
+        // 调用用户信息接口（使用Cookie中的userId）
+        // const data = await api.get('/teacher/info', { id: userId });
+        // 严格校验返回数据
+        // if (!data || !data.name) {
+        //     throw new Error('用户信息获取失败');
+        // }
+        // 更新UI
+        // if (userInfoElem) {
+        //     userInfoElem.textContent = `教师：${data.name}`;
+        // }
+        // if (userAvatarElem) {
+        //     userAvatarElem.textContent = data.name.charAt(0) || '师';
+        // }
     } catch (err) {
         console.error('加载用户信息失败:', err);
-        if (userInfoElem) userInfoElem.textContent = '加载失败';
-        if (userAvatarElem) userAvatarElem.textContent = '!';
+        if (userInfoElem) userInfoElem.textContent = `教师：${userInfo.name || '未知'}`;
+        if (userAvatarElem) userAvatarElem.textContent = userInfo.name.charAt(0) || '师';
     }
 }
 
@@ -215,20 +226,50 @@ async function loadBorrowList() {
                 return;
             }
 
+            // 调用借阅列表接口
+            const pageResult = await api.get('/teacher/borrow/teacher/list', {
+                teacherId: userId
+            });
+            
+            // 处理返回数据
+            const borrows = Array.isArray(pageResult.borrowList) ? pageResult.borrowList : [];
+            
             // 渲染借阅记录
             currentBorrows.forEach(borrow => {
                 const { statusClass, statusText } = getBorrowStatusInfo(borrow);
-
+            
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${borrow.journalName || '-'}</td>
-                    <td>${borrow.volumeIssue || '-'}</td>
+                    <td>${borrow.daysOverdue || '-'}</td>
                     <td>${formatDate(borrow.borrowDate)}</td>
                     <td>${formatDate(borrow.dueDate)}</td>
                     <td><span class="badge-status ${statusClass}">${statusText}</span></td>
                 `;
                 tbody.appendChild(row);
             });
+            
+            // 修复后的状态判断逻辑
+            function getBorrowStatusInfo(borrow) {
+                let statusClass = 'badge-secondary';
+                let statusText = '未知';
+            
+                // 优先使用接口返回的状态
+                switch (borrow.status) {
+                    case 'overdue':
+                        statusClass = 'badge-overdue';
+                        statusText = '已超期';
+                        break;
+                    case 'borrowed':
+                        statusClass = 'badge-success';
+                        statusText = '借阅中';
+                        break;
+                    default:
+                        statusText = borrow.status ? borrow.status : '未知';
+                }
+            
+                return { statusClass, statusText };
+            }
         }
 
         // 渲染分页控件
@@ -342,7 +383,7 @@ function renderBorrowPagination() {
     // 下一页
     const nextClass = currentPage === totalPages ? 'disabled' : '';
     html += `<li class="page-item ${nextClass}">
-                <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">下一页</a>
+                <a class="page-link" href="#" onclick="changeBorrowPage(${currentPage + 1})">下一页</a>
              </li>`;
 
     // 总数显示
@@ -431,4 +472,38 @@ function showGlobalSuccess(message) {
             document.body.removeChild(successElem);
         }, 500);
     }, 2000);
+}
+
+// 工具函数：从Cookie获取当前登录教师ID
+function getCurrentUserId() {
+    try {
+        // 从Cookie读取用户ID
+        const id = getCookie('id');
+        if (!id) return null;
+        return id.toString(); // 统一转为字符串，避免类型问题
+    } catch (err) {
+        console.error('获取用户ID失败:', err);
+        return null;
+    }
+}
+
+// 工具函数：从Cookie获取当前登录教师信息
+function getCurrentUserInfo() {
+    try {
+        // 从Cookie读取用户信息
+        const id = getCookie('id');
+        const name = getCookie('name');
+        const email = getCookie('email');
+        
+        if (!id) return null;
+        
+        return {
+            id,
+            name: name || '',
+            email: email || ''
+        };
+    } catch (err) {
+        console.error('获取用户信息失败:', err);
+        return null;
+    }
 }

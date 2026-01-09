@@ -87,8 +87,8 @@ public class TeacherController {
         DtoUtil.copyNonNullFields(teacherDTO,teacherInfo);
 
         //3.获取当前借阅数量，剩余可借数量
-        Integer currentBorrow=teacherDTO.getCurrentBorrow();
-        Integer maxBorrow=teacherDTO.getMaxBorrow();
+        Integer currentBorrow=teacherInfo.getCurrentBorrow();
+        Integer maxBorrow=teacherInfo.getMaxBorrow();
         Integer remainingBorrow=maxBorrow-currentBorrow;
 
         //4.获取该教师的借阅信息list

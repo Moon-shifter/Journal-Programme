@@ -12,6 +12,7 @@ import com.journalsystem.springprogram.service.BorrowService;
 import com.journalsystem.springprogram.service.JournalService;
 import com.journalsystem.springprogram.service.TeacherService;
 import com.journalsystem.springprogram.util.DtoUtil;
+import com.journalsystem.springprogram.util.SqlInjectionFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -220,6 +221,12 @@ public class JournalController {
             pageRequest.setPageNum(page);
             pageRequest.setPageSize(pageSize);
             pageRequest.validate(); // 校验分页参数
+
+            // 对keyword进行SQL注入过滤
+            if (keyword != null) {
+                keyword = SqlInjectionFilter.filter(keyword);
+            }
+
     
             // 2. 调用Service查询
             PageResult<JournalInfo> pageResult = journalService.getJournalsByPage(pageRequest, keyword, category, issn, status);

@@ -1,7 +1,12 @@
 package com.journalsystem.springprogram.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 //用来接受封装教师登录数据的类
 public class TeacherDTO {
+    @NotBlank(message = "教师ID不能为空")
+    @Size(max=10 ,message = "教师ID长度不能超过10位")
     private Integer id;
     private String name;
     private String department;
