@@ -180,7 +180,7 @@ async function savePersonalInfo() {
         // 调用保存接口
         const result = await api.post('/teacher/update', formData);
         
-        if (result.success) {
+        if (result.name) {
             showGlobalSuccess('个人信息保存成功');
             // 更新Cookie中的用户信息
             setCookie('name', formData.name, 7);

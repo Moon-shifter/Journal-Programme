@@ -310,7 +310,20 @@ public class TeacherController {
     }
 
 
-
+    /**
+     * 更新教师个人信息接口
+     * @param teacherDTO 教师DTO
+     * @return 统一响应结果：
+     *       成功：
+     *       {code:200,msg:"更新教师成功",data:{teacherDTO}}
+     *       失败：
+     *       {code:400,msg:"更新教师失败"}
+     */
+    @PostMapping("/update")
+    public Result<TeacherDTO> updateTeacherInfo(@RequestBody TeacherDTO teacherDTO){
+        teacherService.update(teacherDTO.getId(),teacherDTO);
+        return Result.success(teacherDTO,"更新教师成功");
+    }
 
 
 
