@@ -61,9 +61,9 @@ function bindEventListeners() {
     const searchBtn = document.getElementById('searchBtn');
 
     searchBtn.addEventListener('click', function() {
-        const ssbnValue = searchInput.value.trim();
-        lastSearchValue = ssbnValue;
-        performSearch(ssbnValue, 1);
+        const issnValue = searchInput.value.trim();
+        lastSearchValue = issnValue;
+        performSearch(issnValue, 1);
     });
 
     searchInput.addEventListener('keypress', function(e) {
@@ -106,7 +106,7 @@ function bindEventListeners() {
 }
 
 // ==================== 查询功能（核心修正：数据解析逻辑） ====================
-async function performSearch(ssbn, page) {
+async function performSearch(issn, page) {
     const tbody = document.getElementById('journalTableBody');
     const paginationContainer = document.getElementById('paginationContainer');
 
@@ -119,8 +119,8 @@ async function performSearch(ssbn, page) {
             pageSize: pageSize
         };
 
-        if (ssbn) {
-            params.ssbn = ssbn;
+        if (issn) {
+            params.issn = issn;
         }
 
         // 使用配置路径
@@ -221,7 +221,7 @@ async function handleFormSubmit() {
     const fieldNames = {
         'id': '期刊ID',
         'name': '期刊名称',
-        'issn': 'ISSN号', // 修正：去掉SSBN错误标注
+        'issn': 'ISSN号',
         'category': '学科分类',
         'publisher': '出版社',
         'publishDate': '出版日期',
